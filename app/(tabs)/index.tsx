@@ -24,7 +24,7 @@ import { isCalendarBlock } from '../../src/types';
 import { driverSlugFromName } from '../../src/services/settings';
 
 function createDriverPortalUrl(driverSlug: string): string {
-  return `https://michoferprivado.vercel.app/reservas?driver=${encodeURIComponent(driverSlug)}`;
+  return `https://michoferprivado.pages.dev/reservas?driver=${encodeURIComponent(driverSlug)}`;
 }
 
 export default function DashboardScreen() {

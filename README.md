@@ -181,50 +181,70 @@ npm run typecheck   # Verifica tipos con tsc
 npm run lint        # Lint con ESLint
 ```
 
-## 🌐 Publicar la web pública de reservas (Vercel)
+## 🌐 Publicar la web pública de reservas (Cloudflare Pages)
 
 La agenda que compartís por WhatsApp es una web estática. Para que muestre la
-**disponibilidad real** de cada chofer, el build que subas a Vercel debe incluir
-el código del portal **y** las credenciales de Supabase. Si la web muestra el
+**disponibilidad real** de cada chofer, el build que subas debe incluir el
+código del portal **y** las credenciales de Supabase. Si la web muestra el
 error *"El portal público requiere conexión con Supabase"* o no marca ningún
 horario ocupado, casi siempre es porque se desplegó un build viejo o sin las
-variables de entorno.
+credenciales.
 
-Pasos para (re)publicar correctamente:
+Las credenciales viajan en **dos lugares** (redundancia a propósito): `app.json
+→ extra` y `netlify.toml → [build.environment]`. La `anon key` es pública por
+diseño (protegida por RLS), así que es seguro tenerla en el repo.
 
-1. Asegurate de tener el archivo `.env` en la raíz con:
+### Opción A — Subida directa del ZIP (recomendada, sin build)
 
-   ```
-   EXPO_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
-   ```
+Ideal para compartir el portal ya mismo, sin conectar Git:
 
-2. En el proyecto de **Vercel → Settings → Environment Variables**, agregá las
-   mismas dos variables (`EXPO_PUBLIC_SUPABASE_URL` y
-   `EXPO_PUBLIC_SUPABASE_ANON_KEY`). Expo las necesita en el momento del build,
-   no en tiempo de ejecución.
-
-3. Regenerá y desplegá el build:
+1. Generá el build:
 
    ```bash
    npm run build:web           # genera dist/ con index.html y assets
-   vercel --prod               # sube el build actual a Vercel
    ```
 
-   > Si `dist/` tiene archivos con permisos de root de un deploy anterior,
-   > borralos con `sudo rm -rf dist` antes de reconstruir.
+2. El `dist/` resultante se sube tal cual a **Cloudflare Pages → Workers &
+   Pages → Create → Pages → Upload assets**. Arrastrá la carpeta (o un `.zip`).
 
-4. Verificación rápida: en el bundle generado debe aparecer el RPC. Desde la
-   raíz del proyecto:
+3. Netlify/Cloudflare leen el archivo `_redirects` / `_headers` si van dentro de
+   la carpeta subida. Para SPA routing incluí un `_redirects` con
+   `/*  /index.html  200` (Cloudflare Pages usa la misma sintaxis que Netlify).
+
+   Alternativa por CLI (requiere `wrangler login`):
 
    ```bash
-   grep -rl get_public_driver_portal dist/_expo/static/js/web/
+   cd dist && npx wrangler pages deploy . --project-name=michoferprivado
    ```
 
-   Si no aparece nada, el build salió sin el código del portal (revisá el paso 1
-   y 2). Cuando abre el enlace `https://tu-dominio/reservas?driver=<slug>`, la
-   página debe leer los viajes del chofer desde Supabase y marcar como
-   **Ocupado** los horarios ya cargados; la agenda se refresca sola cada minuto.
+### Opción B — Deploy automático desde GitHub
+
+Conectá el repo a **Cloudflare Pages → Create → Pages → Connect to Git** con:
+
+- **Build command:** `npm run build:web`
+- **Build output directory:** `dist`
+- **Variables de entorno:** `EXPO_PUBLIC_SUPABASE_URL` y
+  `EXPO_PUBLIC_SUPABASE_ANON_KEY` (o dejalas en `netlify.toml`).
+
+### Verificación rápida
+
+En el bundle generado debe aparecer el RPC. Desde la raíz del proyecto:
+
+```bash
+grep -rl get_public_driver_portal dist/_expo/static/js/web/
+```
+
+Si no aparece nada, el build salió sin el código del portal (revisá los pasos de
+arriba). Cuando abras el enlace
+`https://tu-dominio/reservas?driver=<slug>`, la página debe leer los viajes del
+chofer desde Supabase y marcar como **Ocupado** los horarios ya cargados; la
+agenda se refresca sola cada minuto.
+
+> **Slug del chofer:** el enlace usa `settings.driver_slug`, que se genera como
+> `<nombre>-<uuid-sin-guiones>` (ver `driverSlugFromName` en
+> `src/services/settings.ts`). Copiá el enlace exacto que muestra la app en el
+> Dashboard; no inventes un slug a mano o el portal dirá *"No encontramos un
+> chofer con ese enlace"*.
 
 ---
 
