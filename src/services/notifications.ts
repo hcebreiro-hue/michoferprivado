@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { isRunningInExpoGo } from 'expo';
 import type { Trip } from '../types';
 import { isCalendarBlock } from '../types';
 
@@ -13,20 +14,33 @@ let cachedModule: NotificationsModule | null = null;
 let loadAttempted = false;
 
 /**
- * Carga expo-notifications de forma tolerante a fallos. En Expo Go el módulo
- * nativo fue removido (SDK 53+) y su import lanza un error; aquí lo aislamos
- * para que la app no se rompa. Devuelve null si no está disponible.
+ * Carga expo-notifications de forma tolerante a fallos.
+ *
+ * OJO: en Expo Go (SDK 53+) el módulo nativo de push fue removido y su
+ * evaluación LANZA un error —que se propaga como rechazo asíncrono y escapa
+ * incluso de un try/catch alrededor del require—. Por eso ni siquiera lo
+ * requerimos: detectamos el entorno antes y devolvemos null.
+ *
+ * Devuelve null si las notificaciones no están disponibles (Expo Go, web o
+ * cualquier fallo nativo). En el APK compilado el módulo sí está y funciona.
  */
 function getNotifications(): NotificationsModule | null {
   if (loadAttempted) return cachedModule;
+
   loadAttempted = true;
+  cachedModule = null;
+
+  if (isRunningInExpoGo()) {
+    // Comportamiento esperado en Expo Go: las notificaciones nativas no están
+    // disponibles y la app sigue funcionando sin ellas. No logueamos para no
+    // ensuciar la consola.
+    return null;
+  }
+
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     cachedModule = require('expo-notifications') as NotificationsModule;
   } catch {
-    // Comportamiento esperado en Expo Go: las notificaciones no están
-    // disponibles y la app sigue funcionando. No logueamos para no ensuciar
-    // la consola.
     cachedModule = null;
   }
   return cachedModule;
@@ -75,7 +89,12 @@ export async function ensureNotificationPermissions(): Promise<boolean> {
  * agenda), cancela cualquier recordatorio previo y no programa nada.
  */
 export async function scheduleTripReminder(trip: Trip): Promise<void> {
-  const Notifications = getNotifications();
+  let Notifications: NotificationsModule | null;
+  try {
+    Notifications = getNotifications();
+  } catch {
+    return;
+  }
   if (!Notifications) return;
 
   try {
@@ -116,7 +135,12 @@ export async function scheduleTripReminder(trip: Trip): Promise<void> {
 
 /** Cancela el recordatorio asociado a un viaje (al eliminarlo). */
 export async function cancelTripReminder(tripId: string): Promise<void> {
-  const Notifications = getNotifications();
+  let Notifications: NotificationsModule | null;
+  try {
+    Notifications = getNotifications();
+  } catch {
+    return;
+  }
   if (!Notifications) return;
   await Notifications.cancelScheduledNotificationAsync(
     reminderId(tripId),

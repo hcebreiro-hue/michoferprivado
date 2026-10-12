@@ -190,7 +190,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const addTrip = useCallback(
     async (trip: tripsService.NewTrip) => {
       const created = await tripsService.createTrip(trip);
-      await scheduleTripReminder(created);
+      // El recordatorio es complementario: si falla (p. ej. notificaciones no
+      // disponibles en Expo Go) el viaje igual debe guardarse.
+      await scheduleTripReminder(created).catch(() => undefined);
       await refresh();
     },
     [refresh],
@@ -199,7 +201,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const updateTrip = useCallback(
     async (id: string, patch: Partial<Trip>) => {
       const updated = await tripsService.updateTrip(id, patch);
-      await scheduleTripReminder(updated);
+      await scheduleTripReminder(updated).catch(() => undefined);
       await refresh();
     },
     [refresh],
@@ -208,7 +210,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const removeTrip = useCallback(
     async (id: string) => {
       await tripsService.deleteTrip(id);
-      await cancelTripReminder(id);
+      await cancelTripReminder(id).catch(() => undefined);
       await refresh();
     },
     [refresh],
