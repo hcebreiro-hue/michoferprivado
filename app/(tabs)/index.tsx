@@ -81,7 +81,7 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView edges={['top']} className="flex-1 bg-slate-50">
       <ScreenHeader
-        title={`Hola, ${settings.driver_name || 'Conductora'} 👋`}
+        title={`Hola, ${settings.profile_complete && settings.driver_name ? settings.driver_name : 'Conductor'} 👋`}
         subtitle="Resumen del mes"
         right={
           <Pressable

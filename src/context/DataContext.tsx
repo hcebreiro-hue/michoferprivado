@@ -11,6 +11,13 @@ import * as tripsService from '../services/trips';
 import * as fuelService from '../services/fuel';
 import * as maintenanceService from '../services/maintenance';
 import * as fixedCostsService from '../services/fixedCosts';
+import { loadCollection, saveCollection } from '../services/localStore';
+import {
+  seedTrips,
+  seedFuelLogs,
+  seedMaintenanceLogs,
+  seedFixedCosts,
+} from '../services/seed';
 import { monthlyBalances, type MonthBalance } from '../utils/calculations';
 import { monthKey } from '../utils/format';
 
@@ -41,8 +48,24 @@ interface DataContextValue {
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
-function normalizeDriverName(name: string): string {
-  return name.trim().toLocaleLowerCase();
+/**
+ * Modo demo (primera experiencia): mientras el chofer no completa su perfil, la
+ * app muestra datos de ejemplo guardados en el dispositivo (AsyncStorage). Se
+ * usa SIEMPRE que el perfil no está completo —incluso con una sesión de Supabase
+ * abierta— para que la primera impresión sea comprensible y los viajes que el
+ * usuario agregue explorando no se pierdan al reiniciar la app.
+ */
+async function loadLocalDemoCollection<T>(
+  key: string,
+  seed: () => T[],
+): Promise<T[]> {
+  const stored = await loadCollection<T>(key);
+  if (stored == null) {
+    const seeded = seed();
+    await saveCollection(key, seeded);
+    return seeded;
+  }
+  return stored;
 }
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
@@ -61,14 +84,55 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (settingsLoading) return;
 
     try {
-      const driverName = normalizeDriverName(settings.driver_name);
-      const seedDemoData = driverName === 'conductor' && !settings.profile_complete;
+      // Perfil sin completar → modo demo con datos de ejemplo en el dispositivo.
+      // Aplica también con sesión de Supabase para garantizar la primera
+      // experiencia (nombre genérico "Conductor" + viajes de ejemplo).
+      if (!settings.profile_complete) {
+        const [demoTrips, demoFuel, demoMaintenance, demoCosts] =
+          await Promise.all([
+            loadLocalDemoCollection<Trip>('trips', seedTrips),
+            loadLocalDemoCollection<FuelLog>('fuel_logs', seedFuelLogs),
+            loadLocalDemoCollection<MaintenanceLog>(
+              'maintenance_logs',
+              seedMaintenanceLogs,
+            ),
+            loadLocalDemoCollection<FixedCost>('fixed_costs', seedFixedCosts),
+          ]);
+
+        setTrips(
+          [...demoTrips].sort(
+            (a, b) =>
+              new Date(a.scheduled_at).getTime() -
+              new Date(b.scheduled_at).getTime(),
+          ),
+        );
+        setFuelLogs(
+          [...demoFuel].sort(
+            (a, b) =>
+              new Date(b.filled_at).getTime() -
+              new Date(a.filled_at).getTime(),
+          ),
+        );
+        setMaintenanceLogs(
+          [...demoMaintenance].sort(
+            (a, b) =>
+              new Date(b.performed_at).getTime() -
+              new Date(a.performed_at).getTime(),
+          ),
+        );
+        setFixedCosts(demoCosts);
+        setCurrentMonthKey(monthKey(new Date().toISOString()));
+        setError(null);
+        return;
+      }
+
+      // Perfil completo → datos reales (Supabase si hay sesión, si no locales).
       const [loadedTrips, loadedFuelLogs, loadedMaintenanceLogs, loadedCosts] =
         await Promise.all([
-          tripsService.listTrips(seedDemoData),
-          fuelService.listFuelLogs(seedDemoData),
-          maintenanceService.listMaintenanceLogs(seedDemoData),
-          fixedCostsService.listFixedCosts(seedDemoData),
+          tripsService.listTrips(false),
+          fuelService.listFuelLogs(false),
+          maintenanceService.listMaintenanceLogs(false),
+          fixedCostsService.listFixedCosts(false),
         ]);
 
       setTrips(loadedTrips);
@@ -84,7 +148,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [settings.driver_name, settings.profile_complete, settingsLoading]);
+  }, [settings.profile_complete, settingsLoading]);
 
   useEffect(() => {
     if (settingsLoading) return;

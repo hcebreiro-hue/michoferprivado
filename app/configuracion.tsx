@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -7,9 +7,11 @@ import { Button, Card, Input } from '../src/components/ui';
 import { useAuth } from '../src/context/AuthContext';
 import { useSettings } from '../src/context/SettingsContext';
 import { notify } from '../src/utils/notify';
+import { resetToDemo } from '../src/services/settings';
 
 export default function SettingsScreen() {
   const { settings, loading, updateSettings } = useSettings();
+  const router = useRouter();
 
   const identityLocked = settings.profile_complete;
 
@@ -47,6 +49,33 @@ export default function SettingsScreen() {
         <View className="h-4" />
 
         <AccountSection />
+
+        <View className="h-4" />
+
+        <DemoSection />
+
+        <View className="h-4" />
+
+        {/* Acceso a la pantalla Acerca de */}
+        <Card className="overflow-hidden p-0">
+          <Pressable
+            onPress={() => router.push('/acerca-de')}
+            accessibilityRole="button"
+            accessibilityLabel="Abrir Acerca de"
+            className="active:bg-slate-50 flex-row items-center justify-between p-5"
+          >
+            <View className="flex-row items-center">
+              <Ionicons name="information-circle-outline" size={22} color="#2563eb" />
+              <View className="ml-3">
+                <Text className="text-base font-semibold text-slate-900">Acerca de</Text>
+                <Text className="text-xs text-slate-400">
+                  Información de la app y créditos
+                </Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+          </Pressable>
+        </Card>
       </ScrollView>
     </SafeAreaView>
   );
@@ -280,6 +309,64 @@ function AccountSection() {
           ) : null}
         </>
       )}
+    </Card>
+  );
+}
+
+/**
+ * Sección para volver al estado de demostración. Cierra la sesión (si la hay) y
+ * restablece el perfil genérico "Conductor" con datos de ejemplo en el
+ * dispositivo. Útil para volver a explorar la app o reiniciarla desde cero.
+ */
+function DemoSection() {
+  const { signOut } = useAuth();
+  const [resetting, setResetting] = useState(false);
+
+  const handleReset = () => {
+    Alert.alert(
+      '¿Volver a datos de ejemplo?',
+      'Se cerrará tu sesión y la app volverá al estado inicial: nombre "Conductor" y viajes de demostración. Se perderán los datos guardados en este dispositivo (los de tu cuenta en la nube no se modifican).',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sí, restablecer',
+          style: 'destructive',
+          onPress: async () => {
+            setResetting(true);
+            try {
+              await resetToDemo();
+              await signOut();
+              notify('Listo', 'La app volvió a los datos de ejemplo.');
+            } catch (cause) {
+              notify(
+                'Error',
+                cause instanceof Error
+                  ? cause.message
+                  : 'No se pudo restablecer la app.',
+              );
+            } finally {
+              setResetting(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  return (
+    <Card className="p-5">
+      <Text className="text-base font-bold text-slate-900">Datos de ejemplo</Text>
+      <Text className="mt-0.5 mb-4 text-xs text-slate-400">
+        Volvé la app a su estado inicial con el nombre “Conductor” y viajes de
+        demostración. Útil para reiniciar o volver a explorar.
+      </Text>
+      <Button
+        title="Volver a datos de ejemplo"
+        onPress={handleReset}
+        variant="ghost"
+        loading={resetting}
+        fullWidth
+      />
     </Card>
   );
 }
