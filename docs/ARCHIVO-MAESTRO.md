@@ -76,7 +76,7 @@ respuesta, se anota "a definir" y se resuelve en la fase 1. No se adivina.
    internet?
 3. **Internet.** ¿La app tiene que funcionar sin conexión?
 4. **Datos sensibles.** ¿Hay datos de salud, documentos, o datos personales de
-   terceros? (esto cambia las obligaciones legales — ver sección F)
+   terceros? (esto cambia las obligaciones legales — ver sección G)
 5. **Plataformas.** ¿Solo Android, o también iPhone?
 6. **Notificaciones.** ¿Hacen falta avisos o recordatorios? ¿Los dispara el
    reloj del teléfono o un servidor?
@@ -130,7 +130,47 @@ Comandos de build/verificación:
 ./gradlew lint                 # lint de Android
 ```
 
-### F. Patrones de arquitectura probados (copiar, no inventar)
+### F. Diseño y UI — moderno por defecto (aplica a TODAS las apps)
+
+El diseño es parte del producto, no un extra. Para el médico quizá no pesa,
+pero para otra app puede ser *lo* central. Regla: **apuntá a lo más moderno que
+sea estable, no a lo mínimo que compile.**
+
+- **Material 3 como base.** Todo componente sale de `androidx.compose.material3`,
+  nunca Material 2. Colores por `colorScheme` semántico (primary/onPrimary,
+  etc.) y contraste accesible verificado — no `Color(0xFF...)` sueltos.
+- **Color dinámico (Material You).** Derivá el esquema del fondo de pantalla del
+  usuario cuando el sistema lo permita; si no, un esquema de marca propio, con
+  light y dark.
+- **Edge-to-edge.** La app dibuja detrás de las barras de sistema; respetá
+  `WindowInsets` para no tapar contenido. Nada de barras feas por defecto.
+- **Movimiento con resortes (springs), no duraciones fijas.** Se siente natural.
+  Para cambios de pantalla, `AnimatedContent` y shared elements donde sumen;
+  predictive back activado (no lo desactives).
+- **Layouts adaptativos.** `WindowSizeClass` para phone, tablet y foldable. No
+  diseñes solo para un teléfono.
+- **Tipografía con escala M3** que escale entre dispositivos; no tamaños
+  hardcodeados.
+- **Textos en `strings.xml`**, no hardcodeados en el composable (además rompe el
+  testeo de UI).
+
+**Material 3 Expressive (lo más nuevo — ojo):** Google publicó *Material 3
+Expressive*: morfología de formas (shape morphing), botones/FAB/menús más
+expresivos, `WavyProgressIndicator`, barras flotantes. **Al escribir esto va por
+`material3 1.5.0-alpha` (todavía NO estable).** Regla: Material 3 estable es el
+piso; adoptá Expressive solo cuando el proyecto justifique estar en
+bleeding-edge o cuando ya sea estable — nunca ates la app base a un alpha sin
+consultarme.
+
+**Anti-patrones de diseño (no entregar así):**
+- Colores hardcodeados en vez del `colorScheme`.
+- Textos hardcodeados en el composable en vez de `strings.xml`.
+- Animación robótica (`LinearEasing`, duraciones rígidas) o animar por animar.
+- Ignorar `WindowInsets` (contenido bajo la barra de estado).
+- Un solo layout que se rompe en tablet.
+- Motion sin propósito: el movimiento guía la atención, no la distrae.
+
+### G. Patrones de arquitectura probados (copiar, no inventar)
 
 1. **Local-first con Room + DataStore.** Todo dato de trabajo se guarda en el
    teléfono. La app arranca y funciona sin internet ni credenciales. Room para
@@ -151,7 +191,7 @@ Comandos de build/verificación:
    Argentina aplica la Ley 25.326 de protección de datos personales. No es
    asesoramiento legal: si el proyecto va en serio, consultar a un abogado.
 
-### G. Lo que NO se hereda entre proyectos
+### H. Lo que NO se hereda entre proyectos
 
 Al arrancar uno nuevo, borrar/sustituir todo esto. Heredarlo por error es la
 fuente de bugs más difícil de encontrar:
@@ -165,7 +205,7 @@ fuente de bugs más difícil de encontrar:
 - El keystore / credenciales de firma. Cada proyecto, las suyas. **Y
   respaldarlas**: si se pierden, no se puede actualizar una app ya instalada.
 
-### H. Trampas ya conocidas (leer antes de la primera línea de código)
+### I. Trampas ya conocidas (leer antes de la primera línea de código)
 
 Vienen de horas perdidas. Revisar esta lista al arrancar y al depurar:
 
@@ -207,7 +247,7 @@ Vienen de horas perdidas. Revisar esta lista al arrancar y al depurar:
 10. **Sin código muerto.** No dejes dependencias, modelos ni flags "por si
     acaso". Si no se usa en este corte, no entra.
 
-### I. Cierre del Prompt 1 — qué quiero que me contestes
+### J. Cierre del Prompt 1 — qué quiero que me contestes
 
 Antes de escribir código, devolveme:
 
