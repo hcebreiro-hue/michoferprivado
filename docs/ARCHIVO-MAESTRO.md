@@ -130,37 +130,41 @@ Comandos de build/verificación:
 ./gradlew lint                 # lint de Android
 ```
 
-### F. Diseño y UI — moderno por defecto (aplica a TODAS las apps)
+### F. Diseño y UI — lo que usa la industria, estable y probado
 
 El diseño es parte del producto, no un extra. Para el médico quizá no pesa,
-pero para otra app puede ser *lo* central. Regla: **apuntá a lo más moderno que
-sea estable, no a lo mínimo que compile.**
+pero para otra app puede ser *lo* central. Regla: **usar lo que la industria ya
+usa en producción, que se ve bien y es estable — NO lo más nuevo ni los alphas.**
+Todo lo de abajo es estable y verificable hoy:
 
-- **Material 3 como base.** Todo componente sale de `androidx.compose.material3`,
-  nunca Material 2. Colores por `colorScheme` semántico (primary/onPrimary,
-  etc.) y contraste accesible verificado — no `Color(0xFF...)` sueltos.
+- **Material 3 estable como base** (el patch exacto se toma del Compose BOM al
+  crear el proyecto). Nunca Material 2. Colores por `colorScheme` semántico
+  (primary/onPrimary, etc.) y contraste accesible verificado — no
+  `Color(0xFF...)` sueltos.
 - **Color dinámico (Material You).** Derivá el esquema del fondo de pantalla del
   usuario cuando el sistema lo permita; si no, un esquema de marca propio, con
-  light y dark.
+  light y dark. Es lo estándar y se ve moderno sin esfuerzo.
 - **Edge-to-edge.** La app dibuja detrás de las barras de sistema; respetá
-  `WindowInsets` para no tapar contenido. Nada de barras feas por defecto.
-- **Movimiento con resortes (springs), no duraciones fijas.** Se siente natural.
-  Para cambios de pantalla, `AnimatedContent` y shared elements donde sumen;
-  predictive back activado (no lo desactives).
+  `WindowInsets` para no tapar contenido. Es el default moderno en Android.
+- **Movimiento natural con resortes (springs).** Animar con físicas de resorte,
+  no con duraciones fijas que se sienten robóticas. Para transiciones entre
+  pantallas, `AnimatedContent`; para cambios de tamaño, `animateContentSize`;
+  para propiedades, `animate*AsState` / `Transition`; para aparecer/desaparecer,
+  `AnimatedVisibility`. Todas estables y usadas en apps de producción.
+- **Predictive back activado** (no lo desactives): desde Android 15 es el
+  comportamiento del sistema por defecto, y se ve fluido y actual.
 - **Layouts adaptativos.** `WindowSizeClass` para phone, tablet y foldable. No
   diseñes solo para un teléfono.
-- **Tipografía con escala M3** que escale entre dispositivos; no tamaños
+- **Tipografía con la escala M3**, que escala entre dispositivos; no tamaños
   hardcodeados.
 - **Textos en `strings.xml`**, no hardcodeados en el composable (además rompe el
   testeo de UI).
 
-**Material 3 Expressive (lo más nuevo — ojo):** Google publicó *Material 3
-Expressive*: morfología de formas (shape morphing), botones/FAB/menús más
-expresivos, `WavyProgressIndicator`, barras flotantes. **Al escribir esto va por
-`material3 1.5.0-alpha` (todavía NO estable).** Regla: Material 3 estable es el
-piso; adoptá Expressive solo cuando el proyecto justifique estar en
-bleeding-edge o cuando ya sea estable — nunca ates la app base a un alpha sin
-consultarme.
+**Sobre "lo más nuevo" (Material 3 Expressive):** existe *Material 3 Expressive*
+(morfología de formas, FABs/menús expresivos, `WavyProgressIndicator`), pero al
+escribir esto va por **`material3 1.5.0-alpha`, NO estable**. Por política
+acá **no** se usa como base: se espera a que sea estable o a que un proyecto
+concreto lo justifique, consultándome antes. La base es Material 3 estable.
 
 **Anti-patrones de diseño (no entregar así):**
 - Colores hardcodeados en vez del `colorScheme`.
