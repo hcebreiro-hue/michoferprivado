@@ -3,9 +3,10 @@
 Voy a crear una **nueva aplicación móvil** (para mi celular Android) cuyo objetivo es
 ser mi **panel central de gestión de futuros usuarios/clientes** de todas las apps
 que voy a desarrollar. Quiero que la carga esté **lo más automatizada posible**. Los
-datos viven **LOCAL en el teléfono** (SQLite, sin nube); la app **orquesta** las altas
-abriendo por deep-link el proveedor de correo y Supabase, y guarda solo metadatos
-(las contraseñas van a Bitwarden).
+datos viven **LOCAL en el teléfono** (SQLite, sin nube). Con los datos de la persona la
+app **genera automáticamente** su correo `nombre.apellido@unitecapplications.com` (vía
+dominio propio + catch-all, sin captcha) y luego **orquesta** el alta en Supabase abriendo
+la web por deep-link; guarda solo metadatos (las contraseñas van a Bitwarden).
 
 ## 1. Stack OBLIGATORIO (idéntico al de mi app "Claudia_app" ya en producción)
 Respetá estas versiones y convenciones exactas, no inventes otras:
@@ -33,6 +34,16 @@ Es una **agenda/CRM liviano de usuarios finales** que yo administro desde el cel
 Cada "usuario" es una persona a la que en el futuro le voy a crear una cuenta en
 alguna de mis apps. Necesito tener, en un solo lugar y organizado:
 
+### 🎯 Visión del modelo (para qué sirve esta base)
+Es mi **base maestra de clientes**, local en el celu. El flujo por cliente es:
+1. Doy de **alta a la persona** (campos normales; ampliables a futuro).
+2. La app **genera sola** su correo `nombre.apellido@unitecapplications.com`.
+3. Con ese correo **creo su cuenta en Supabase** (abre supabase.com por deep-link; el mail
+   de verificación llega por el catch-all a mi bandeja).
+4. Queda todo **registrado localmente** (persona + metadatos de la cuenta).
+Así, cuando en el futuro quiera ofrecerle una app a ese cliente, su cuenta y sus metadatos
+ya están listos: **no tiene que parametrizar nada**.
+
 ### Datos básicos completos de cada usuario
 - Nombre y apellido
 - Teléfono / WhatsApp (validar formato, linkeable a wa.me)
@@ -48,16 +59,19 @@ alguna de mis apps. Necesito tener, en un solo lugar y organizado:
 ### Sección "Cuentas / proyectos" (metadatos — el corazón de la orquestación)
 Para cada usuario registro los **metadatos** de lo que le voy creando. OJO: las
 contraseñas NO se guardan acá (van a Bitwarden). Lo que se guarda es el rastro:
-- **Cuenta de correo** — VÍA PRINCIPAL (automatización total, sin captcha): **dominio propio
-  + catch-all en Cloudflare Email Routing** (recibir es **GRATIS e ILIMITADO**; regla
-  `*@unitecapplications.com` atrapa cualquier dirección y la reenvía a tu bandeja real). La app genera
-  `clienteN@unitecapplications.com` → cada una es una identidad nueva para Supabase (2 proyectos free
-  c/u). Creación de reglas vía **API REST / Wrangler** (automatizable). Guardo: email generado,
-  dominio, y referencia Bitwarden.
-  Alternativa (manual, con captcha): **Proton Mail** (`https://proton.me/es-419/mail`).
-  Otras evaluadas: Tuta (tuta.com), GMX (gmx.com), Zoho (zoho.com/mail, con dominio, API de
-  pago), iCloud (icloud.com). Ninguna gratuita de buzón propio evita el captcha salvo el
-  dominio+catch-all.
+- **Cuenta de correo (GENERADA AUTOMÁTICAMENTE)** — VÍA PRINCIPAL, sin captcha: con el
+  nombre y apellido de la persona la app arma sola `nombre.apellido@unitecapplications.com`.
+  Como el dominio tiene **catch-all** (`*@unitecapplications.com`) en Cloudflare Email
+  Routing, **no hay que crear ninguna cuenta ni regla por usuario**: cualquier dirección del
+  dominio ya recibe y reenvía a tu bandeja real. Recibir es **GRATIS** (límite 200
+  reglas/dominio, de sobra). Esa dirección es la identidad que se usará para el alta en
+  Supabase. Guardo como metadato: email generado, dominio, y referencia Bitwarden.
+  ⚠️ **Alcance honesto:** es una dirección de **recepción** (recibe los mails de
+  verificación de Supabase), NO un buzón con login ni envío propio. Para el flujo alcanza.
+  Alternativa (manual, con captcha, solo si algún cliente la pide): **Proton Mail**
+  (`https://proton.me/es-419/mail`). Otras evaluadas: Tuta (tuta.com), GMX (gmx.com), Zoho
+  (zoho.com/mail, con dominio, API de pago), iCloud (icloud.com). Ninguna gratuita de buzón
+  propio evita el captcha salvo el dominio+catch-all.
 - **Proyecto Supabase** (uno por cliente/app, modelo white-label del bloque H):
   mail titular, URL del proyecto, `anon key`, y referencia a su entrada en Bitwarden.
 - App / plataforma asociada (ej. "Claudia_app", futuras).
@@ -70,14 +84,15 @@ Un usuario puede tener **varias cuentas/proyectos** (uno por app). Relación 1-a
 - **Formulario de alta rápida** con la menor cantidad de campos obligatorios y autocompletado.
 - **Generador de contraseñas seguras** con un botón: la genera, la copia, y abre Bitwarden
   (deep-link) para guardarla ahí. La app NUNCA la persiste.
-- **Asistencia de alta en Proton** (botón "Crear correo"): la app **genera** el email y una
-  contraseña segura, los **copia al portapapeles**, y **abre** el registro de Proton
-  (`proton.me`) con `expo-web-browser`. Yo **pego** (2 toques) y resuelvo el **captcha**
-  (humano, ineludible). Después guardo el email como metadato.
-  ⚠️ **Limitación honesta (no prometer de más):** NO se puede autocompletar los campos de
-  proton.me desde la app (el navegador lo bloquea por seguridad; Proton no acepta datos por
-  URL). El "precargado" real es *copiar-y-pegar + captcha manual*. Los CAPTCHA están puestos
-  a propósito para impedir el alta en masa; no se evaden sin violar los ToS. Queda anotado.
+- **Botón "Crear correo" (VÍA PRINCIPAL, automática):** con nombre + apellido la app arma
+  `nombre.apellido@unitecapplications.com`, lo **copia al portapapeles** y lo guarda como
+  metadato. **No abre ningún sitio ni pide captcha**: el catch-all ya recibe en esa dirección.
+- **Asistencia de alta en Proton (ALTERNATIVA manual, opcional):** si en algún caso se
+  prefiere un buzón de tercero, la app genera email+password, los copia al portapapeles y
+  **abre** el registro de Proton (`proton.me`) con `expo-web-browser`; yo pego y resuelvo el
+  **captcha** a mano. ⚠️ **Limitación honesta:** NO se puede autocompletar proton.me desde la
+  app (el navegador lo bloquea por seguridad); el precargado real es *copiar-y-pegar +
+  captcha manual*. Queda anotado, no se promete de más.
 - **Deep-link "Crear proyecto Supabase"**: abre supabase.com (new project) con la sesión ya
   del mail del cliente. Yo creo el proyecto en el sitio; acá guardo URL + anon key.
   (No hay service_role ni automatización real en v1: crear el proyecto requiere sesión web
@@ -210,11 +225,12 @@ Investigación (Oct 2026). El cuello de botella del modelo white-label es crear 
   Los "mass creators" de Gmail son scrapers que violan ToS y se rompen. Zoho tiene API real
   (`Add user to Organization`) pero exige **plan pago + dominio propio**.
 - **Solución elegida: dominio propio + Cloudflare Email Routing con catch-all.**
-  - Recibir email (routing) = **GRATIS e ILIMITADO** en cualquier plan (confirmado en doc oficial).
-  - Regla `*@unitecapplications.com` atrapa cualquier dirección y la reenvía a tu bandeja real.
+  - Recibir email (routing) = **GRATIS** en cualquier plan (confirmado en doc oficial).
+  - Regla catch-all `*@unitecapplications.com` atrapa cualquier dirección y la reenvía a tu bandeja real.
+  - **No hace falta crear cuenta ni regla por usuario**: el catch-all ya cubre todo el dominio.
   - Límites: 200 reglas/dominio, 200 direcciones destino por cuenta (de sobra).
-  - Creación de reglas vía **API REST / Wrangler** → automatizable 100%.
-  - La app genera `clienteN@unitecapplications.com`; cada una es identidad nueva para Supabase.
+  - La app genera `nombre.apellido@unitecapplications.com` desde los datos de la persona;
+    cada una es identidad nueva para Supabase (Supabase free = 2 proyectos por cuenta).
 - **Setup único (una vez):** comprar dominio (~$10/año) + activar Email Routing + definir el
   destino (tu mail real verificado) + el catch-all. Después, crear clientes es trivial.
 - **Fase 2 (si se requiere buzón real, no solo recibir):** Migadu (API de mailboxes/aliases,
