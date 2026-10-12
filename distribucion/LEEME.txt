@@ -29,6 +29,19 @@ Tarda unos 5-6 minutos la primera vez y ~30 segundos las siguientes.
 
 Con eso el paquete queda completo.
 
+CÓMO SE VERSIONA (no tenés que hacer nada a mano)
+-------------------------------------------------
+Cada compilación se identifica sola:
+
+- Versión visible (1.0.0, 1.1.0, ...): se define UNA sola vez en app.json
+  ("version"). Subila solo cuando quieras que cambie lo que ve el usuario.
+- Número de build: se calcula AUTOMÁTICO de la fecha (AAMMDDNN). Siempre sube,
+  así Android deja instalar la nueva encima de la vieja.
+- Fecha y hora de compilación: se estampan solas en el APK.
+
+Todo eso se ve en la app, en Configuración → Acerca de. Sirve para saber de
+un vistazo qué APK tiene cada persona.
+
 IMPORTANTE — el nombre del archivo
 ----------------------------------
 El archivo DEBE terminar en ".apk" (ej: Claudia.apk). Sin la extensión, WhatsApp

@@ -3,6 +3,12 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import {
+  appVersion,
+  buildNumber,
+  formatBuildDate,
+  formatBuildTime,
+} from '../src/lib/appVersion';
 
 export default function AboutScreen() {
   const router = useRouter();
@@ -32,7 +38,18 @@ export default function AboutScreen() {
         </View>
 
         <Text className="text-2xl font-bold text-slate-900">Mi Chofer Privado</Text>
-        <Text className="mt-1 text-sm text-slate-400">Versión 1.0.0</Text>
+        <Text className="mt-1 text-sm text-slate-400">
+          Versión {appVersion}
+          {buildNumber !== null ? ` (build ${buildNumber})` : ''}
+        </Text>
+        {formatBuildDate() ? (
+          <Text className="mt-1 text-xs text-slate-400">
+            Compilado el {formatBuildDate()}
+            {formatBuildTime() ? ` · ${formatBuildTime()}` : ''}
+          </Text>
+        ) : (
+          <Text className="mt-1 text-xs text-slate-400">Versión de desarrollo</Text>
+        )}
 
         <Text className="mt-6 text-center text-base leading-6 text-slate-500">
           Tu compañero para gestionar viajes, clientes, finanzas y el mantenimiento de tu auto.
