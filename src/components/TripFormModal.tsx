@@ -20,6 +20,7 @@ import {
   type TripStatus,
 } from '../types';
 import { Button, Input } from './ui';
+import { PaymentModal } from './PaymentModal';
 import { useData } from '../context/DataContext';
 
 interface TripFormModalProps {
@@ -124,12 +125,10 @@ function TripFormModalContent({
   );
   const [notes, setNotes] = useState(trip?.notes ?? '');
   const [status, setStatus] = useState<TripStatus>(trip?.status ?? 'pending');
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
-    trip?.payment_status ?? 'pendiente',
-  );
-  const [amountPaid, setAmountPaid] = useState(
-    trip?.amount_paid != null ? String(trip.amount_paid) : '',
-  );
+  const [paymentVisible, setPaymentVisible] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState<Parameters<
+    typeof addTrip
+  >[0] | null>(null);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -186,7 +185,28 @@ function TripFormModalContent({
     setPickerTarget(target);
   };
 
-  const handleSave = async () => {
+  const saveTrip = async (payload: Parameters<typeof addTrip>[0]) => {
+    setSaving(true);
+    try {
+      if (isEdit && trip) {
+        await updateTrip(trip.id, payload);
+      } else {
+        await addTrip(payload);
+      }
+      onClose();
+    } catch (cause) {
+      Alert.alert(
+        'No se pudo guardar',
+        cause instanceof Error
+          ? cause.message
+          : 'Ocurrió un error al guardar los datos.',
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSave = () => {
     const startDate = new Date(scheduledAt);
     const endDate = new Date(blockedUntil);
 
@@ -206,58 +226,48 @@ function TripFormModalContent({
       return;
     }
 
-    setSaving(true);
-    try {
-      const tripPrice = mode === 'block' ? 0 : Number(price) || 0;
-      const effectiveAmountPaid =
-        paymentStatus === 'cobrado'
-          ? tripPrice
-          : paymentStatus === 'parcial'
-            ? Number(amountPaid.replace(',', '.')) || 0
-            : 0;
-      const payload = {
-        client_name:
-          mode === 'block' ? CALENDAR_BLOCK_CLIENT_NAME : clientName.trim(),
-        client_phone: mode === 'block' ? '' : clientPhone.trim(),
-        origin: mode === 'block' ? '' : origin.trim(),
-        destination: mode === 'block' ? '' : destination.trim(),
-        scheduled_at: startDate.toISOString(),
-        blocked_until: mode === 'block' ? endDate.toISOString() : null,
-        price: tripPrice,
-        distance_km:
-          mode === 'block'
-            ? null
-            : Number(distanceKm.replace(',', '.')) || null,
-        status: mode === 'block' ? 'pending' : status,
-        payment_status: mode === 'block' ? undefined : paymentStatus,
-        amount_paid: mode === 'block' ? undefined : effectiveAmountPaid,
-        notes: mode === 'block' ? null : notes.trim() || null,
-      };
+    const tripPrice = mode === 'block' ? 0 : Number(price) || 0;
+    const basePayload = {
+      client_name:
+        mode === 'block' ? CALENDAR_BLOCK_CLIENT_NAME : clientName.trim(),
+      client_phone: mode === 'block' ? '' : clientPhone.trim(),
+      origin: mode === 'block' ? '' : origin.trim(),
+      destination: mode === 'block' ? '' : destination.trim(),
+      scheduled_at: startDate.toISOString(),
+      blocked_until: mode === 'block' ? endDate.toISOString() : null,
+      price: tripPrice,
+      distance_km:
+        mode === 'block' ? null : Number(distanceKm.replace(',', '.')) || null,
+      status: mode === 'block' ? 'pending' : status,
+      notes: mode === 'block' ? null : notes.trim() || null,
+    };
 
-      if (isEdit && trip) {
-        await updateTrip(trip.id, payload);
-      } else {
-        await addTrip(payload);
-      }
-
-      onClose();
-    } catch (cause) {
-      Alert.alert(
-        'No se pudo guardar',
-        cause instanceof Error
-          ? cause.message
-          : 'Ocurrió un error al guardar los datos.',
-      );
-    } finally {
-      setSaving(false);
+    // Los bloqueos se guardan directo (no tienen cobro). Los viajes pasan
+    // primero por la pantalla completa de cobro.
+    if (mode === 'block') {
+      void saveTrip(basePayload);
+      return;
     }
+
+    setPendingPayload(basePayload);
+    setPaymentVisible(true);
+  };
+
+  const handleConfirmPayment = (paymentStatus: PaymentStatus, amountPaid: number) => {
+    if (!pendingPayload) return;
+    void saveTrip({
+      ...pendingPayload,
+      payment_status: paymentStatus,
+      amount_paid: amountPaid,
+    });
   };
 
   const iosPickerMode =
     pickerTarget?.endsWith('date') === true ? 'date' : 'time';
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
+    <>
+      <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 justify-end bg-black/40">
         <View className="max-h-[92%] rounded-t-3xl bg-white">
           <View className="flex-row items-center justify-between border-b border-slate-100 px-5 py-4">
@@ -502,53 +512,7 @@ function TripFormModalContent({
               </View>
             ) : null}
 
-            {isEdit && mode === 'trip' ? (
-              <View className="mb-4">
-                <Text className="mb-1.5 text-sm font-medium text-slate-600">
-                  Cobro
-                </Text>
-                <View className="flex-row gap-2">
-                  {(['pendiente', 'cobrado', 'parcial'] as PaymentStatus[]).map(
-                    (next) => (
-                      <Pressable
-                        key={next}
-                        className={`flex-1 rounded-lg border py-2 ${
-                          paymentStatus === next
-                            ? 'border-brand-600 bg-brand-600'
-                            : 'border-slate-200 bg-white'
-                        }`}
-                        onPress={() => setPaymentStatus(next)}
-                      >
-                        <Text
-                          className={`text-center text-sm font-semibold ${
-                            paymentStatus === next
-                              ? 'text-white'
-                              : 'text-slate-600'
-                          }`}
-                        >
-                          {next === 'pendiente'
-                            ? 'Pendiente'
-                            : next === 'cobrado'
-                              ? 'Cobrado'
-                              : 'Parcial'}
-                        </Text>
-                      </Pressable>
-                    ),
-                  )}
-                </View>
-                {paymentStatus === 'parcial' ? (
-                  <View className="mt-2">
-                    <Input
-                      label="Monto ya cobrado"
-                      placeholder="0"
-                      value={amountPaid}
-                      onChangeText={setAmountPaid}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                ) : null}
-              </View>
-            ) : null}
+            {/* El cobro se define en la pantalla completa al guardar el viaje. */}
           </ScrollView>
 
           <View className="border-t border-slate-100 px-5 pb-6 pt-2">
@@ -571,5 +535,21 @@ function TripFormModalContent({
         </View>
       </View>
     </Modal>
+
+      <PaymentModal
+        visible={paymentVisible}
+        onClose={() => setPaymentVisible(false)}
+        summary={{
+          destination,
+          scheduledAt,
+          clientName,
+          price: Number(price) || 0,
+        }}
+        initialStatus={trip?.payment_status ?? 'pendiente'}
+        initialAmountPaid={trip?.amount_paid ?? 0}
+        saving={saving}
+        onConfirm={handleConfirmPayment}
+      />
+    </>
   );
 }
