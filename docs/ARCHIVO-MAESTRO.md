@@ -57,12 +57,30 @@ Acá no. Antes de decir "listo", en cada entrega:
 **"Terminado" = se compiló, se abrió en el emulador y se vio la pantalla.** Todo
 lo demás es "compilado", no "terminado".
 
-### B. La idea (rellenable — 3 a 5 líneas)
+### B. La idea (rellenable — expresá la app con todas tus palabras)
 
-> Nombre tentativo:
-> Problema que resuelve, en una frase:
-> Para quién es:
-> Lo que HOY se hace a mano y se quiere reemplazar:
+> **Nombre tentativo:**
+>
+> **El problema, en una frase:** (qué dolor concreto resuelve)
+>
+> **Para quién es:** (quién la usa, cuántos, en qué contexto)
+>
+> **Qué se hace HOY a mano y se quiere reemplazar:**
+>
+> **Qué quiero** (la visión, por qué la quiero, qué te motivó a hacerla):
+>
+> **Qué pretendo que haga** (las 3–5 funciones centrales, en criollo):
+> 1.
+> 2.
+> 3.
+>
+> **Necesidades básicas iniciales** (lo mínimo sin lo que NO sirve — el MVP):
+>
+> **Qué NO es** (para no scope-creep; lo que queda explícitamente fuera):
+>
+> **Cómo se vería "lista" / exitosa** (cómo sabés que funcionó):
+>
+> **Notas libres** (todo lo que se te ocurra, sin orden):
 
 ### C. Intake (rellenable — las 12 preguntas)
 
@@ -195,7 +213,44 @@ concreto lo justifique, consultándome antes. La base es Material 3 estable.
    Argentina aplica la Ley 25.326 de protección de datos personales. No es
    asesoramiento legal: si el proyecto va en serio, consultar a un abogado.
 
-### H. Lo que NO se hereda entre proyectos
+### H. Modelo de despliegue — app propietaria por cliente (white-label)
+
+Cuando una app se le vende a un cliente (médico, profesional, negocio) como
+*producto*, el modelo por defecto es **una app y una base propias por cliente**,
+no un SaaS multi-tenant. Así se hace:
+
+- **Base por cliente.** Un proyecto **Supabase free** por cliente. El cliente
+  nunca administra infra; las cuentas las tituliza el desarrollador (con mails
+  creados a nombre del cliente, de cualquier proveedor).
+- **Credenciales en el build, no en runtime.** La `URL` + `anon key` de ESE
+  cliente se **inyectan al compilar** su app. No hay servidor central de
+  secretos ni "phoning home": la app habla solo con su propia base. La
+  `service_role` key **nunca** va en la app.
+- **RLS obligatorio.** La `anon key` es pública por diseño; lo que protege los
+  datos de cada cliente son las **políticas RLS** en su proyecto.
+- **Límite de 2 proyectos free:** se cuenta *por identidad*. Cada cuenta de mail
+  es una identidad distinta con sus propios 2 proyectos — no es un tope global
+  del desarrollador mientras cada cliente tenga su propia cuenta.
+- **Keep-alive anti-pausa (obligatorio).** El free **pausa el proyecto tras 7
+  días sin actividad**. Solución: un **cron** que pegue un GET al endpoint REST
+  (con la `anon key`) cada 2–3 días. Redes de seguridad: Supabase **avisa por
+  mail ~1 semana antes**, y un proyecto pausado se **restaura hasta 1 año**
+  con datos y configuración intactos.
+- **Migraciones × N.** Cada cambio de esquema se corre en cada proyecto
+  (automatizable con la Management API usando el token de cada cuenta).
+  Aceptable mientras N sea chico (1–5 clientes); si N crece, reevaluar el
+  modelo.
+- **Bóveda de credenciales.** Cuentas, proyectos y contraseñas se guardan en
+  **Bitwarden** (cifrado, con backup en nube). Una app de ops propia puede
+  *orquestar* el alta (deep-links, generar contraseñas) pero el almacén cifrado
+  es Bitwarden. Recovery de cada mail a un mail maestro del desarrollador.
+- **Soporte.** El cliente llama, el desarrollador entra a la cuenta (que es
+  suya) y resuelve. El cliente no toca nada técnico.
+
+**Frase de cierre:** 1 cliente = 1 mail + 1 Supabase + 1 build. Simple y aislado.
+No construyas multi-tenancy para 1 cliente.
+
+### I. Lo que NO se hereda entre proyectos
 
 Al arrancar uno nuevo, borrar/sustituir todo esto. Heredarlo por error es la
 fuente de bugs más difícil de encontrar:
@@ -209,7 +264,7 @@ fuente de bugs más difícil de encontrar:
 - El keystore / credenciales de firma. Cada proyecto, las suyas. **Y
   respaldarlas**: si se pierden, no se puede actualizar una app ya instalada.
 
-### I. Trampas ya conocidas (leer antes de la primera línea de código)
+### J. Trampas ya conocidas (leer antes de la primera línea de código)
 
 Vienen de horas perdidas. Revisar esta lista al arrancar y al depurar:
 
@@ -251,7 +306,7 @@ Vienen de horas perdidas. Revisar esta lista al arrancar y al depurar:
 10. **Sin código muerto.** No dejes dependencias, modelos ni flags "por si
     acaso". Si no se usa en este corte, no entra.
 
-### J. Cierre del Prompt 1 — qué quiero que me contestes
+### K. Cierre del Prompt 1 — qué quiero que me contestes
 
 Antes de escribir código, devolveme:
 
