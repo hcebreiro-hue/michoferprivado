@@ -237,6 +237,15 @@ Investigación (Oct 2026). El cuello de botella del modelo white-label es crear 
   plan pago barato) o Google Workspace (Admin SDK crea usuarios por API, de pago). No es MVP.
 - **Nota:** los mails de verificación de Supabase llegan por el catch-all a tu bandeja; desde
   ahí activás cada cuenta. La app solo orquesta y registra metadatos.
+- ✅ **VERIFICADO Y OPERATIVO (2026):** el catch-all de `*@unitecapplications.com` reenvía
+  correctamente a la bandeja destino real; confirmado con pruebas desde otro Gmail y desde
+  otro dominio del usuario. **Truco de prueba:** al testear, enviar SIEMPRE desde una dirección
+  distinta a la de destino. Si enviás desde la misma cuenta destino (ej. `hcebreiro@gmail.com`
+  → `algo@unitecapplications.com` → `hcebreiro@gmail.com`), Gmail *deduplica* el correo y no
+  lo muestra como nuevo (Cloudflare avisa de esto en el Activity log: "Are you missing an
+  email…"). No es una falla: es el mismo mensaje ya presente en Enviados. Diagnóstico
+  alternativo: el **Activity log** de Email Routing muestra el estado (Forwarded/Entregado)
+  sin depender de la bandeja.
 
 ### 6.7 🧹 Sin código muerto · entregas chicas y verificables · sectorizar en fases
 Nada de "terminé todo el backend" sin verlo andar. Cada fase corre y se mira en pantalla.
