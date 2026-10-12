@@ -1,5 +1,5 @@
 import '../global.css';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from 'react-native';
@@ -7,7 +7,7 @@ import { Redirect, Stack, useSegments } from 'expo-router';
 import { SettingsProvider, useSettings } from '../src/context/SettingsContext';
 import { DataProvider } from '../src/context/DataContext';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
-import { ObserveRoot, useObserve } from 'expo-observe';
+import { ObserveRootSafe } from '../src/lib/observe';
 
 const MONETIZACION_ACTIVADA = false;
 
@@ -37,20 +37,8 @@ function SuscripcionGuard({ children }: { children: React.ReactNode }) {
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth();
   const { settings, loading: settingsLoading } = useSettings();
-  const { markInteractive } = useObserve();
   const segments = useSegments();
   const currentRoute = segments[0];
-
-  // EAS Observe: registra el momento en que la app queda interactiva por
-  // primera vez (termina la carga de auth y ajustes).
-  const ready = !loading && !settingsLoading;
-  const markedInteractive = useRef(false);
-  useEffect(() => {
-    if (ready && !markedInteractive.current) {
-      markedInteractive.current = true;
-      markInteractive();
-    }
-  }, [ready, markInteractive]);
 
   if (loading) return null;
   if (currentRoute === 'reservas') return children;
@@ -113,4 +101,4 @@ function RootLayout() {
   );
 }
 
-export default ObserveRoot.wrap(RootLayout);
+export default ObserveRootSafe(RootLayout);
