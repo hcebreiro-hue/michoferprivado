@@ -1,7 +1,7 @@
 # ARCHIVO MAESTRO — plantilla de arranque para cualquier app
 
 Archivo reusable. Sirve para arrancar cualquier proyecto nuevo con lo que ya
-aprendí construyendo apps con Expo. **No contiene nada de un proyecto
+aprendí construyendo apps Android con Kotlin + Jetpack Compose. **No contiene nada de un proyecto
 particular**: lo que se hereda son los patrones y las trampas, no las
 funciones.
 
@@ -19,9 +19,10 @@ Los Prompts 2, 3, 4... se agregan más abajo a medida que el proyecto avanza.
 Sos mi asistente de desarrollo. Trabajamos así:
 
 1. **Verificar antes de escribir.** No uses lo que "recordás" de una API. Leé la
-   versión instalada en `package.json` y la documentación de esa versión. Si
-   existe carpeta `docs/` del proyecto, leela. Esto evita el 80% de los
-   errores: las APIs se renombran, se mueven o se eliminan entre versiones.
+   versión instalada en `build.gradle.kts` (o `gradle/libs.versions.toml`) y la
+   documentación de esa versión. Si existe carpeta `docs/` del proyecto, leela.
+   Esto evita el 80% de los errores: las APIs se renombran, se mueven o se
+   eliminan entre versiones.
 2. **No inventes requisitos.** Si algo no está definido en el bloque C,
    preguntá. No asumas cómo quiere el usuario que funcione su negocio.
 3. **Entregas chicas y verificables.** Cada entrega tiene que poder *correrse*
@@ -37,12 +38,13 @@ Es la lección que más veces se pagó caro: los 4 prompts originales daban por
 "terminado" un cambio con solo compilar o correr tests, **sin abrir la app**.
 Acá no. Antes de decir "listo", en cada entrega:
 
-1. **Compilar de verdad.** Que el typecheck y el lint estén en verde no alcanza.
-2. **Instalar y abrir en el emulador, y verificar en pantalla.** Para abrir de
-   forma confiable: `adb shell am start -n <paquete>/<Actividad>` y confirmar
-   con `mResumedActivity`, **no con el exit code**. Un script que haga
+1. **Compilar de verdad.** Que el build y el lint estén en verde no alcanza.
+2. **Instalar y abrir en el emulador, y verificar en pantalla.** `./gradlew
+   installDebug` instala y abre en el emulador/dispositivo. Confirmá que
+   realmente levantó con `adb shell dumpsys activity activities | grep
+   mResumedActivity`, **no con el exit code del build**. Un script que haga
    compilar → instalar → abrir de corrido (tipo `scripts/probar-emulador.sh`)
-   reemplaza los 5 pasos manuales.
+   reemplaza los pasos manuales.
 3. **Recorrer lo que se tocó + una pasada de humo.** Como mínimo el flujo que se
    modificó, y de paso las demás pantallas/tabs para detectar roturas. Si se
    tocó un formulario, llenarlo y guardar de punta a punta: que el dato aparezca
@@ -94,36 +96,56 @@ directo:
 | Decisión | Resolución |
 |---|---|
 | **Costo** | Todo gratis. Sin servicios de pago. |
-| **Compilación** | **Siempre local** (`expo prebuild` + Gradle, o `eas build --local`). El plan Free de EAS (15 builds/mes) no es un límite real para nosotros porque no compilamos en la nube. |
-| **Datos** | **Local-first.** La app funciona completa con datos en el teléfono. La nube es un aditamento opcional, nunca un requisito. |
-| **Framework** | Expo + React Native + TypeScript. Ya hay experiencia acumulada acá. Flutter y Kotlin/Compose se evaluaron y se descartaron: implican reescribir todo lo aprendido. No se reabre este debate salvo razón de peso. |
+| **Compilación** | **Siempre local** (`./gradlew assembleDebug` / `installDebug`, o `bundleRelease` para Play). No compilamos en la nube salvo distribución. |
+| **Datos** | **Local-first.** La app funciona completa con datos en el teléfono (Room + DataStore). La nube es un aditamento opcional, nunca un requisito. |
+| **Framework** | **Kotlin + Jetpack Compose (Android nativo).** Decidido tras evaluar Expo/React Native. No se reabre este debate salvo razón de peso. |
+| **Tests** | **JUnit 4** en todo (unit + instrumentados). Robolectric + Mockito en JVM; Compose UI Test en emulador. |
 | **Distribución** | APK directo por WhatsApp, sin tienda. |
 
 ### E. Stack base (verificar versiones instaladas, no las de este archivo)
 
-- **Expo** — versión según `package.json`. Nunca asumir la API de memoria.
-- **Expo Router** — rutas en `app/`, `_layout.tsx` define navegadores.
-- **NativeWind** — estilos con clases tipo Tailwind.
-- **AsyncStorage** — persistencia local (local-first).
-- **TypeScript** — siempre. `npx tsc --noEmit` antes de dar algo por bueno.
-- **Notificaciones** — `expo-notifications`. Ojo: las notificaciones por
-  **reloj local** (fecha/hora programada) se verifican en el emulador; las
-  **push remotas** (FCM) solo se prueban de verdad en un teléfono físico.
-- **Opcional, fase 2:** Supabase (Free: 2 proyectos, 500 MB base, 1 GB
-  archivos — **se pausa tras 1 semana sin actividad**) o Firebase Spark
-  (sin tarjeta; **FCM gratis e ilimitado**).
+> ⚠️ Versiones de referencia (verificadas Oct 2026). **Envejecen**: antes de
+> crear el `build.gradle.kts` de un proyecto nuevo, confirmá la última estable
+> de cada cosa en la doc oficial. No copies estas versiones de memoria.
+
+- **Toolchain** — Kotlin 2.4.21, AGP 9.4.0, Gradle 9.6.0, JDK 17, `compileSdk`/`targetSdk` 36.
+- **UI** — Jetpack Compose (Compose BOM; estable 1.9). Componentes Material 3.
+- **Navegación** — Navigation Compose 2.9.x, con *type-safe routes* (`@Serializable` + `toRoute<T>()`).
+- **Estado** — `ViewModel` + `StateFlow`; consumir con `collectAsStateWithLifecycle()`.
+- **Persistencia local** — **Room** (datos estructurados, vía `Flow`) + **DataStore Preferences** (settings/banderas). Local-first.
+- **Background** — **WorkManager** para tareas diferidas y notificaciones por reloj local.
+- **Red (fase 2, opcional)** — Retrofit + kotlinx.serialization, o Ktor Client. No es parte del MVP.
+- **Tests** — JUnit 4 + Robolectric + Mockito (JVM), Compose UI Test (instrumentados), kotlinx-coroutines-test.
+- **Firma/distribución** — `bundleRelease` para Play, `assembleRelease` para APK; keystore propio. Para probar: `assembleDebug`/`installDebug`.
+- **Notificaciones** — las programadas por **reloj local** (WorkManager/alarm) se verifican en el emulador; las **push remotas** (FCM) solo se prueban de verdad en un teléfono físico.
+- **Opcional, fase 2:** Supabase (Free) o Firebase Spark (FCM gratis e ilimitado).
+
+Comandos de build/verificación:
+
+```
+./gradlew assembleDebug        # compila el APK debug
+./gradlew installDebug         # instala en el emulador/dispositivo conectado
+./gradlew test                 # unit tests (JVM, Robolectric incluido)
+./gradlew connectedAndroidTest # tests instrumentados (requiere emulador prendido)
+./gradlew lint                 # lint de Android
+```
 
 ### F. Patrones de arquitectura probados (copiar, no inventar)
 
-1. **Local-first con AsyncStorage.** Todo dato de trabajo se guarda en el
-   teléfono. La app arranca y funciona sin internet ni credenciales.
-2. **Modo demo.** Si el proyecto arranca vacío, un interruptor carga datos de
-   ejemplo para poder *ver* la app andando desde el minuto uno y testearla.
-3. **Nube opcional encima.** Si hace falta sincronizar, se agrega después,
+1. **Local-first con Room + DataStore.** Todo dato de trabajo se guarda en el
+   teléfono. La app arranca y funciona sin internet ni credenciales. Room para
+   entidades (vía `Flow`), DataStore para preferencias.
+2. **MVVM con un solo estado.** Cada pantalla expone estado inmutable desde su
+   `ViewModel` como `StateFlow`; la UI es una función pura de ese estado. Sin
+   estado mutable suelto en los composables.
+3. **Modo demo.** Si el proyecto arranca vacío, un interruptor carga datos de
+   ejemplo (seed en Room) para poder *ver* la app andando desde el minuto uno y
+   testearla.
+4. **Nube opcional encima.** Si hace falta sincronizar, se agrega después,
    con los datos locales como fuente de verdad y respaldo. Nunca al revés.
-4. **Versionado explícito.** `version` legible (`1.0.0`) + `versionCode`
+5. **Versionado explícito.** `versionName` legible (`1.0.0`) + `versionCode`
    incremental, para saber qué APK tiene instalado cada persona.
-5. **Datos sensibles.** Si el proyecto toca datos de salud o documentos de
+6. **Datos sensibles.** Si el proyecto toca datos de salud o documentos de
    terceros, eso se conversa **antes de codear** (dónde se alojan, quién
    accede, consentimiento, respaldos, qué pasa ante una filtración). En
    Argentina aplica la Ley 25.326 de protección de datos personales. No es
@@ -147,29 +169,43 @@ fuente de bugs más difícil de encontrar:
 
 Vienen de horas perdidas. Revisar esta lista al arrancar y al depurar:
 
-1. **Las APIs se mueven entre versiones.** Leer la doc de *la versión
-   instalada*. No de memoria.
-2. **No alcanza con compilar: hay que correrlo.** "Terminado" = corre en el
-   emulador o en un teléfono y se vio la pantalla. Typecheck en verde no
-   alcanza.
-3. **El emulador no prueba todo.** Notificaciones remotas, apertura real de
-   WhatsApp, cámara, sensores, firma y consumo de datos: solo en teléfono
-   físico.
-4. **`adb shell monkey` no abre la app.** Para arrancarla:
-   `adb shell am start -n <paquete>/<Actividad>`. Verificar con
-   `mResumedActivity`, no con el exit code.
-5. **El plan Free de Supabase pausa el proyecto a la semana de inactividad** y
-   el mail de aviso se pierde. Si se usa cloud, registrar la fecha de último
-   uso o usar `Firebase`/local.
-6. **El heredoc inline cuelga la terminal** (`cat <<'EOF' >> f` dentro de un
-   comando largo, sobre todo con `&&` encadenados). Se colgó **tres veces**. El
-   síntoma es que la shell queda en `> heredoc>` esperando más entrada y el
-   archivo puede quedar a medias. Workaround: para escribir archivos usar la
-   herramienta de edición de archivos, o el heredoc como **única** operación del
-   comando (sin `&&` ni `wc` detrás). Y siempre verificar el resultado después.
-7. **Firmar distinto rompe las actualizaciones.** Un APK firmado con otro
-   keystore no se puede instalar encima de uno existente: hay que desinstalar,
-   y el usuario pierde sus datos.
+1. **Las versiones mueven rápido.** Kotlin, AGP, el Compose BOM y las libs
+   Jetpack se actualizan cada pocos meses. Antes de crear un
+   `build.gradle.kts`, verificá la última estable en la doc oficial; no
+   escribas versiones de memoria. "Compila en mi cabeza" no es evidencia.
+2. **"Compilado" no es "probado".** Que `./gradlew assembleDebug` termine sin
+   error no significa que la app abra. Instalá con `installDebug` y confirmá
+   que levantó con `adb shell dumpsys activity activities | grep
+   mResumedActivity`, no con el exit code. Si no la ves en pantalla, no está
+   terminada (Regla de cierre).
+3. **R8/ProGuard: debug anda, release se rompe.** Las compilaciones release
+   ofuscan y pueden tumbar reflexión (kotlinx.serialization, Room). Un crash
+   que solo aparece en release casi siempre son reglas de ProGuard faltantes.
+   Probá un `assembleRelease` antes de dar por cerrado lo que toque
+   serialización o base de datos.
+4. **Debug y release firman distinto.** El APK debug va firmado con la debug
+   key; release usa tu keystore. Play App Signing gestiona su propia clave a
+   partir de tu keystore de subida: **si perdés el keystore de subida, no podés
+   actualizar la app nunca más**. Guardalo en un password manager + backup, no
+   solo en la carpeta del proyecto.
+5. **Room en el hilo principal crashea.** Toda query a Room va por `suspend` o
+   devuelve `Flow`, ejecutada fuera del main thread. No bloquees el main.
+6. **Strings en recursos.** Los textos visibles van en `res/values/strings.xml`,
+   no hardcodeados en los composables. Hardcodear rompe el testeo de UI
+   (Compose UI Test) y cualquier localización futura.
+7. **Recomposición: estado que se lee mal.** No crees estado mutable suelto
+   dentro de un composable sin `remember`/`derivedStateOf`, y consumí flujos con
+   `collectAsStateWithLifecycle()` (no `collectAsState()`, que sigue coleccionando
+   en background).
+8. **Si un test falla, diagnosticá antes de "arreglar el código".** En Android es
+   más frecuente que esté mal el setup del test (mock, config de Robolectric,
+   dispatcher de corrutinas) que la lógica de producción. Leé el fallo, no
+   asumas.
+9. **El emulador no prueba todo.** Notificaciones push remotas (FCM), apertura
+   real de WhatsApp, cámara, sensores, firma y consumo de datos: solo en
+   teléfono físico. Declaralo, no lo des por hecho.
+10. **Sin código muerto.** No dejes dependencias, modelos ni flags "por si
+    acaso". Si no se usa en este corte, no entra.
 
 ### I. Cierre del Prompt 1 — qué quiero que me contestes
 
