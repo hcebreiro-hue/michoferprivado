@@ -1,0 +1,28 @@
+[build]
+  command = "npm run build:web"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Credenciales públicas (publishable key, protegida por RLS). Se inlinan en el bundle.
+  EXPO_PUBLIC_SUPABASE_URL = "https://dcspnrulevuvvwunsxqd.supabase.co"
+  EXPO_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_1Hl4FiwxFa9MS8ysZNJ6Wg_XdST5LPh"
+
+# SPA routing: los archivos estáticos existentes (_expo/*, assets/*, favicon.ico)
+# se sirven primero; toda otra ruta (/reservas, /configuracion, /, etc.) cae a index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Assets con hash: cache largo inmutable
+[[headers]]
+  for = "/_expo/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# index.html: siempre la última versión
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
