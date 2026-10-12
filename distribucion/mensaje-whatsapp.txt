@@ -1,0 +1,15 @@
+¡Hola! 👋 Te comparto *Mi Chofer Privado*, una app que hice para que los
+choferes privados gestionen sus viajes, clientes y ganancias desde el celular.
+
+📲 *Para instalarla* (2 minutitos):
+1. Guardá el archivo que te adjunto (termina en .apk).
+2. Android te va a preguntar si permitís instalar apps desconocidas → aceptá.
+3. ¡Listo! Se instala y la abrís.
+
+👉 Te mando también un PDF con el *paso a paso con imágenes* por si te trabás
+en el permiso de "apps desconocidas".
+
+La app arranca con datos de ejemplo a nombre "Conductor" para que explores
+todo tranquilo. Cuando quieras, poné tu nombre y teléfono en Configuración.
+
+Cualquier duda, me escribís. ¡Espero que te sirva! 🚗

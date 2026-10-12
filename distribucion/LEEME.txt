@@ -1,0 +1,44 @@
+PAQUETE DE DISTRIBUCIÓN — Mi Chofer Privado
+============================================
+
+Esta carpeta tiene todo lo que necesitás para compartir la app con tus amigos.
+Mandales, junto al APK, estos archivos.
+
+CONTENIDO
+---------
+1. Mi-Chofer-Privado.apk   ← La app (la agregás vos después de compilar, ver abajo)
+2. Guia-Instalacion.pdf    ← Paso a paso con imágenes (OBLIGATORIO enviarlo)
+3. Manual-Mi-Chofer-Privado.pdf ← Manual completo de uso
+4. mensaje-whatsapp.txt    ← Texto listo para copiar y pegar al enviar
+5. LEEME.txt               ← Este archivo
+
+CÓMO COMPLETAR EL PAQUETE (tu parte)
+------------------------------------
+1. Compilá el APK:
+   cd /Users/horaciocebreiro/Claudia_app
+   npm_config_cache=/tmp/npm_cache_eas npx --yes eas-cli@latest build --platform android --profile preview
+
+2. Cuando EAS termine, descargá el .apk desde el link/QR que te da.
+
+3. Guardalo DENTRO de esta carpeta con el nombre:
+   distribucion/Mi-Chofer-Privado.apk
+
+Con eso el paquete queda completo.
+
+CÓMO ENVIAR A UN AMIGO
+----------------------
+- Enviá juntos: el .apk + la Guia-Instalacion.pdf (+ el Manual si querés).
+- Acompañalo con el texto de "mensaje-whatsapp.txt".
+- Si el .apk es muy grande para WhatsApp, subilo a Google Drive / WeTransfer y
+  pasale el link de descarga (igual mandale la guía en PDF).
+
+RECORDATORIOS IMPORTANTES
+-------------------------
+- La app arranca con datos de ejemplo y el nombre genérico "Conductor".
+  Los amigos NO ven tu nombre ni tus viajes.
+- Crear la cuenta es opcional y GRATIS: respalda los viajes en la nube y activa
+  el link público de reservas. Sin cuenta, los datos quedan solo en el celular.
+- En el plan gratis de EAS, el link de descarga del APK vence a los 30 días.
+  Descargalo y guardalo en un lugar seguro (Drive/tu compu) como respaldo.
+- Si algún amigo se queja de que "no deja instalar", es el permiso de "apps
+  desconocidas": está explicado con imágenes en la Guia-Instalacion.pdf.

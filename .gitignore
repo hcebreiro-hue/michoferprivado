@@ -48,3 +48,6 @@ supabase/.temp/
 
 # Duplicado accidental con espacio en el nombre (ver eas.json real)
 eas.json\ 
+
+# Paquete de distribución (contiene el APK compilado, no se versiona)
+distribucion/*.apk
