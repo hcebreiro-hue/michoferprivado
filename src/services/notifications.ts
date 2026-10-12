@@ -1,12 +1,37 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import type { Trip } from '../types';
 import { isCalendarBlock } from '../types';
+
+type NotificationsModule = typeof import('expo-notifications');
 
 const CHANNEL_ID = 'trip-reminders';
 
 /** Minutos antes del viaje en que se dispara el recordatorio. */
 const REMINDER_MINUTES_BEFORE = 60;
+
+let cachedModule: NotificationsModule | null = null;
+let loadAttempted = false;
+
+/**
+ * Carga expo-notifications de forma tolerante a fallos. En Expo Go el módulo
+ * nativo fue removido (SDK 53+) y su import lanza un error; aquí lo aislamos
+ * para que la app no se rompa. Devuelve null si no está disponible.
+ */
+function getNotifications(): NotificationsModule | null {
+  if (loadAttempted) return cachedModule;
+  loadAttempted = true;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    cachedModule = require('expo-notifications') as NotificationsModule;
+  } catch (cause) {
+    console.warn(
+      'Las notificaciones no están disponibles en este entorno (p. ej. Expo Go).',
+      cause,
+    );
+    cachedModule = null;
+  }
+  return cachedModule;
+}
 
 /** Identificador determinístico por viaje, para poder cancelarlo/reprogramarlo. */
 function reminderId(tripId: string): string {
@@ -18,20 +43,31 @@ function reminderId(tripId: string): string {
  * Devuelve true si el permiso está concedido.
  */
 export async function ensureNotificationPermissions(): Promise<boolean> {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: 'Recordatorios de viajes',
-      importance: Notifications.AndroidImportance.HIGH,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#2563eb',
-    });
+  const Notifications = getNotifications();
+  if (!Notifications) return false;
+
+  try {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
+        name: 'Recordatorios de viajes',
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#2563eb',
+      });
+    }
+
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    if (existing === 'granted') return true;
+
+    const { status } = await Notifications.requestPermissionsAsync();
+    return status === 'granted';
+  } catch (cause) {
+    console.warn(
+      'No se pudieron gestionar los permisos de notificación.',
+      cause,
+    );
+    return false;
   }
-
-  const { status: existing } = await Notifications.getPermissionsAsync();
-  if (existing === 'granted') return true;
-
-  const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
 }
 
 /**
@@ -40,6 +76,9 @@ export async function ensureNotificationPermissions(): Promise<boolean> {
  * agenda), cancela cualquier recordatorio previo y no programa nada.
  */
 export async function scheduleTripReminder(trip: Trip): Promise<void> {
+  const Notifications = getNotifications();
+  if (!Notifications) return;
+
   try {
     // Siempre cancelamos el recordatorio previo antes de reprogramar.
     await Notifications.cancelScheduledNotificationAsync(reminderId(trip.id));
@@ -78,6 +117,8 @@ export async function scheduleTripReminder(trip: Trip): Promise<void> {
 
 /** Cancela el recordatorio asociado a un viaje (al eliminarlo). */
 export async function cancelTripReminder(tripId: string): Promise<void> {
+  const Notifications = getNotifications();
+  if (!Notifications) return;
   await Notifications.cancelScheduledNotificationAsync(
     reminderId(tripId),
   ).catch(() => undefined);
