@@ -20,7 +20,7 @@ import { useData } from '../../src/context/DataContext';
 import { useSettings } from '../../src/context/SettingsContext';
 import { formatCurrency, isUpcoming, monthLabel } from '../../src/utils/format';
 import { needsMaintenanceAlert } from '../../src/utils/calculations';
-import { isCalendarBlock } from '../../src/types';
+import { isCalendarBlock, tripPendingAmount } from '../../src/types';
 import { driverSlugFromName } from '../../src/services/settings';
 
 function createDriverPortalUrl(driverSlug: string): string {
@@ -77,6 +77,16 @@ export default function DashboardScreen() {
   ).length;
   const monthExpenses =
     currentMonthBalance.expenses + currentMonthBalance.fixed;
+  const owedTrips = currentMonthTrips.filter(
+    (trip) =>
+      !isCalendarBlock(trip) &&
+      trip.status !== 'cancelled' &&
+      tripPendingAmount(trip) > 0,
+  );
+  const monthOwed = owedTrips.reduce(
+    (sum, trip) => sum + tripPendingAmount(trip),
+    0,
+  );
 
   return (
     <SafeAreaView edges={['top']} className="flex-1 bg-slate-50">
@@ -120,6 +130,22 @@ export default function DashboardScreen() {
             icon={<Ionicons name="trending-down" size={16} color="#d97706" />}
           />
         </View>
+
+        {monthOwed > 0 ? (
+          <View className="flex-row gap-3 mt-3">
+            <StatCard
+              label="Por cobrar del mes"
+              value={formatCurrency(monthOwed, settings)}
+              accent="amber"
+              hint={`${owedTrips.length} ${
+                owedTrips.length === 1 ? 'viaje' : 'viajes'
+              } sin cobrar`}
+              icon={
+                <Ionicons name="wallet-outline" size={16} color="#d97706" />
+              }
+            />
+          </View>
+        ) : null}
 
         {/* Accesos al portal de reservas */}
         <View className="mt-4 flex-row gap-3">

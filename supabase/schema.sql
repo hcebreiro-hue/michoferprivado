@@ -246,6 +246,12 @@ revoke all on public.settings from authenticated;
 alter table public.trips add column if not exists distance_km numeric;
 alter table public.trips add column if not exists blocked_until timestamptz;
 
+-- Control de cobranza por viaje. Idempotente: no rompe instalaciones previas.
+alter table public.trips add column if not exists payment_status text
+  not null default 'pendiente'
+  check (payment_status in ('pendiente', 'cobrado', 'parcial'));
+alter table public.trips add column if not exists amount_paid numeric not null default 0;
+
 -- Tipo de cuenta para la suscripción por chofer. Las cuentas existentes y las
 -- nuevas arrancan en VIP_GRATIS; el paso a VIP_PAGO se hace a mano cambiando la
 -- columna tipo_cuenta en la tabla driver_settings.

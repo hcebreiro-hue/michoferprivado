@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, Linking, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { isCalendarBlock, type Trip } from '../types';
+import { isCalendarBlock, tripPaymentStatus, tripPendingAmount, type Trip } from '../types';
 import { formatCurrency, formatDate, formatTime, normalizePhone } from '../utils/format';
 import { useSettings } from '../context/SettingsContext';
 import { Badge } from './ui/Badge';
@@ -105,6 +105,23 @@ export function TripCard({
           <View className="mt-1">
             <Badge label={status.label} tone={status.tone} />
           </View>
+          {!isBlock && trip.status !== 'cancelled' &&
+          tripPaymentStatus(trip) !== 'cobrado' ? (
+            <Text
+              className={`mt-1 text-xs font-semibold ${
+                tripPaymentStatus(trip) === 'parcial'
+                  ? 'text-amber-600'
+                  : 'text-red-500'
+              }`}
+            >
+              {tripPaymentStatus(trip) === 'parcial'
+                ? `Parcial · debe ${formatCurrency(
+                    tripPendingAmount(trip),
+                    settings,
+                  )}`
+                : `Debe ${formatCurrency(tripPendingAmount(trip), settings)}`}
+            </Text>
+          ) : null}
         </View>
       </View>
 

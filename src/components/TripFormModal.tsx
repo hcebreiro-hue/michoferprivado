@@ -15,6 +15,7 @@ import DateTimePicker, {
 import {
   CALENDAR_BLOCK_CLIENT_NAME,
   isCalendarBlock,
+  type PaymentStatus,
   type Trip,
   type TripStatus,
 } from '../types';
@@ -123,6 +124,12 @@ function TripFormModalContent({
   );
   const [notes, setNotes] = useState(trip?.notes ?? '');
   const [status, setStatus] = useState<TripStatus>(trip?.status ?? 'pending');
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
+    trip?.payment_status ?? 'pendiente',
+  );
+  const [amountPaid, setAmountPaid] = useState(
+    trip?.amount_paid != null ? String(trip.amount_paid) : '',
+  );
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -201,6 +208,13 @@ function TripFormModalContent({
 
     setSaving(true);
     try {
+      const tripPrice = mode === 'block' ? 0 : Number(price) || 0;
+      const effectiveAmountPaid =
+        paymentStatus === 'cobrado'
+          ? tripPrice
+          : paymentStatus === 'parcial'
+            ? Number(amountPaid.replace(',', '.')) || 0
+            : 0;
       const payload = {
         client_name:
           mode === 'block' ? CALENDAR_BLOCK_CLIENT_NAME : clientName.trim(),
@@ -209,12 +223,14 @@ function TripFormModalContent({
         destination: mode === 'block' ? '' : destination.trim(),
         scheduled_at: startDate.toISOString(),
         blocked_until: mode === 'block' ? endDate.toISOString() : null,
-        price: mode === 'block' ? 0 : Number(price) || 0,
+        price: tripPrice,
         distance_km:
           mode === 'block'
             ? null
             : Number(distanceKm.replace(',', '.')) || null,
         status: mode === 'block' ? 'pending' : status,
+        payment_status: mode === 'block' ? undefined : paymentStatus,
+        amount_paid: mode === 'block' ? undefined : effectiveAmountPaid,
         notes: mode === 'block' ? null : notes.trim() || null,
       };
 
@@ -483,6 +499,54 @@ function TripFormModalContent({
                     ),
                   )}
                 </View>
+              </View>
+            ) : null}
+
+            {isEdit && mode === 'trip' ? (
+              <View className="mb-4">
+                <Text className="mb-1.5 text-sm font-medium text-slate-600">
+                  Cobro
+                </Text>
+                <View className="flex-row gap-2">
+                  {(['pendiente', 'cobrado', 'parcial'] as PaymentStatus[]).map(
+                    (next) => (
+                      <Pressable
+                        key={next}
+                        className={`flex-1 rounded-lg border py-2 ${
+                          paymentStatus === next
+                            ? 'border-brand-600 bg-brand-600'
+                            : 'border-slate-200 bg-white'
+                        }`}
+                        onPress={() => setPaymentStatus(next)}
+                      >
+                        <Text
+                          className={`text-center text-sm font-semibold ${
+                            paymentStatus === next
+                              ? 'text-white'
+                              : 'text-slate-600'
+                          }`}
+                        >
+                          {next === 'pendiente'
+                            ? 'Pendiente'
+                            : next === 'cobrado'
+                              ? 'Cobrado'
+                              : 'Parcial'}
+                        </Text>
+                      </Pressable>
+                    ),
+                  )}
+                </View>
+                {paymentStatus === 'parcial' ? (
+                  <View className="mt-2">
+                    <Input
+                      label="Monto ya cobrado"
+                      placeholder="0"
+                      value={amountPaid}
+                      onChangeText={setAmountPaid}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </ScrollView>

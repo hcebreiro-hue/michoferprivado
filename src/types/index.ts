@@ -2,6 +2,9 @@
 
 export type TripStatus = 'pending' | 'completed' | 'cancelled';
 
+/** Estado de cobro de un viaje. */
+export type PaymentStatus = 'pendiente' | 'cobrado' | 'parcial';
+
 export const CALENDAR_BLOCK_CLIENT_NAME =
   'BLOQUEADO - VACACIONES/DESCANSO';
 
@@ -20,6 +23,10 @@ export interface Trip {
   /** Kilómetros del recorrido (para calcular el fondo de amortización). */
   distance_km?: number | null;
   status: TripStatus;
+  /** Estado de cobro del viaje. Por defecto 'pendiente' para datos previos. */
+  payment_status?: PaymentStatus;
+  /** Monto ya cobrado (relevante cuando payment_status es 'parcial'). */
+  amount_paid?: number;
   notes?: string | null;
   created_at: string;
 }
@@ -32,6 +39,21 @@ export function isCalendarBlock<T extends Pick<Trip, 'client_name' | 'blocked_un
     typeof trip.blocked_until === 'string' &&
     Number.isFinite(new Date(trip.blocked_until).getTime())
   );
+}
+
+/** Estado de cobro efectivo de un viaje (por defecto 'pendiente'). */
+export function tripPaymentStatus(trip: Trip): PaymentStatus {
+  return trip.payment_status ?? 'pendiente';
+}
+
+/** Monto que el pasajero aún debe por el viaje (0 si está cobrado). */
+export function tripPendingAmount(trip: Trip): number {
+  const status = tripPaymentStatus(trip);
+  if (status === 'cobrado') return 0;
+  if (status === 'parcial') {
+    return Math.max(0, trip.price - (trip.amount_paid ?? 0));
+  }
+  return trip.price;
 }
 
 /** Registro de una carga de combustible. */
