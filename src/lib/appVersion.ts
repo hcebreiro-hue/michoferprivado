@@ -1,4 +1,3 @@
-import { NativeModules, Platform } from 'react-native';
 import Constants from 'expo-constants';
 import * as Application from 'expo-application';
 
@@ -9,26 +8,18 @@ import * as Application from 'expo-application';
  * (`version`) y el `versionCode` de Android lo calcula automáticamente el
  * plugin `plugins/withBuildStamp.js` en cada build, derivado de la fecha.
  *
- * En desarrollo (Expo Go) no hay APK nativo, así que caemos a valores
- * razonables en lugar de mostrar datos falsos.
+ * Ojo con `buildConfigField`: genera una constante JAVA dentro de `BuildConfig`,
+ * que NO es un módulo de React Native y por eso NUNCA es alcanzable desde JS
+ * (`NativeModules[paquete].BuildConfig` es `undefined`). Verificar que el string
+ * está en el dex no alcanza: el dex es código nativo. Por eso la fecha se
+ * DECODIFICA del `versionCode`, que sí llega a JS vía `expo-application`.
  */
 
-/** Nombre del paquete nativo, usado para leer el BuildConfig de Android. */
+/** Nombre del paquete nativo, informativo. */
 const ANDROID_PACKAGE = 'com.michoferprivado.app';
 
-/**
- * Lee `BuildConfig.BUILD_STAMP` (fecha ISO de compilación). No existe en
- * desarrollo ni en iOS, por eso se envuelve en try/catch.
- */
-function readNativeBuildStamp(): string | null {
-  if (Platform.OS !== 'android') return null;
-  try {
-    const buildConfig = NativeModules?.[ANDROID_PACKAGE]?.BuildConfig;
-    return typeof buildConfig?.BUILD_STAMP === 'string' ? buildConfig.BUILD_STAMP : null;
-  } catch {
-    return null;
-  }
-}
+/** Año base del `versionCode` (guarda solo 2 dígitos: 26 -> 2026). */
+const VERSION_CODE_CENTURY = 2000;
 
 /** Versión visible de la app (la de app.json). */
 export const appVersion: string =
@@ -47,44 +38,62 @@ export const buildNumber: number | null = (() => {
   return Number.isFinite(parsed) ? parsed : null;
 })();
 
-/** Fecha/hora en que se compiló el APK, o null si corre en desarrollo. */
-export const buildStamp: string | null = readNativeBuildStamp();
+/**
+ * Decodifica la fecha de compilación desde el `versionCode`.
+ *
+ * El plugin codifica el versionCode como `AAMMDDNN`: año(2) mes(2) día(2) más
+ * un contador de build del día (2). Los dos últimos dígitos son minutos del día
+ * truncados a 99, así que NO permiten recuperar la hora: solo la fecha.
+ *
+ * Devuelve null si el número no tiene esa forma (versionCode puesto a mano,
+ * plataforma sin build propio, etc.), en lugar de inventar una fecha.
+ */
+export function decodeBuildDate(versionCode: number | null): Date | null {
+  if (versionCode == null || !Number.isInteger(versionCode)) return null;
+
+  const digits = String(versionCode);
+  if (!/^\d{8}$/.test(digits)) return null;
+
+  const year = VERSION_CODE_CENTURY + Number(digits.slice(0, 2));
+  const month = Number(digits.slice(2, 4));
+  const day = Number(digits.slice(4, 6));
+
+  // Meses en JS van de 0 a 11.
+  const date = new Date(year, month - 1, day);
+  const esValida =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day;
+  return esValida ? date : null;
+}
+
+/** Fecha en que se compiló el APK, o null si corre en desarrollo. */
+export const buildDate: Date | null = decodeBuildDate(buildNumber);
 
 /** true si la app corre desde un APK compilado (no en Expo Go). */
-export const isReleaseBuild = buildStamp !== null;
+export const isReleaseBuild = buildNumber !== null;
 
 /** Fecha de compilación ya formateada para mostrar, o null. */
 export function formatBuildDate(): string | null {
-  if (!buildStamp) return null;
-  const date = new Date(buildStamp);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString('es-AR', {
+  if (!buildDate) return null;
+  return buildDate.toLocaleDateString('es-AR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   });
 }
 
-/** Hora de compilación formateada, o null. */
-export function formatBuildTime(): string | null {
-  if (!buildStamp) return null;
-  const date = new Date(buildStamp);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleTimeString('es-AR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
 /**
  * Texto de una línea para "Acerca de". Ejemplo:
- *   "Versión 1.2.0 (build 26101203) · Compilado el 12/10/2026 13:45"
+ *   "Versión 1.2.0 (build 26101203) · Compilado el 12/10/2026"
  */
 export function versionSummary(): string {
   const parts = [`Versión ${appVersion}`];
   if (buildNumber !== null) parts.push(`build ${buildNumber}`);
   const date = formatBuildDate();
-  const time = formatBuildTime();
-  if (date) parts.push(`Compilado el ${date}${time ? ` ${time}` : ''}`);
+  if (date) parts.push(`Compilado el ${date}`);
   return parts.join(' · ');
 }
+
+/** Nombre del paquete nativo, para pruebas. @internal */
+export { ANDROID_PACKAGE };

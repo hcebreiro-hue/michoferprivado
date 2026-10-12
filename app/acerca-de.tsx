@@ -8,7 +8,6 @@ import {
   appVersion,
   buildNumber,
   formatBuildDate,
-  formatBuildTime,
 } from '../src/lib/appVersion';
 
 /** WhatsApp de contacto del desarrollador (formato internacional, sin +). */
@@ -56,7 +55,6 @@ export default function AboutScreen() {
         {formatBuildDate() ? (
           <Text className="mt-1 text-xs text-slate-400">
             Compilado el {formatBuildDate()}
-            {formatBuildTime() ? ` · ${formatBuildTime()}` : ''}
           </Text>
         ) : (
           <Text className="mt-1 text-xs text-slate-400">Versión de desarrollo</Text>

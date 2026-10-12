@@ -14,8 +14,13 @@ const {
  *     que es lo que Android exige para poder instalar una actualización encima.
  *     Antes estaba fijo en 1, por lo que una segunda APK no se podía instalar
  *     sobre la primera.
- *  2. `BUILD_STAMP` (fecha/hora ISO de la compilación) como `buildConfigField`,
- *     para que "Acerca de" pueda mostrar cuándo se compiló el APK.
+ *
+ * Sobre `BUILD_STAMP`: ya NO se inyecta. Se intentó con `buildConfigField`, pero
+ * eso solo genera una constante JAVA dentro de `BuildConfig.java`, que no es un
+ * módulo de React Native y por ende es inalcanzable desde JS. La app lo detectó
+ * en el emulador: "Acerca de" mostraba "Versión de desarrollo" dentro del APK.
+ * La fecha ahora se DECODIFICA del `versionCode` (ver `src/lib/appVersion.ts`),
+ * que sí llega a JavaScript vía `Application.nativeBuildVersion`.
  *
  * La versión visible (1.2.0, etc.) sigue saliendo de `app.json` -> `version`,
  * que es la única fuente de verdad que se edita a mano.
@@ -39,32 +44,15 @@ const withBuildStamp = (config) => {
     // Contador diario: segundos transcurridos del día / 60, limitado a 99.
     const secondsOfDay = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
     const nn = String(Math.min(99, Math.floor(secondsOfDay / 60))).padStart(2, '0');
+    // 2) Limpieza defensiva: si un build anterior dejó el BUILD_STAMP inyectado
+    //    en el android/ regenerado, no hace falta borrarlo a mano (prebuild
+    //    reescribe el archivo completo), pero nunca se vuelve a agregar.
     const versionCode = `${yy}${mm}${dd}${nn}`;
 
     contents = contents.replace(
       /versionCode\s+\d+/,
       `versionCode ${versionCode}`,
     );
-
-    // 2) Sello de compilación legible, para mostrarlo en "Acerca de".
-    //    Se expone como BuildConfig.BUILD_STAMP (String).
-    const stamp = now.toISOString();
-    const buildConfigLine = `buildConfigField "String", "BUILD_STAMP", "\\"${stamp}\\""`;
-
-    // Se inserta dentro de defaultConfig, después de la última línea que ya
-    // exista ahí (o al final del bloque si no reconocemos nada).
-    if (contents.includes('buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL"')) {
-      contents = contents.replace(
-        /(\s*)buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL"[^\n]*/,
-        (match) => `${match}\n        ${buildConfigLine}`,
-      );
-    } else {
-      contents = contents.replace(
-        /(\s*)(versionName\s+"[^"]*")/,
-        (_match, indent, versionName) =>
-          `${indent}${versionName}\n\n        ${buildConfigLine}`,
-      );
-    }
 
     mod.modResults.contents = contents;
     return mod;
