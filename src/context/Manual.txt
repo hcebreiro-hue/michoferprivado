@@ -1,0 +1,96 @@
+# Manual de usuario — Mi Chofer Privado
+
+¡Te damos la bienvenida! Mi Chofer Privado te ayuda a organizar viajes, revisar
+los números de tu actividad y compartir una agenda de horarios disponibles con
+tus pasajeros. Esta guía explica cómo empezar y qué hace cada sección.
+
+## 1. Tablero inicial y datos de prueba
+
+- Al abrir la aplicación verás el **Tablero**, con el resumen del mes en curso:
+  ingresos de los viajes, gastos y saldo neto estimado.
+- También encontrarás una lista breve de próximos viajes del mes. Desde sus
+  tarjetas puedes consultar los datos y marcar un viaje como completado o
+  cancelado.
+- En una instalación local nueva, mientras el perfil conserve el nombre
+  predeterminado **“Conductor”** (o **“Claudia”**), la aplicación puede cargar
+  registros de demostración. Incluyen viajes de ejemplo, como los de María
+  González y Carlos Ramírez, además de cargas de combustible, mantenimientos y
+  costos fijos.
+- Los registros de prueba sirven para recorrer las pantallas y ver cómo se
+  presentan los datos. Antes de usar el historial como contabilidad real,
+  revisa que los viajes y gastos correspondan a tu actividad.
+- Puedes actualizar la información deslizando la pantalla hacia abajo cuando
+  aparezca el control de actualización.
+
+## 2. Configuración inicial y protección de datos
+
+- Abre **Configuración** desde el icono de ajustes del Tablero. Allí puedes
+  indicar el nombre y el teléfono de contacto, además de los valores de tarifa
+  y desgaste por kilómetro disponibles en tu versión. Identidad y tarifas
+  conviven en una misma pantalla.
+- El nombre predeterminado es **“Conductor”**. Mientras el perfil conserve ese
+  nombre, la aplicación puede cargar registros de demostración.
+- **Importante:** los datos de demostración se reconocen por su identificador
+  con prefijo `seed-`. Al definir un nombre real (o al completar el perfil por
+  primera vez), la aplicación quita **únicamente** esos registros de ejemplo;
+  tus viajes, cargas de combustible, mantenimientos y gastos fijos reales se
+  conservan intactos.
+- La marca de perfil completo queda guardada en el dispositivo. Después de
+  establecerse, los cambios posteriores de tarifas o de otros ajustes no
+  vuelven a ejecutar la limpieza de demostración. Si la aplicación ya se inicia
+  con un nombre real guardado, tampoco interpreta la carga inicial del perfil
+  como un cambio desde “Conductor”.
+- Esta limpieza corresponde al modo de almacenamiento local. Con Supabase
+  configurado, el borrado automático está deshabilitado.
+- Cambiar valores de configuración (por ejemplo las tarifas) no debería
+  requerir borrar viajes ni reiniciar el historial. Una vez que la identidad
+  queda definida, nombre y teléfono no se pueden volver a cambiar.
+
+## 3. Control financiero mensual e histórico
+
+- El Tablero calcula automáticamente el período del **mes calendario actual**.
+  Los viajes se agrupan por su fecha programada; los gastos de combustible y
+  mantenimiento, por la fecha en que se registraron.
+- Los **ingresos** consideran viajes pendientes y completados; los cancelados
+  no se suman. La cantidad de viajes del resumen también excluye los
+  cancelados.
+- Los **gastos** incluyen combustible y mantenimiento del período, además de
+  los costos fijos activos que se descuentan en el cálculo mensual. El saldo
+  neto se estima restando esos conceptos de los ingresos.
+- La sección **Reportes** conserva los registros de distintos meses y presenta
+  balances agrupados para consultar la evolución: ingresos, gastos operativos,
+  costos fijos, fondo de reserva y saldo neto, según los datos disponibles.
+- Para que el reporte sea útil, registra cada movimiento con su fecha y monto
+  correctos, mantén actualizados los costos fijos y revisa las cancelaciones.
+  El resumen es una herramienta de seguimiento y no reemplaza la revisión de
+  tus comprobantes.
+
+## 4. Agenda de reservas y prórroga humana
+
+- Desde el Tablero, entra en **Portal de reservas** para abrir la agenda. La
+  pantalla muestra horarios disponibles y ocupados para hoy y los próximos
+  seis días, entre las 08:00 y las 20:00, en bloques de dos horas.
+- Los viajes no cancelados ocupan sus horarios. Al tocar un horario libre, la
+  aplicación prepara una consulta de reserva para enviar por WhatsApp al
+  teléfono configurado. La solicitud no confirma el viaje automáticamente:
+  acuerda la reserva directamente con el pasajero y luego registra el viaje.
+- **Web pública para tus pasajeros:** el enlace que copiás desde el Tablero
+  (botón *Copiar Link WhatsApp*) abre una página web con la agenda de ese
+  chofer. La página lee en vivo los viajes cargados en Supabase, así que la
+  disponibilidad que ve el pasajero es la real: en cuanto cargás un viaje, ese
+  horario aparece como ocupado en la web. La agenda se vuelve a consultar sola
+  cada minuto y el pasajero también puede arrastrar hacia abajo para
+  actualizarla al instante. La página nunca muestra datos de otros pasajeros;
+  solo los horarios y el contacto del chofer.
+- El guard de cuenta distingue **VIP_PAGO** de **VIP_GRATIS**. Toda cuenta
+  nueva arranca en **VIP_GRATIS**. Además, `MONETIZACION_ACTIVADA` está
+  configurada en `false`; por eso no se ejecutan avisos de vencimiento ni
+  bloqueos automáticos. Podés continuar usando la aplicación libremente.
+- Para pasar una cuenta a **VIP_PAGO** hay que cambiar la columna
+  `tipo_cuenta` en la tabla `driver_settings` de Supabase (ver el README). Esa
+  es la única forma de activar el modo pago, y se hace de forma manual.
+- Como política de acompañamiento humano, se contempla un período inicial
+  libre de **72 horas** y, si hace falta, hasta **dos extensiones de 24 horas**
+  coordinadas con soporte. Ese calendario de prórrogas no está conectado a un
+  temporizador ni se aplica automáticamente en la versión actual. Para
+  solicitar ayuda, contacta al canal de soporte que te haya indicado el equipo.

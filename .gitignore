@@ -6,6 +6,7 @@ node_modules/
 # Expo
 .expo/
 dist/
+dist-web/
 web-build/
 expo-env.d.ts
 
@@ -31,6 +32,7 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript
@@ -39,3 +41,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+.vercel
+
+# Supabase CLI temp files
+supabase/.temp/
+
+# Duplicado accidental con espacio en el nombre (ver eas.json real)
+eas.json\ 

@@ -1,15 +1,18 @@
 {
   "expo": {
-    "name": "myapp",
-    "slug": "myapp",
+    "name": "Mi Chofer Privado",
+    "slug": "Mi-Chofer-Privado",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "scheme": "michoferprivado",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.michoferprivado.app"
     },
     "android": {
+      "package": "com.michoferprivado.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -19,7 +22,20 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      "@react-native-community/datetimepicker",
+      "expo-font"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "85430fc5-45e1-47d6-8010-054fcb48e7c2"
+      }
     }
   }
 }
