@@ -23,11 +23,10 @@ function getNotifications(): NotificationsModule | null {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     cachedModule = require('expo-notifications') as NotificationsModule;
-  } catch (cause) {
-    console.warn(
-      'Las notificaciones no están disponibles en este entorno (p. ej. Expo Go).',
-      cause,
-    );
+  } catch {
+    // Comportamiento esperado en Expo Go: las notificaciones no están
+    // disponibles y la app sigue funcionando. No logueamos para no ensuciar
+    // la consola.
     cachedModule = null;
   }
   return cachedModule;

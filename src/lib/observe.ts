@@ -16,11 +16,9 @@ function getObserve(): ObserveModule | null {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     cached = require('expo-observe');
-  } catch (cause) {
-    console.warn(
-      'expo-observe no está disponible en este entorno (p. ej. Expo Go).',
-      cause,
-    );
+  } catch {
+    // Comportamiento esperado en Expo Go: Observe no está disponible y la app
+    // sigue funcionando sin él. No logueamos para no ensuciar la consola.
     cached = null;
   }
   return cached;
