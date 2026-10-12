@@ -137,8 +137,12 @@ Vienen de horas perdidas. Revisar esta lista al arrancar y al depurar:
 5. **El plan Free de Supabase pausa el proyecto a la semana de inactividad** y
    el mail de aviso se pierde. Si se usa cloud, registrar la fecha de último
    uso o usar `Firebase`/local.
-6. **El heredoc inline cuelga la terminal** (`cat <<'EOF' > f` dentro de un
-   comando largo). Escribir el archivo en un paso aparte.
+6. **El heredoc inline cuelga la terminal** (`cat <<'EOF' >> f` dentro de un
+   comando largo, sobre todo con `&&` encadenados). Se colgó **tres veces**. El
+   síntoma es que la shell queda en `> heredoc>` esperando más entrada y el
+   archivo puede quedar a medias. Workaround: para escribir archivos usar la
+   herramienta de edición de archivos, o el heredoc como **única** operación del
+   comando (sin `&&` ni `wc` detrás). Y siempre verificar el resultado después.
 7. **Firmar distinto rompe las actualizaciones.** Un APK firmado con otro
    keystore no se puede instalar encima de uno existente: hay que desinstalar,
    y el usuario pierde sus datos.
