@@ -3,12 +3,23 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as Linking from 'expo-linking';
 import {
   appVersion,
   buildNumber,
   formatBuildDate,
   formatBuildTime,
 } from '../src/lib/appVersion';
+
+/** WhatsApp de contacto del desarrollador (formato internacional, sin +). */
+const SUPPORT_WHATSAPP = '5491157418523';
+
+/** Abre WhatsApp con un mensaje precargado; si falla, no rompe la pantalla. */
+function openSupportWhatsApp() {
+  const message = '¡Hola Horacio! Te escribo por la app Mi Chofer Privado.';
+  const url = `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}`;
+  Linking.openURL(url).catch(() => undefined);
+}
 
 export default function AboutScreen() {
   const router = useRouter();
@@ -60,6 +71,23 @@ export default function AboutScreen() {
           <Text className="text-center text-xs text-slate-400">Aplicación realizada por</Text>
           <Text className="mt-1.5 text-center text-xl font-bold text-brand-700">
             Horacio Cebreiro
+          </Text>
+
+          {/* Contacto por WhatsApp */}
+          <Pressable
+            onPress={openSupportWhatsApp}
+            accessibilityRole="button"
+            accessibilityLabel="Escribir por WhatsApp al 11 5741 8523"
+            className="mt-4 flex-row items-center justify-center gap-2 self-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 active:bg-emerald-100"
+          >
+            <Ionicons name="logo-whatsapp" size={17} color="#059669" />
+            <Text className="text-sm font-semibold text-emerald-700">
+              +54 9 11 5741-8523
+            </Text>
+          </Pressable>
+
+          <Text className="mt-2 text-center text-[11px] text-slate-400">
+            ¿Dudas o sugerencias? Escribime.
           </Text>
         </View>
 
