@@ -1,0 +1,126 @@
+PROBAR LA APP EN LA MAC (emulador Android)
+===========================================
+
+Esto es SOLO para vos: sirve para abrir la app adentro de un celular Android
+simulado en tu Mac, sin necesidad de un celu físico. Para compartir la app con
+otras personas NO hace falta nada de esto (ellas instalan el .apk directo,
+mirá LEEME.txt).
+
+Antes de arrancar, una aclaración importante: este emulador NO puede probar
+todo. Las notificaciones de recordatorio de viajes y la apertura real de
+WhatsApp hay que verificarlas en un celu de verdad. Para el resto (pantallas,
+flujo de cobro, diseño) el emulador alcanza.
+
+LO QUE YA ESTÁ INSTALADO (no repitas estos pasos)
+-------------------------------------------------
+Ya tenés el emulador funcionando: Android 16, imagen arm64 (corre acelerado
+por hardware en tu Mac con chip Apple), y un celular virtual llamado "Pixel8".
+Esto se hizo una sola vez y queda guardado.
+
+
+ATAJO: PONER LOS COMANDOS A MANO (recomendado)
+----------------------------------------------
+Copiá y pegá esto en la Terminal una vez. Te habilita `adb` y `emulator` sin
+escribir la ruta larga cada vez:
+
+    export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
+    export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+
+(Ojo: dura solo mientras esa ventana de Terminal quede abierta. Si querés que
+sea para siempre, agregá esas dos líneas al final de ~/.zshrc)
+
+
+PASO 1 — ARRANCAR EL EMULADOR
+-----------------------------
+    emulator -avd Pixel8
+
+Si ya lo tenías abierto de otra vez, este paso no hace falta.
+Tarda ~30 segundos en quedar listo. La ventana del celular aparece sola.
+
+Para cerrarlo cuando termines de probar: apagá la ventana del emulador, o desde
+la Terminal:
+
+    adb emu kill
+
+
+PASO 2 — INSTALAR LA ÚLTIMA COMPILACIÓN
+---------------------------------------
+Primero compilá la app (mirá "CÓMO COMPILAR EL APK" en LEEME.txt) y copiá el
+APK a esta carpeta. Después, con el emulador ya abierto:
+
+    adb install -r /Users/horaciocebreiro/Claudia_app/distribucion/Claudia.apk
+
+Debe decir "Success". La `-r` significa "reemplazar": podés reinstalar
+encima cuantas veces quieras sin desinstalar antes.
+
+
+PASO 3 — ABRIR LA APP
+---------------------
+    adb shell am start -n com.michoferprivado.app/.MainActivity
+
+Debe decir "Starting: Intent { cmp=com.michoferprivado.app/.MainActivity }".
+La app arranca con datos de ejemplo a nombre "Conductor", igual que en un celu
+nuevo.
+
+Para cerrarla del todo (útil para volver a probar desde el arranque):
+
+    adb shell am force-stop com.michoferprivado.app
+
+
+ATAJO: TODO DE UNA VEZ
+----------------------
+Desde la carpeta del proyecto, esto hace todo junto (arranca el emulador si
+hace falta, compila, instala y abre la app):
+
+    cd /Users/horaciocebreiro/Claudia_app
+    ./scripts/probar-emulador.sh
+
+Tarda varios minutos porque compila de cero. Al terminar te muestra qué
+versión quedó instalada. Si solo cambiaste algo chico y no querés recompilar:
+
+    ./scripts/probar-emulador.sh --no-build
+
+
+COMANDOS ÚTILES MIENTRAS PROBÁS
+-------------------------------
+Ver los errores de la app en vivo (lo más útil cuando algo falla):
+
+    adb logcat -s ReactNativeJS:V AndroidRuntime:E
+
+Ver si la app está corriendo:
+
+    adb shell pidof com.michoferprivado.app
+
+Sacarle una foto a la pantalla del emulador (guardá el .png y abrilo):
+
+    adb exec-out screencap -p > /tmp/pantalla.png
+
+Ver qué versión hay instalada:
+
+    adb shell dumpsys package com.michoferprivado.app | grep -i versionName
+
+Desinstalar la app y arrancar de cero:
+
+    adb uninstall com.michoferprivado.app
+
+Volver la app a los datos de ejemplo (sin desinstalar): andá a Configuración →
+"Volver a datos de ejemplo".
+
+
+SI ALGO NO FUNCIONA
+-------------------
+"adb: no devices/emulators found"
+    El emulador no está abierto. Volé al PASO 1 y esperá a que arranque.
+
+"INSTALL_FAILED_UPDATE_INCOMPATIBLE" (o similar)
+    Ya hay instalada una versión firmada distinta. Desinstalá primero:
+        adb uninstall com.michoferprivado.app
+
+La app abre y se cierra al toque
+    Mirá los errores:
+        adb logcat -s AndroidRuntime:E
+    y pasame el texto.
+
+La ventana del emulador queda negra
+    Esperá un poco más (la primera vez tarda). Si sigue, cerrá todo con
+    `adb emu kill` y volvé a arrancar el emulador.

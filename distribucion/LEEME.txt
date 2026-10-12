@@ -11,6 +11,8 @@ CONTENIDO
 3. Manual-Mi-Chofer-Privado.pdf ← Manual completo de uso
 4. mensaje-whatsapp.txt    ← Texto listo para copiar y pegar al enviar
 5. LEEME.txt               ← Este archivo
+6. PROBAR-EN-LA-MAC.txt    ← SOLO para vos: cómo probar la app en el emulador
+                             Android de tu Mac. No lo mandes a nadie.
 
 CÓMO COMPILAR EL APK (build local, no usa EAS)
 ----------------------------------------------
