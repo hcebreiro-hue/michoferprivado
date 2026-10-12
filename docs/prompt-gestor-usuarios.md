@@ -150,9 +150,12 @@ src/
 5. Detalle de usuario: sus cuentas + deep-links (abrir correo, abrir Supabase, abrir Bitwarden,
    copiar email/URL/anon key, plantilla de WhatsApp por wa.me).
 6. Generador de contraseñas que abre Bitwarden (la app no persiste el secreto).
-7. Asistencia de alta: botón "Crear correo" → genera email+pass, copia al portapapeles y
-   abre Proton. Proveedor principal = Proton (fijo); dejar Tuta/GMX/Zoho/iCloud como
-   alternativas en Ajustes, documentadas. El captcha lo resuelvo yo a mano.
+7. Asistencia de alta — **botón "Crear correo" (vía PRINCIPAL, automática):** con nombre +
+   apellido la app arma `nombre.apellido@unitecapplications.com`, lo **copia al portapapeles**
+   y lo guarda como metadato. **NO abre ningún sitio ni pide captcha** (el catch-all ya recibe).
+   Alternativa manual opcional: **Proton** (genera email+pass, copia, abre `proton.me`; el
+   captcha lo resuelvo yo a mano). Dejar Tuta/GMX/Zoho/iCloud documentadas como alternativas
+   en Ajustes.
 8. Estilos con NativeWind, UI limpia y consistente, en español.
 9. Verificar que compile (`tsc --noEmit`) y que corra en el emulador Android (Regla 6.6).
 
