@@ -7,7 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:web": "expo export && mkdir -p dist/claudia dist/horacio dist/conductor && cp dist/index.html dist/claudia/index.html && cp dist/index.html dist/horacio/index.html && cp dist/index.html dist/conductor/index.html",
+    "build:web": "expo export --platform web && mkdir -p dist/claudia dist/horacio dist/conductor && cp dist/index.html dist/claudia/index.html && cp dist/index.html dist/horacio/index.html && cp dist/index.html dist/conductor/index.html",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint"
   },
