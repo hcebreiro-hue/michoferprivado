@@ -10,6 +10,7 @@ import type { Settings } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import { getSettings, saveSettings } from '../services/settings';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { maybeMigrateLocalToCloud } from '../services/migrateLocalToCloud';
 import { useAuth } from './AuthContext';
 
 interface SettingsContextValue {
@@ -37,6 +38,20 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     let active = true;
     (async () => {
       try {
+        // Al iniciar sesión, migrar a la nube (una sola vez) los datos que el
+        // chofer cargó en modo local antes de tener cuenta, para no perderlos.
+        // Se hace antes de leer los ajustes para que getSettings lea ya el
+        // perfil migrado.
+        if (session?.user?.id) {
+          const migrated = await maybeMigrateLocalToCloud();
+          if (active && migrated) {
+            console.log(
+              `[migración a la nube] viajes: ${migrated.trips}, combustible: ${migrated.fuelLogs}, ` +
+                `mantenimiento: ${migrated.maintenanceLogs}, gastos fijos: ${migrated.fixedCosts}, ` +
+                `perfil: ${migrated.profileMigrated ? 'sí' : 'no'}.`,
+            );
+          }
+        }
         const s = await getSettings();
         if (active) {
           settingsRef.current = s;
