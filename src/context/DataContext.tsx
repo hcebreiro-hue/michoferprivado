@@ -13,6 +13,10 @@ import * as maintenanceService from '../services/maintenance';
 import * as fixedCostsService from '../services/fixedCosts';
 import { loadCollection, saveCollection } from '../services/localStore';
 import {
+  cancelTripReminder,
+  scheduleTripReminder,
+} from '../services/notifications';
+import {
   seedTrips,
   seedFuelLogs,
   seedMaintenanceLogs,
@@ -185,7 +189,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const addTrip = useCallback(
     async (trip: tripsService.NewTrip) => {
-      await tripsService.createTrip(trip);
+      const created = await tripsService.createTrip(trip);
+      await scheduleTripReminder(created);
       await refresh();
     },
     [refresh],
@@ -193,7 +198,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateTrip = useCallback(
     async (id: string, patch: Partial<Trip>) => {
-      await tripsService.updateTrip(id, patch);
+      const updated = await tripsService.updateTrip(id, patch);
+      await scheduleTripReminder(updated);
       await refresh();
     },
     [refresh],
@@ -202,6 +208,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const removeTrip = useCallback(
     async (id: string) => {
       await tripsService.deleteTrip(id);
+      await cancelTripReminder(id);
       await refresh();
     },
     [refresh],
