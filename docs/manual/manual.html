@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Mi Chofer Privado — Manual de Usuario</title>
+<style>
+  :root{
+    --brand:#2563eb; --brand-dark:#1d4ed8; --brand-soft:#eff6ff;
+    --ink:#0f172a; --ink-2:#334155; --muted:#64748b; --line:#e2e8f0; --bg:#f8fafc;
+    --green:#059669; --green-soft:#ecfdf5; --amber:#d97706; --amber-soft:#fffbeb;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink-2); font-size:11pt; line-height:1.55; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  @page{ size:A4; margin:16mm 15mm 18mm; }
+  .cover{
+    height:250mm; display:flex; flex-direction:column; justify-content:center;
+    background:linear-gradient(150deg,#1e3a8a 0%,#2563eb 55%,#3b82f6 100%);
+    color:#fff; margin:-16mm -15mm 0 -15mm; padding:0 24mm; page-break-after:always;
+  }
+  .cover .badge{ display:inline-block; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+    padding:5px 14px; border-radius:999px; font-size:10pt; width:max-content; margin-bottom:20mm;}
+  .cover h1{ font-size:40pt; line-height:1.05; margin:0 0 6mm; font-weight:800; letter-spacing:-.5px;}
+  .cover h2{ font-size:17pt; font-weight:500; margin:0 0 12mm; opacity:.92;}
+  .cover .meta{ font-size:10.5pt; opacity:.85; border-top:1px solid rgba(255,255,255,.3); padding-top:5mm;}
+  .cover .emoji{ font-size:34pt; margin-bottom:5mm;}
+  h2.section{
+    font-size:20pt; color:var(--ink); font-weight:800; letter-spacing:-.3px;
+    margin:0 0 3mm; padding-bottom:3mm; border-bottom:3px solid var(--brand); page-break-after:avoid;
+  }
+  h3{ font-size:13.5pt; color:var(--brand-dark); font-weight:700; margin:6mm 0 2mm; page-break-after:avoid;}
+  h4{ font-size:11.5pt; color:var(--ink); font-weight:700; margin:4mm 0 1.5mm; page-break-after:avoid;}
+  p{ margin:0 0 3mm; }
+  .lead{ font-size:12pt; color:var(--ink-2); }
+  strong{ color:var(--ink); }
+  .page{ page-break-before:always; }
+  ul,ol{ margin:0 0 3mm; padding-left:6mm; }
+  li{ margin-bottom:1.5mm; }
+  .callout{ border-radius:10px; padding:4mm 5mm; margin:4mm 0; page-break-inside:avoid; }
+  .callout .t{ font-weight:700; margin-bottom:1.5mm; display:block; }
+  .tip{ background:var(--brand-soft); border-left:4px solid var(--brand); }
+  .tip .t{ color:var(--brand-dark); }
+  .warn{ background:var(--amber-soft); border-left:4px solid var(--amber); }
+  .warn .t{ color:#b45309; }
+  .ok{ background:var(--green-soft); border-left:4px solid var(--green); }
+  .ok .t{ color:#047857; }
+  .key{ background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:4mm 5mm; margin:4mm 0; page-break-inside:avoid;}
+  .screen{ display:flex; gap:7mm; align-items:flex-start; margin:4mm 0 6mm; page-break-inside:avoid; }
+  .screen .txt{ flex:1 1 0; }
+  .screen .shot{ flex:0 0 50mm; }
+  .screen .shot img{ width:50mm; border:1px solid var(--line); border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.12); }
+  .screen .shot .cap{ font-size:8.5pt; color:var(--muted); text-align:center; margin-top:2mm; }
+  .shot-center{ text-align:center; margin:4mm 0; page-break-inside:avoid;}
+  .shot-center img{ width:70mm; border:1px solid var(--line); border-radius:16px; box-shadow:0 4px 16px rgba(15,23,42,.14);}
+  table{ width:100%; border-collapse:collapse; margin:3mm 0 5mm; font-size:10pt; }
+  th,td{ text-align:left; padding:2.5mm 3mm; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{ background:var(--brand); color:#fff; font-weight:600; }
+  tr:nth-child(even) td{ background:var(--bg); }
+  .toc a{ color:var(--ink-2); text-decoration:none; }
+  .toc li{ padding:1.5mm 0; border-bottom:1px dotted var(--line); }
+  .toc .num{ color:var(--brand); font-weight:700; display:inline-block; width:9mm; }
+  .pill{ display:inline-block; background:var(--brand); color:#fff; font-size:8.5pt; font-weight:700;
+    padding:1mm 3mm; border-radius:999px; }
+  .footer-note{ font-size:9pt; color:var(--muted); margin-top:6mm; border-top:1px solid var(--line); padding-top:3mm;}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <span class="badge">GUÍA OFICIAL · PARA CHOFERES</span>
+  <div class="emoji">🚗</div>
+  <h1>Mi Chofer<br>Privado</h1>
+  <h2>Manual de Usuario</h2>
+  <div class="meta">
+    Tu compañero para gestionar viajes, clientes, finanzas y el mantenimiento de tu auto.<br>
+    Versión 1.0 · Octubre 2026<br>
+    <span style="opacity:.95;">Aplicación realizada por Horacio Cebreiro</span>
+  </div>
+</section>
+<!-- ===== ÍNDICE ===== -->
+<section class="page">
+  <h2 class="section">Contenido</h2>
+  <ol class="toc">
+    <li><span class="num">1</span> ¿Qué es Mi Chofer Privado?</li>
+    <li><span class="num">2</span> Cómo funciona: modo Local y modo Cuenta</li>
+    <li><span class="num">3</span> Primeros pasos al abrir la app</li>
+    <li><span class="num">4</span> Inicio — tu resumen del mes</li>
+    <li><span class="num">5</span> Viajes — calendario y clientes</li>
+    <li><span class="num">6</span> Tarifas — la calculadora de viajes</li>
+    <li><span class="num">7</span> Auto — mantenimiento, gastos y combustible</li>
+    <li><span class="num">8</span> Reportes — tus finanzas mes a mes</li>
+    <li><span class="num">9</span> Configuración — identidad, tarifas y cuenta</li>
+    <li><span class="num">10</span> Tu página web de reservas</li>
+    <li><span class="num">11</span> Activar tu cuenta real</li>
+    <li><span class="num">12</span> Preguntas frecuentes y buenas prácticas</li>
+  </ol>
+  <div class="callout tip" style="margin-top:10mm;">
+    <span class="t">💡 Cómo leer este manual</span>
+    Cada sección muestra una <strong>captura real</strong> de la app junto a la explicación de cada elemento.
+    Los recuadros de color destacan <strong>consejos</strong> (azul), <strong>advertencias</strong> (ámbar)
+    y <strong>datos clave</strong> (verde).
+  </div>
+</section>
+
+<!-- ===== 1. QUÉ ES ===== -->
+<section class="page">
+  <h2 class="section">1 · ¿Qué es Mi Chofer Privado?</h2>
+  <p class="lead"><strong>Mi Chofer Privado</strong> es una aplicación para choferes independientes.
+  Te ayuda a organizar tu día a día y, sobre todo, a entender <strong>cuánto ganás de verdad</strong>.</p>
+  <p>Con la app podés:</p>
+  <ul>
+    <li>📅 <strong>Agendar y seguir tus viajes</strong> y clientes.</li>
+    <li>🧮 <strong>Calcular el precio</strong> de cada viaje según los kilómetros.</li>
+    <li>⛽ <strong>Registrar combustible</strong> y conocer el rendimiento de tu auto.</li>
+    <li>🔧 <strong>Controlar el mantenimiento</strong> (aceite, frenos) y vencimientos (VTV, registro, seguro).</li>
+    <li>💰 <strong>Ver tus gastos fijos</strong> del mes (seguro, patente, cochera, celular).</li>
+    <li>📊 <strong>Consultar reportes</strong> con tu ganancia real, mes a mes.</li>
+    <li>🌐 <strong>Compartir una web de reservas</strong> para que tus pasajeros vean tu disponibilidad.</li>
+  </ul>
+  <div class="key">
+    <h4 style="margin-top:0;">La idea central</h4>
+    <p style="margin-bottom:0;">Muchas apps muestran solo “cuánto cobraste”. Mi Chofer Privado va más allá:
+    resta el combustible, el mantenimiento y un <strong>fondo de reserva para el auto</strong>, para que veas tu
+    <strong>ganancia real</strong> y no te sorprenda cuando haya que cambiar neumáticos.</p>
+  </div>
+</section>
+
+<!-- ===== 2. MODOS ===== -->
+<section class="page">
+  <h2 class="section">2 · Cómo funciona: modo Local y modo Cuenta</h2>
+  <p class="lead">La app tiene <strong>dos formas de uso</strong>. Podés empezar a usarla al instante,
+  sin registrarte, y activar tu cuenta recién cuando quieras.</p>
+
+  <table>
+    <tr><th></th><th>Modo Local (por defecto)</th><th>Modo Cuenta (opcional)</th></tr>
+    <tr><td><strong>Registro</strong></td><td>No requiere. Abrís y usás.</td><td>Creás tu cuenta desde Configuración.</td></tr>
+    <tr><td><strong>Nombre</strong></td><td>“Conductor”</td><td>Tu nombre real.</td></tr>
+    <tr><td><strong>Dónde se guardan<br>los datos</strong></td><td>En tu celular (local).</td><td>En la nube (tu cuenta).</td></tr>
+    <tr><td><strong>Web de reservas</strong></td><td>No disponible.</td><td>Sí, con tu enlace personal.</td></tr>
+    <tr><td><strong>Ideal para</strong></td><td>Probar y organizarte ya.</td><td>Uso real y compartir con pasajeros.</td></tr>
+  </table>
+
+  <div class="callout ok">
+    <span class="t">✅ Buena noticia</span>
+    En modo Local la app es <strong>totalmente funcional</strong>: viene con datos de ejemplo para que
+    explores, y todo lo que cargues se guarda en tu teléfono. No perdés nada.
+  </div>
+
+  <h3>El “fondo de reserva para el auto”</h3>
+  <p>Es el corazón financiero de la app. Cada kilómetro que recorrés desgasta tu auto (neumáticos,
+  frenos, aceite). La app calcula un <strong>costo de desgaste por kilómetro</strong> y lo separa como
+  reserva, para que esa plata NO la gastes: es del auto.</p>
+  <div class="callout tip">
+    <span class="t">💡 Ejemplo</span>
+    Si tu tarifa es <strong>$ 120/km</strong> y el desgaste <strong>$ 20/km</strong>, en un viaje de 30 km
+    cobrás $ 3.600, separás $ 600 para el auto y tu <strong>ganancia real</strong> es $ 3.000.
+  </div>
+</section>
+<!-- ===== 3. PRIMEROS PASOS ===== -->
+<section class="page">
+  <h2 class="section">3 · Primeros pasos al abrir la app</h2>
+  <p class="lead">Nada más instalar la app ya podés moverte libremente. No te va a pedir registro.</p>
+  <ol>
+    <li><strong>Abrís la app</strong> y entrás directo a la pantalla de <strong>Inicio</strong>.</li>
+    <li>Vas a ver el nombre <strong>“Conductor”</strong> y algunos <strong>viajes de ejemplo</strong>
+    para que explores cómo funciona.</li>
+    <li>Recorré las 5 secciones de abajo: <strong>Inicio, Viajes, Tarifas, Auto y Reportes</strong>.</li>
+    <li>Cuando quieras, andá a <strong>Configuración</strong> (el ícono ⚙️ arriba a la derecha) para
+    poner tu nombre, tu teléfono y tus tarifas.</li>
+  </ol>
+
+  <div class="callout warn">
+    <span class="t">⚠️ Datos de ejemplo</span>
+    Los viajes que ves al inicio (María, Carlos, Lucía…) son <strong>de demostración</strong>. Cuando
+    guardes tu perfil en Configuración, esos ejemplos desaparecen y arrancás con tu propia información.
+  </div>
+
+  <h3>La barra de navegación (abajo)</h3>
+  <p>Es tu menú principal. Siempre visible, con 5 accesos:</p>
+  <div class="shot-center">
+    <img src="img/01-inicio.png" alt="Pantalla de Inicio">
+    <div style="font-size:8.5pt;color:var(--muted);margin-top:2mm;">Inicio · Viajes · Tarifas · Auto · Reportes</div>
+  </div>
+</section>
+
+<!-- ===== 4. INICIO ===== -->
+<section class="page">
+  <h2 class="section">4 · Inicio — tu resumen del mes</h2>
+  <p>Es la pantalla que ves al entrar. Te da una foto rápida de tu mes.</p>
+
+  <div class="screen">
+    <div class="txt">
+      <h4>Arriba: tus dos números del mes</h4>
+      <ul>
+        <li><strong>Ingresos del mes</strong> (verde): todo lo que cobraste y cuántos viajes hiciste.</li>
+        <li><strong>Gastos del mes</strong> (ámbar): combustible, mantenimiento y gastos fijos, con el <strong>neto</strong> debajo.</li>
+      </ul>
+      <h4>En el medio: tu agenda web</h4>
+      <ul>
+        <li><strong>Ver Agenda Web</strong>: abre tu página pública de reservas.</li>
+        <li><strong>Copiar Link WhatsApp</strong>: copia el enlace para enviarlo a tus pasajeros.</li>
+      </ul>
+      <h4>Abajo: próximos viajes</h4>
+      <p>Tus siguientes viajes con cliente, origen → destino, fecha y hora, y botones para
+      <strong>Llamar</strong> o escribir por <strong>WhatsApp</strong>.</p>
+    </div>
+    <div class="shot">
+      <img src="img/01-inicio.png" alt="Pantalla de Inicio">
+      <div class="cap">Pantalla de Inicio</div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="t">💡 Tip</span>
+    Si deslizás hacia abajo la pantalla, los datos se <strong>actualizan</strong>.
+  </div>
+</section>
+<!-- ===== 5. VIAJES ===== -->
+<section class="page">
+  <h2 class="section">5 · Viajes — calendario y clientes</h2>
+  <p>Tu centro de operaciones para agendar y hacer seguimiento de cada viaje.</p>
+
+  <div class="screen">
+    <div class="txt">
+      <h4>El calendario</h4>
+      <p>Muestra el mes. Los días con viajes tienen un <strong>punto</strong>. Tocá un día para ver
+      solo sus viajes; volvé a tocar para quitar el filtro.</p>
+      <h4>Los filtros</h4>
+      <p>Botones para ver <strong>Todos, Pendientes, Completados o Cancelados</strong>.</p>
+      <h4>La lista de viajes</h4>
+      <p>Cada tarjeta muestra cliente, origen → destino, fecha, hora, precio y estado. Desde cada
+      viaje podés <strong>marcarlo como completado</strong>, <strong>cancelarlo</strong>, <strong>editarlo</strong>
+      (tocándolo) o <strong>eliminarlo</strong>.</p>
+      <h4>Crear un viaje</h4>
+      <p>El botón <strong>“+”</strong> (abajo a la derecha) abre el formulario: cliente, teléfono,
+      origen, destino, fecha, hora, kilómetros y precio.</p>
+    </div>
+    <div class="shot">
+      <img src="img/02-viajes.png" alt="Pantalla de Viajes">
+      <div class="cap">Viajes y Clientes</div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="t">💡 Tip</span>
+    Guardá el <strong>teléfono del cliente</strong> para que aparezcan los botones de Llamar y WhatsApp
+    y contactarlo con un toque.
+  </div>
+</section>
+
+<!-- ===== 6. TARIFAS ===== -->
+<section class="page">
+  <h2 class="section">6 · Tarifas — la calculadora de viajes</h2>
+  <p>Para saber cuánto cobrar antes de aceptar un viaje.</p>
+
+  <div class="screen">
+    <div class="txt">
+      <h4>Tus tarifas actuales</h4>
+      <p>Arriba ves tu <strong>tarifa por kilómetro</strong> vigente. Con “Editar tarifas” vas a
+      Configuración para cambiarla.</p>
+      <h4>Calcular viaje</h4>
+      <ol>
+        <li>Escribí los <strong>kilómetros</strong> del recorrido (o usá los botones de distancia rápida: 10, 25, 50, 100 km).</li>
+        <li>La app muestra el <strong>precio estimado</strong> en grande.</li>
+        <li>Debajo, el <strong>fondo de reserva</strong> para el auto y tu <strong>ganancia neta</strong> estimada.</li>
+      </ol>
+      <p>La ganancia aparece en <span style="color:var(--green);font-weight:700;">verde</span> si es
+      positiva o en <span style="color:var(--red);font-weight:700;">rojo</span> si los gastos la superan.</p>
+    </div>
+    <div class="shot">
+      <img src="img/03-tarifas.png" alt="Pantalla de Tarifas">
+      <div class="cap">Calculadora de tarifas</div>
+    </div>
+  </div>
+
+  <div class="callout ok">
+    <span class="t">✅ Recuerda</span>
+    El <strong>precio estimado</strong> es lo que cobrás. La <strong>ganancia neta</strong> es lo que
+    realmente te queda después de separar el desgaste del auto.
+  </div>
+</section>
+<!-- ===== 7. AUTO ===== -->
+<section class="page">
+  <h2 class="section">7 · Auto — mantenimiento, gastos y combustible</h2>
+  <p>El “gabinete” de tu vehículo. Acá cuidás el auto y registrás sus costos.</p>
+
+  <div class="screen">
+    <div class="txt">
+      <h4>🔧 Mantenimiento</h4>
+      <p>Barras de progreso para el <strong>aceite</strong> y los <strong>frenos</strong>, según tu
+      odómetro y los intervalos de servicio. Te avisan cuándo toca el próximo cambio.</p>
+      <h4>📅 Vencimientos</h4>
+      <p>Controlá la <strong>VTV/RTO</strong>, el <strong>registro</strong> y el <strong>seguro</strong>.
+      La app te avisa cuando están por vencer.</p>
+      <h4>💰 Gastos fijos</h4>
+      <p>Tus gastos mensuales fijos: <strong>seguro, patente, cochera, celular</strong>. Podés
+      activarlos o desactivarlos, y editarlos.</p>
+      <h4>⛽ Combustible</h4>
+      <p>Registrá cada carga (litros, costo, odómetro) y la app calcula tu <strong>rendimiento
+      aproximado</strong> (km por litro).</p>
+    </div>
+    <div class="shot">
+      <img src="img/04-auto.png" alt="Pantalla de Auto">
+      <div class="cap">Control del Auto</div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="t">💡 Por qué importa</span>
+    Todo lo que cargues acá alimenta los <strong>Reportes</strong>. Si registrás combustible y
+    mantenimiento, tu ganancia real va a ser precisa.
+  </div>
+</section>
+
+<!-- ===== 8. REPORTES ===== -->
+<section class="page">
+  <h2 class="section">8 · Reportes — tus finanzas mes a mes</h2>
+  <p>El panel donde se resume todo tu trabajo.</p>
+
+  <div class="screen">
+    <div class="txt">
+      <h4>Resumen global</h4>
+      <p>Tus <strong>ingresos</strong> y <strong>costos fijos</strong> totales, y arriba de todo tu
+      <strong>ganancia neta real</strong> (en verde si es positiva, en rojo si no).</p>
+      <h4>Balance por mes</h4>
+      <p>Cada mes muestra barras comparando <strong>ingresos</strong> y <strong>gastos</strong>, con el
+      desglose de:</p>
+      <ul>
+        <li>⛽ Combustible</li>
+        <li>🔧 Mantenimiento</li>
+        <li>📅 Gastos fijos</li>
+        <li>🛡️ Reserva para el auto</li>
+      </ul>
+      <p>Y al final, la <strong>ganancia real tras la reserva</strong>: tu verdadero resultado.</p>
+    </div>
+    <div class="shot">
+      <img src="img/05-reportes.png" alt="Pantalla de Reportes">
+      <div class="cap">Reportes financieros</div>
+    </div>
+  </div>
+
+  <div class="callout ok">
+    <span class="t">✅ Cómo leerlo</span>
+    “Ganancia neta” = ingresos − gastos del mes. “Ganancia real tras reserva” = esa ganancia
+    <strong>menos</strong> la plata que separaste para el futuro del auto.
+  </div>
+</section>
+<!-- ===== 9. CONFIGURACIÓN ===== -->
+<section class="page">
+  <h2 class="section">9 · Configuración — identidad, tarifas y cuenta</h2>
+  <p>Se abre con el ícono ⚙️ arriba a la derecha. Tiene tres bloques.</p>
+
+  <div class="screen">
+    <div class="txt">
+      <h4>👤 Identidad</h4>
+      <p>Tu <strong>nombre</strong> y <strong>teléfono</strong>. Se guardan una sola vez: después de
+      guardar, quedan <strong>protegidos</strong> y ya no se pueden cambiar (para que tu enlace de
+      reservas sea estable).</p>
+      <h4>💵 Tarifas</h4>
+      <p>Tu <strong>tarifa por kilómetro</strong> y el <strong>costo de desgaste</strong> (reserva).
+      Podés actualizarlos cuando quieras; no afectan tu historial.</p>
+      <h4>🔑 Cuenta</h4>
+      <p>Desde acá <strong>activás tu cuenta real</strong> o, si ya la tenés, cerrás sesión.</p>
+      <h4>ℹ️ Acerca de</h4>
+      <p>Al final de la pantalla, el acceso <strong>“Acerca de”</strong> muestra la información de
+      la app, la versión y los <strong>créditos</strong>.</p>
+    </div>
+    <div class="shot">
+      <img src="img/06-configuracion.png" alt="Pantalla de Configuración">
+      <div class="cap">Configuración</div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="t">⚠️ Antes de guardar tu identidad</span>
+    Escribí bien tu <strong>nombre y teléfono</strong>: una vez guardados quedan fijos. Son los datos
+    que verán tus pasajeros.
+  </div>
+
+  <div class="shot-center">
+    <img src="img/09-acerca-de.png" alt="Pantalla Acerca de">
+    <div style="font-size:8.5pt;color:var(--muted);margin-top:2mm;">Pantalla “Acerca de” con los créditos</div>
+  </div>
+</section>
+
+<!-- ===== 10. WEB DE RESERVAS ===== -->
+<section class="page">
+  <h2 class="section">10 · Tu página web de reservas</h2>
+  <p class="lead">Cuando activás tu cuenta, la app te da un <strong>enlace personal</strong> para
+  compartir por WhatsApp con tus pasajeros.</p>
+
+  <div class="screen">
+    <div class="txt">
+      <h4>¿Qué ve tu pasajero?</h4>
+      <ul>
+        <li>Tu <strong>nombre</strong> y un <strong>calendario</strong> con tus horarios.</li>
+        <li>Los turnos <strong style="color:var(--green);">Libres</strong> y <strong style="color:var(--amber);">Ocupados</strong>,
+        según tu agenda real de viajes.</li>
+        <li>La agenda se <strong>actualiza sola</strong>: cuando cargás un viaje en la app, ese horario
+        aparece como Ocupado en la web.</li>
+      </ul>
+      <h4>¿Cómo la compartís?</h4>
+      <p>En <strong>Inicio</strong>, tocá <strong>“Copiar Link WhatsApp”</strong> y pegalo en el chat
+      de tu pasajero. O usá <strong>“Ver Agenda Web”</strong> para abrirla vos.</p>
+    </div>
+    <div class="shot">
+      <img src="img/07-reservas.png" alt="Web de reservas">
+      <div class="cap">Portal de reservas</div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="t">💡 Tip</span>
+    Cuantos más viajes cargues en la app, más precisa será la disponibilidad que ve tu pasajero.
+    Reservá y cargá el viaje para que no te reserve encima.
+  </div>
+</section>
+
+<!-- ===== 11. ACTIVAR CUENTA ===== -->
+<section class="page">
+  <h2 class="section">11 · Activar tu cuenta real</h2>
+  <p>Pasás del modo Local (en tu celular) al modo Cuenta (en la nube, con web de reservas).</p>
+
+  <div class="screen">
+    <div class="txt">
+      <h4>Paso a paso</h4>
+      <ol>
+        <li>Andá a <strong>Configuración → Cuenta</strong>.</li>
+        <li>Tocá <strong>“Iniciar sesión o crear cuenta”</strong>.</li>
+        <li>Elegí <strong>crear cuenta</strong> con tu correo y una contraseña (mínimo 8 caracteres).</li>
+        <li>Confirmá tu correo si te lo pide, y volvé a entrar.</li>
+        <li>Completá tu <strong>nombre, teléfono y tarifas</strong> en Configuración.</li>
+      </ol>
+      <p>¡Listo! A partir de ahí tus datos se guardan en tu cuenta y tu <strong>web de reservas</strong>
+      queda en línea con tu enlace personal.</p>
+    </div>
+    <div class="shot">
+      <img src="img/08-cuenta.png" alt="Pantalla de cuenta">
+      <div class="cap">Crear / iniciar cuenta</div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="t">⚠️ Importante</span>
+    Los viajes del <strong>modo Local</strong> viven solo en tu celular y no se copian automáticamente a
+    tu cuenta. Si querés conservarlos, hacelo a mano después de activar tu cuenta.
+  </div>
+</section>
+<!-- ===== 12. FAQ ===== -->
+<section class="page">
+  <h2 class="section">12 · Preguntas frecuentes y buenas prácticas</h2>
+
+  <h3>Preguntas frecuentes</h3>
+  <h4>¿Necesito internet para usar la app?</h4>
+  <p>En <strong>modo Local</strong>, no: todo funciona en tu celular. La <strong>web de reservas</strong>
+  y el <strong>modo Cuenta</strong> sí necesitan conexión.</p>
+
+  <h4>¿Pierdo mis datos si cierro la app?</h4>
+  <p>No. En modo Local se guardan en tu teléfono y siguen ahí. En modo Cuenta, en tu cuenta en la nube.</p>
+
+  <h4>¿Puedo cambiar mi nombre después?</h4>
+  <p>Una vez que guardás tu perfil, el nombre y teléfono quedan <strong>protegidos</strong> para que tu
+  enlace de reservas no cambie.</p>
+
+  <h4>¿Qué es la “reserva para el auto”?</h4>
+  <p>La plata que separás de cada viaje para futuras reparaciones y neumáticos. No es un gasto de hoy:
+  es un ahorro para el auto.</p>
+
+  <h3>Buenas prácticas</h3>
+  <ul>
+    <li>✅ <strong>Cargá cada viaje</strong> apenas lo acordás: es la base de todo.</li>
+    <li>✅ <strong>Registrá el combustible</strong> cada vez que cargues.</li>
+    <li>✅ <strong>Marcá los mantenimientos</strong> para no olvidar aceite y frenos.</li>
+    <li>✅ <strong>Revisá los Reportes</strong> al cierre de cada mes.</li>
+    <li>✅ <strong>Separá la reserva</strong>: es la forma de que el auto no te coma las ganancias.</li>
+  </ul>
+
+  <div class="footer-note">
+    <strong>Mi Chofer Privado</strong> · Manual de Usuario · Versión 1.0 · Octubre 2026.<br>
+    Aplicación realizada por <strong>Horacio Cebreiro</strong>.<br>
+    ¿Dudas o sugerencias? Escribinos por los canales de soporte de la app.
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cómo instalar Mi Chofer Privado</title>
+<style>
+  :root{
+    --brand:#2563eb; --brand-dark:#1d4ed8; --brand-soft:#eff6ff;
+    --ink:#0f172a; --ink-2:#334155; --muted:#64748b; --line:#e2e8f0; --bg:#f8fafc;
+    --green:#059669; --green-soft:#ecfdf5; --amber:#d97706; --amber-soft:#fffbeb; --red:#ef4444;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink-2); font-size:11pt; line-height:1.55; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  @page{ size:A4; margin:15mm 15mm 16mm; }
+  .cover{ background:linear-gradient(150deg,#1e3a8a 0%,#2563eb 60%,#3b82f6 100%); color:#fff;
+    margin:-15mm -15mm 6mm -15mm; padding:14mm 18mm 12mm; page-break-after:always;}
+  .cover .badge{ display:inline-block; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+    padding:4px 12px; border-radius:999px; font-size:9.5pt; width:max-content; margin-bottom:6mm;}
+  .cover h1{ font-size:30pt; line-height:1.08; margin:0 0 3mm; font-weight:800; letter-spacing:-.3px;}
+  .cover h2{ font-size:14pt; font-weight:500; margin:0; opacity:.92;}
+  .cover .emoji{ font-size:28pt; margin-bottom:3mm;}
+  h2.section{ font-size:16pt; color:var(--ink); font-weight:800; margin:6mm 0 3mm; page-break-after:avoid;}
+  h4{ font-size:11pt; color:var(--ink); font-weight:700; margin:3mm 0 1.5mm; page-break-after:avoid;}
+  p{ margin:0 0 2.5mm; } strong{ color:var(--ink); }
+  ul,ol{ margin:0 0 2.5mm; padding-left:6mm; } li{ margin-bottom:1.5mm; }
+  .callout{ border-radius:10px; padding:3.5mm 4.5mm; margin:3.5mm 0; page-break-inside:avoid;}
+  .callout .t{ font-weight:700; display:block; margin-bottom:1.5mm;}
+  .tip{ background:var(--brand-soft); border-left:4px solid var(--brand);} .tip .t{color:var(--brand-dark);}
+  .warn{ background:var(--amber-soft); border-left:4px solid var(--amber);} .warn .t{color:#b45309;}
+  .ok{ background:var(--green-soft); border-left:4px solid var(--green);} .ok .t{color:#047857;}
+  .req{ background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:4mm 5mm; margin:0 0 4mm;}
+  .step{ display:flex; gap:4mm; align-items:flex-start; margin:0 0 4mm; page-break-inside:avoid;}
+  .step .num{ flex:0 0 9mm; height:9mm; border-radius:50%; background:var(--brand); color:#fff;
+    font-weight:800; font-size:13pt; display:flex; align-items:center; justify-content:center;}
+  .step .body{ flex:1;}
+  code{ background:var(--bg); border:1px solid var(--line); border-radius:5px; padding:0 4px; font-size:10pt; color:var(--ink);}
+  .path{ background:var(--ink); color:#e2e8f0; border-radius:8px; padding:3mm 4mm; font-size:9.5pt; margin:2mm 0;
+    font-family:ui-monospace,Menlo,Consolas,monospace; page-break-inside:avoid;}
+  .footer-note{ font-size:9pt; color:var(--muted); margin-top:5mm; border-top:1px solid var(--line); padding-top:3mm;}
+  table{ width:100%; border-collapse:collapse; margin:2mm 0 4mm; font-size:10pt;}
+  th,td{ text-align:left; padding:2.5mm 3mm; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{ background:var(--brand); color:#fff; font-weight:600;}
+  tr:nth-child(even) td{ background:var(--bg);}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <span class="badge">GUÍA DE INSTALACIÓN · ANDROID</span>
+  <div class="emoji">📲</div>
+  <h1>Cómo instalar<br>Mi Chofer Privado</h1>
+  <h2>Guía rápida, paso a paso y sin tecnicismos</h2>
+</section>
+<h2 class="section" style="margin-top:0;">Antes de empezar</h2>
+<div class="req">
+  <p style="margin-bottom:1.5mm;"><strong>Vas a necesitar:</strong></p>
+  <ul style="margin-bottom:0;">
+    <li>Un celular o tablet con <strong>Android</strong>.</li>
+    <li>El <strong>archivo de la app</strong> que te enviaron (termina en <code>.apk</code>).</li>
+    <li>Conexión a internet para descargar ese archivo.</li>
+  </ul>
+</div>
+
+<div class="callout tip">
+  <span class="t">ℹ️ Importante</span>
+  Esta app <strong>no está en Google Play</strong>. Por eso la instalamos "a mano" con un archivo.
+  Es totalmente normal y seguro, siempre que el archivo te lo haya enviado <strong>alguien de confianza</strong>.
+</div>
+
+<div class="step">
+  <div class="num">1</div>
+  <div class="body">
+    <h4>Recibí el archivo de la app</h4>
+    <p>Te van a pasar el archivo por <strong>WhatsApp</strong> o <strong>Telegram</strong>, o un <strong>link</strong>
+    de descarga (WeTransfer, Drive, etc.). Descargalo. Va a quedar guardado en la carpeta
+    <strong>Descargas</strong> de tu celular o directamente en el chat.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">2</div>
+  <div class="body">
+    <h4>Abrí el archivo</h4>
+    <p>Buscá el archivo descargado (se llama <strong>Mi-Chofer-Privado.apk</strong> o parecido) y
+    <strong>tocalo</strong>. Si no lo encontrás, abrí la app <strong>"Archivos"</strong> o
+    <strong>"Mis Archivos"</strong> del celular y andá a la carpeta <strong>Descargas</strong>.</p>
+    <p>Android casi seguro te va a mostrar una <strong>advertencia de seguridad</strong>. No te asustes:
+    es porque la app no viene de Play Store. Continuá con el Paso 3.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">3</div>
+  <div class="body">
+    <h4>Permitir "apps desconocidas" (la parte clave)</h4>
+    <p>Android no deja instalar apps fuera de Play Store hasta que vos se lo autorices. Se hace una sola vez.</p>
+    <p><strong>La forma más fácil</strong> (funciona en la mayoría de los celulares):</p>
+    <ul>
+      <li>Al tocar el archivo, Android te ofrece ir a Ajustes con un cartel tipo <em>"Permitir instalar apps desconocidas"</em>.</li>
+      <li>Activá el interruptor <strong>"Permitir desde esta fuente"</strong>.</li>
+      <li>Volvé atrás y tocá el archivo otra vez.</li>
+    </ul>
+    <p><strong>Si no te apareció ese cartel</strong>, hacelo a mano desde Ajustes:</p>
+    <div class="path">Ajustes → Aplicaciones → Acceso especial → Instalar apps desconocidas → (elegí tu navegador o "Archivos") → activá "Permitir desde esta fuente"</div>
+  </div>
+</div>
+<div class="step">
+  <div class="num">4</div>
+  <div class="body">
+    <h4>Si Play Store la bloquea: Google Play Protect</h4>
+    <p>A veces aparece <em>"App bloqueada"</em> o <em>"app no verificada"</em>. Para continuar, apagá
+    momentáneamente Play Protect:</p>
+    <div class="path">Play Store → tu foto de perfil (arriba a la derecha) → Play Protect → Ajustes (⚙️) → desactivá "Analizar las apps con Play Protect"</div>
+    <p>Volvé a tocar el archivo <code>.apk</code>. Si igual te advierte, elegí
+    <strong>"Más detalles"</strong> y luego <strong>"Instalar de todas formas"</strong>.</p>
+    <p style="font-size:9.5pt;color:var(--muted);">💡 Cuando termines de instalar, podés volver a activar Play Protect si querés.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">5</div>
+  <div class="body">
+    <h4>Instalá y abrí la app</h4>
+    <p>Tocá <strong>Instalar</strong> → esperá unos segundos → tocá <strong>Abrir</strong>. ¡Listo!</p>
+  </div>
+</div>
+
+<div class="callout ok">
+  <span class="t">✅ ¡Ya está instalada!</span>
+  La app se llama <strong>Mi Chofer Privado</strong> y ya la vas a ver en tu pantalla de inicio junto a las demás.
+</div>
+
+<h2 class="section">Primer uso</h2>
+<ul>
+  <li>La app <strong>abre directo</strong>, sin pedirte usuario ni contraseña.</li>
+  <li>Vas a ver el nombre <strong>"Conductor"</strong> y algunos <strong>viajes de ejemplo</strong> para que explores.</li>
+  <li>Recorré las secciones de abajo: <strong>Inicio, Viajes, Tarifas, Auto y Reportes</strong>.</li>
+  <li>Cuando quieras, andá a <strong>Configuración ⚙️</strong> para poner tu nombre, teléfono y tarifas.</li>
+</ul>
+
+<h2 class="section">Si algo no funciona</h2>
+<table>
+  <tr><th>Problema</th><th>Solución</th></tr>
+  <tr><td>"No se puede instalar la app"</td><td>Repasá el <strong>Paso 3</strong>: hay que dar el permiso de "instalar apps desconocidas".</td></tr>
+  <tr><td>"App bloqueada / no verificada"</td><td>Es Play Protect → <strong>Paso 4</strong>. Desactivalo un momento e instalá.</td></tr>
+  <tr><td>No encuentro el archivo</td><td>Abrí la app <strong>"Archivos" / "Mis Archivos"</strong> → carpeta <strong>Descargas</strong>.</td></tr>
+  <tr><td>Tengo Samsung, Xiaomi, Motorola…</td><td>La ruta de Ajustes puede variar un poco, pero el permiso a buscar es siempre el mismo: <strong>"instalar apps desconocidas"</strong>.</td></tr>
+</table>
+
+<div class="callout warn">
+  <span class="t">🔒 Seguridad</span>
+  Instalá esta app <strong>solo</strong> si te envió el archivo alguien de tu confianza. Si te llega un APK de Mi Chofer Privado por una vía sospechosa, no lo abras.
+</div>
+
+<div class="footer-note">
+  <strong>Mi Chofer Privado</strong> · Guía de instalación · Versión 1.0 · Octubre 2026.<br>
+  Aplicación realizada por <strong>Horacio Cebreiro</strong>.
+</div>
+
+
+</body>
+</html>
