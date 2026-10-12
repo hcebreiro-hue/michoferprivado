@@ -6,31 +6,42 @@ Mandales, junto al APK, estos archivos.
 
 CONTENIDO
 ---------
-1. Mi-Chofer-Privado.apk   ← La app (la agregás vos después de compilar, ver abajo)
+1. Claudia.apk             ← La app (la compilás vos en tu compu, ver abajo)
 2. Guia-Instalacion.pdf    ← Paso a paso con imágenes (OBLIGATORIO enviarlo)
 3. Manual-Mi-Chofer-Privado.pdf ← Manual completo de uso
 4. mensaje-whatsapp.txt    ← Texto listo para copiar y pegar al enviar
 5. LEEME.txt               ← Este archivo
 
-CÓMO COMPLETAR EL PAQUETE (tu parte)
-------------------------------------
-1. Compilá el APK:
-   cd /Users/horaciocebreiro/Claudia_app
-   npm_config_cache=/tmp/npm_cache_eas npx --yes eas-cli@latest build --platform android --profile preview
+CÓMO COMPILAR EL APK (build local, no usa EAS)
+----------------------------------------------
+La app se compila en tu Mac con el Android SDK que ya tenés instalado.
+Tarda unos 5-6 minutos la primera vez y ~30 segundos las siguientes.
 
-2. Cuando EAS termine, descargá el .apk desde el link/QR que te da.
+1. Compilá:
+   cd /Users/horaciocebreiro/Claudia_app/android
+   JAVA_HOME=/opt/homebrew/opt/openjdk@17 \
+   ANDROID_HOME=/opt/homebrew/share/android-commandlinetools \
+   ./gradlew assembleRelease
 
-3. Guardalo DENTRO de esta carpeta con el nombre:
-   distribucion/Mi-Chofer-Privado.apk
+2. Copiá el resultado a esta carpeta:
+   cp android/app/build/outputs/apk/release/app-release.apk \
+      distribucion/Claudia.apk
 
 Con eso el paquete queda completo.
+
+IMPORTANTE — el nombre del archivo
+----------------------------------
+El archivo DEBE terminar en ".apk" (ej: Claudia.apk). Sin la extensión, WhatsApp
+y el instalador de Android pueden no reconocerlo y la instalación falla.
+Si querés versionar, hacé copias con nombre tipo:
+   Claudia-v1.apk, Claudia-v2.apk, Claudia-v3.apk ...
 
 CÓMO ENVIAR A UN AMIGO
 ----------------------
 - Enviá juntos: el .apk + la Guia-Instalacion.pdf (+ el Manual si querés).
 - Acompañalo con el texto de "mensaje-whatsapp.txt".
-- Si el .apk es muy grande para WhatsApp, subilo a Google Drive / WeTransfer y
-  pasale el link de descarga (igual mandale la guía en PDF).
+- Si el .apk es muy grande para WhatsApp (pesa ~103 MB), subilo a Google Drive /
+  WeTransfer y pasale el link de descarga (igual mandale la guía en PDF).
 
 RECORDATORIOS IMPORTANTES
 -------------------------
@@ -38,7 +49,7 @@ RECORDATORIOS IMPORTANTES
   Los amigos NO ven tu nombre ni tus viajes.
 - Crear la cuenta es opcional y GRATIS: respalda los viajes en la nube y activa
   el link público de reservas. Sin cuenta, los datos quedan solo en el celular.
-- En el plan gratis de EAS, el link de descarga del APK vence a los 30 días.
-  Descargalo y guardalo en un lugar seguro (Drive/tu compu) como respaldo.
+- Como el APK lo generás vos, no vence nunca: guardá una copia de respaldo en
+  Drive o en tu disco por si necesitás reinstalarlo.
 - Si algún amigo se queja de que "no deja instalar", es el permiso de "apps
   desconocidas": está explicado con imágenes en la Guia-Instalacion.pdf.

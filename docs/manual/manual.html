@@ -53,6 +53,10 @@
   .screen .shot{ flex:0 0 50mm; }
   .screen .shot img{ width:50mm; border:1px solid var(--line); border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.12); }
   .screen .shot .cap{ font-size:8.5pt; color:var(--muted); text-align:center; margin-top:2mm; }
+  .phonemock{ font-size:5.6pt; line-height:1.42; color:var(--ink-2); }
+  .phonemock strong{ display:block; font-size:7.5pt; margin-bottom:1.5mm; color:var(--ink); }
+  .phonemock pre{ margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:pre; }
+  .phonemock pre b{ font-weight:700; color:var(--ink); }
   .shot-center{ text-align:center; margin:4mm 0; page-break-inside:avoid;}
   .shot-center img{ width:70mm; border:1px solid var(--line); border-radius:16px; box-shadow:0 4px 16px rgba(15,23,42,.14);}
   table{ width:100%; border-collapse:collapse; margin:3mm 0 5mm; font-size:10pt; }
@@ -89,17 +93,18 @@
     <li><span class="num">3</span> Primeros pasos al abrir la app</li>
     <li><span class="num">4</span> Inicio — tu resumen del mes</li>
     <li><span class="num">5</span> Viajes — calendario y clientes</li>
-    <li><span class="num">6</span> Tarifas — la calculadora de viajes</li>
-    <li><span class="num">7</span> Auto — mantenimiento, gastos y combustible</li>
-    <li><span class="num">8</span> Reportes — tus finanzas mes a mes</li>
-    <li><span class="num">9</span> Configuración — identidad, tarifas y cuenta</li>
-    <li><span class="num">10</span> Tu página web de reservas</li>
-    <li><span class="num">11</span> Activar tu cuenta real</li>
-    <li><span class="num">12</span> Preguntas frecuentes y buenas prácticas</li>
+    <li><span class="num">6</span> Registrar el cobro de un viaje</li>
+    <li><span class="num">7</span> Tarifas — la calculadora de viajes</li>
+    <li><span class="num">8</span> Auto — mantenimiento, gastos y combustible</li>
+    <li><span class="num">9</span> Reportes — tus finanzas mes a mes</li>
+    <li><span class="num">10</span> Configuración — identidad, tarifas y cuenta</li>
+    <li><span class="num">11</span> Tu página web de reservas</li>
+    <li><span class="num">12</span> Activar tu cuenta real</li>
+    <li><span class="num">13</span> Preguntas frecuentes y buenas prácticas</li>
   </ol>
   <div class="callout tip" style="margin-top:10mm;">
     <span class="t">💡 Cómo leer este manual</span>
-    Cada sección muestra una <strong>captura real</strong> de la app junto a la explicación de cada elemento.
+    Cada sección muestra una <strong>captura de la app</strong> junto a la explicación de cada elemento.
     Los recuadros de color destacan <strong>consejos</strong> (azul), <strong>advertencias</strong> (ámbar)
     y <strong>datos clave</strong> (verde).
   </div>
@@ -251,9 +256,92 @@
   </div>
 </section>
 
-<!-- ===== 6. TARIFAS ===== -->
+<!-- ===== 6. COBRANZA ===== -->
 <section class="page">
-  <h2 class="section">6 · Tarifas — la calculadora de viajes</h2>
+  <h2 class="section">6 · Registrar el cobro de un viaje</h2>
+  <p>La función que te permite saber, viaje por viaje, <strong>si ya te pagaron</strong>. No es lo mismo
+  que el estado del viaje (pendiente, completado o cancelado): un viaje puede estar
+  <strong>completado y seguir impago</strong>, y la app te lo va a marcar.</p>
+
+  <h3>Cuándo aparece la pantalla de cobro</h3>
+  <p>Cuando creás un viaje con el botón <strong>“+”</strong> y tocás <strong>“Agendar viaje”</strong>,
+  la app abre una <strong>pantalla completa</strong> llamada <strong>“Registrar cobro”</strong>.
+  Si solo querías anotar un bloqueo en la agenda, se guarda directo: los bloqueos no tienen cobro.</p>
+
+  <h3>Qué muestra la pantalla</h3>
+  <div class="screen">
+    <div class="txt">
+      <h4>Arriba: el resumen del viaje</h4>
+      <p>Destino, cliente, fecha y hora, y el <strong>total del viaje</strong> bien grande. Sirve para
+      confirmar de un vistazo que estás cobrando el viaje correcto.</p>
+      <h4>En el medio: “¿Cómo se cobró este viaje?”</h4>
+      <p>Tres tarjetas grandes para elegir una:</p>
+      <ul>
+        <li>🟠 <strong>Pendiente</strong> — todavía no cobraste nada.</li>
+        <li>🟢 <strong>Cobrado</strong> — se pagó el monto total.</li>
+        <li>🔵 <strong>Parcial</strong> — se pagó solo una parte.</li>
+      </ul>
+      <h4>Abajo: el botón para confirmar</h4>
+      <p><strong>“Confirmar y guardar viaje”</strong> guarda el viaje junto con el estado de cobro
+      que elegiste.</p>
+    </div>
+    <div class="shot">
+      <div class="phonemock">
+        <strong>Pantalla “Registrar cobro”</strong>
+<pre>┌──────────────────────┐
+│ <b>Registrar cobro</b>   ✕ │
+├──────────────────────┤
+│ VIAJE                │
+│ <b>Aeropuerto Ezeiza</b>  │
+│ Juan Pérez           │
+│ 12 oct · 14:30       │
+│ Total  <b>$25.000</b>    │
+├──────────────────────┤
+│ ¿Cómo se cobró?      │
+│ 🟠 <b>Pendiente</b>    ✓ │
+│ 🟢 Cobrado            │
+│ 🔵 Parcial            │
+├──────────────────────┤
+│ [ Confirmar y guardar]│
+└──────────────────────┘</pre>
+      </div>
+    </div>
+  </div>
+
+  <h3>Cobro parcial: cuánto falta</h3>
+  <p>Si elegís <strong>Parcial</strong>, aparece un campo para escribir el <strong>monto ya
+  cobrado</strong> y debajo, en rojo, el <strong>“Falta cobrar”</strong>: la diferencia entre el total
+  del viaje y lo que te entregaron. Se actualiza mientras escribís.</p>
+
+  <div class="callout ok">
+    <span class="t">✅ Control automático</span>
+    Si escribís un monto <strong>mayor</strong> al total del viaje, la app te avisa
+    (“El monto supera el total del viaje”) y no te deja guardar hasta que lo corrijas.
+  </div>
+
+  <h3>Cómo se ve en la lista de viajes</h3>
+  <p>Cada tarjeta de viaje muestra su estado de cobro, y cuando todavía te deben plata
+  lo dice en rojo:</p>
+  <ul>
+    <li><strong>“Debe $8.000”</strong> — viaje pendiente de cobro por ese saldo.</li>
+    <li><strong>“Parcial · debe $5.000”</strong> — ya te pagaron una parte y queda esa diferencia.</li>
+    <li>Si está <strong>cobrado</strong> por completo, no aparece ningún aviso en rojo.</li>
+  </ul>
+
+  <h3>Cambiar el cobro de un viaje que ya existe</h3>
+  <p>Tocá el viaje para editarlo y volvé a tocar <strong>“Agendar viaje”</strong>: la pantalla de cobro
+  se abre con lo que habías registrado antes, así solo cambiás lo que haga falta.</p>
+
+  <div class="callout tip">
+    <span class="t">💡 Tip</span>
+    Acostumbráte a marcar el cobro apenas te paguen. Así, cuando quieras saber
+    <strong>cuánto te deben en total</strong>, lo ves de un vistazo en la lista de viajes.
+  </div>
+</section>
+
+<!-- ===== 7. TARIFAS ===== -->
+<section class="page">
+  <h2 class="section">7 · Tarifas — la calculadora de viajes</h2>
   <p>Para saber cuánto cobrar antes de aceptar un viaje.</p>
 
   <div class="screen">
@@ -284,7 +372,7 @@
 </section>
 <!-- ===== 7. AUTO ===== -->
 <section class="page">
-  <h2 class="section">7 · Auto — mantenimiento, gastos y combustible</h2>
+  <h2 class="section">8 · Auto — mantenimiento, gastos y combustible</h2>
   <p>El “gabinete” de tu vehículo. Acá cuidás el auto y registrás sus costos.</p>
 
   <div class="screen">
@@ -317,7 +405,7 @@
 
 <!-- ===== 8. REPORTES ===== -->
 <section class="page">
-  <h2 class="section">8 · Reportes — tus finanzas mes a mes</h2>
+  <h2 class="section">9 · Reportes — tus finanzas mes a mes</h2>
   <p>El panel donde se resume todo tu trabajo.</p>
 
   <div class="screen">
@@ -350,7 +438,7 @@
 </section>
 <!-- ===== 9. CONFIGURACIÓN ===== -->
 <section class="page">
-  <h2 class="section">9 · Configuración — identidad, tarifas y cuenta</h2>
+  <h2 class="section">10 · Configuración — identidad, tarifas y cuenta</h2>
   <p>Se abre con el ícono ⚙️ arriba a la derecha. Tiene tres bloques.</p>
 
   <div class="screen">
@@ -388,7 +476,7 @@
 
 <!-- ===== 10. WEB DE RESERVAS ===== -->
 <section class="page">
-  <h2 class="section">10 · Tu página web de reservas</h2>
+  <h2 class="section">11 · Tu página web de reservas</h2>
   <p class="lead">Cuando activás tu cuenta, la app te da un <strong>enlace personal</strong> para
   compartir por WhatsApp con tus pasajeros.</p>
 
@@ -421,7 +509,7 @@
 
 <!-- ===== 11. ACTIVAR CUENTA ===== -->
 <section class="page">
-  <h2 class="section">11 · Activar tu cuenta real</h2>
+  <h2 class="section">12 · Activar tu cuenta real</h2>
   <p>Pasás del modo Local (en tu celular) al modo Cuenta (en la nube, con web de reservas).</p>
 
   <div class="screen">
@@ -451,7 +539,7 @@
 </section>
 <!-- ===== 12. FAQ ===== -->
 <section class="page">
-  <h2 class="section">12 · Preguntas frecuentes y buenas prácticas</h2>
+  <h2 class="section">13 · Preguntas frecuentes y buenas prácticas</h2>
 
   <h3>Preguntas frecuentes</h3>
   <h4>¿Necesito internet para usar la app?</h4>
