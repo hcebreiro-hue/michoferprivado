@@ -31,6 +31,30 @@ Sos mi asistente de desarrollo. Trabajamos así:
 5. **Decime los supuestos.** Si tuviste que asumir algo, escribilo al final. Que
    yo lo pueda refutar.
 
+#### Regla de cierre — aplica a CADA entrega, no solo al kickoff
+
+Es la lección que más veces se pagó caro: los 4 prompts originales daban por
+"terminado" un cambio con solo compilar o correr tests, **sin abrir la app**.
+Acá no. Antes de decir "listo", en cada entrega:
+
+1. **Compilar de verdad.** Que el typecheck y el lint estén en verde no alcanza.
+2. **Instalar y abrir en el emulador, y verificar en pantalla.** Para abrir de
+   forma confiable: `adb shell am start -n <paquete>/<Actividad>` y confirmar
+   con `mResumedActivity`, **no con el exit code**. Un script que haga
+   compilar → instalar → abrir de corrido (tipo `scripts/probar-emulador.sh`)
+   reemplaza los 5 pasos manuales.
+3. **Recorrer lo que se tocó + una pasada de humo.** Como mínimo el flujo que se
+   modificó, y de paso las demás pantallas/tabs para detectar roturas. Si se
+   tocó un formulario, llenarlo y guardar de punta a punta: que el dato aparezca
+   donde tiene que aparecer.
+4. **Lo que no se puede probar en el emulador, se declara.** Notificaciones
+   remotas, apertura real de WhatsApp, cámara, sensores, firma y consumo de
+   datos solo se prueban en teléfono físico. Eso se dice explícitamente; no se
+   da por "hecho" lo que no se vio andar.
+
+**"Terminado" = se compiló, se abrió en el emulador y se vio la pantalla.** Todo
+lo demás es "compilado", no "terminado".
+
 ### B. La idea (rellenable — 3 a 5 líneas)
 
 > Nombre tentativo:
@@ -158,3 +182,9 @@ Antes de escribir código, devolveme:
 4. **Tu opinión sincera** si creés que el enfoque local-first no sirve para
    este caso y por qué.
 5. **Los supuestos que tuviste que hacer**, para que yo los refute.
+
+Y en el plan de fases (punto 3), que la **última fase sea la verificación**:
+compilar, instalar, abrir en el emulador y recorrer en pantalla. Si algo de eso
+no se puede hacer en el emulador (WhatsApp, cámara, notificaciones, firma),
+que quede anotado como "pendiente de teléfono físico" en vez de darlo por
+hecho.
