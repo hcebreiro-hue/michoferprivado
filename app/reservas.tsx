@@ -246,7 +246,6 @@ export default function ReservasScreen() {
   };
 
   const requestBooking = (slot: Slot) => {
-    if (hasDriverParam && !publicPortal) return;
     const driverName = publicPortal?.driver_name ?? settings.driver_name;
     const phone = normalizePhone(
       publicPortal?.driver_phone ?? settings.driver_phone,
