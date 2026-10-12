@@ -42,15 +42,9 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   if (loading) return null;
   if (currentRoute === 'reservas') return children;
   if (settingsLoading) return null;
-  if (
-    enabled &&
-    session &&
-    !settingsLoading &&
-    !settings.profile_complete &&
-    currentRoute !== 'onboarding'
-  ) {
-    return <Redirect href="/onboarding" />;
-  }
+  // Sin perfil completo la app entra en "modo exploración": el chofer puede
+  // recorrer la app con datos de ejemplo y dar de alta su perfil cuando quiera
+  // desde Configuración. Por eso NO se fuerza el onboarding acá.
   if (
     enabled &&
     session &&

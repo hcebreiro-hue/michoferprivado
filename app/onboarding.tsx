@@ -68,7 +68,7 @@ function ProfileSetup({
           label="Nombre del chofer"
           value={name}
           onChangeText={setName}
-          placeholder="Ej. Claudia"
+          placeholder="Tu nombre y apellido"
           autoCapitalize="words"
         />
         <Input
