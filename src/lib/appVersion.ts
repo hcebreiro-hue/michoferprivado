@@ -1,5 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
 import Constants from 'expo-constants';
+import * as Application from 'expo-application';
 
 /**
  * Información de versión y compilación de la app.
@@ -34,11 +35,17 @@ export const appVersion: string =
   Constants.expoConfig?.version ?? '1.0.0';
 
 /**
- * Número de build interno de Android. En Expo Go es null porque no hay APK
- * nativo propio.
+ * Número de build interno (el `versionCode` de Android). `expo-application` es
+ * la API vigente: `Constants.nativeBuildVersion` no existe y la vieja
+ * `Constants.platform.android.versionCode` está deprecada. Devuelve null en
+ * Expo Go y en web, donde no hay binario nativo propio.
  */
-export const buildNumber: number | null =
-  Platform.OS === 'android' ? (Constants.nativeBuildVersion ?? null) : null;
+export const buildNumber: number | null = (() => {
+  const raw = Application.nativeBuildVersion;
+  if (raw == null) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+})();
 
 /** Fecha/hora en que se compiló el APK, o null si corre en desarrollo. */
 export const buildStamp: string | null = readNativeBuildStamp();
