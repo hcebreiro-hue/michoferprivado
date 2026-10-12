@@ -1,5 +1,5 @@
 import type { MaintenanceLog, MaintenanceType } from '../types';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { supabase, hasActiveSession } from '../lib/supabase';
 import { loadCollection, saveCollection, localId } from './localStore';
 import { seedMaintenanceLogs, withoutDemoSeedRecords } from './seed';
 
@@ -9,7 +9,7 @@ const KEY = 'maintenance_logs';
 export async function listMaintenanceLogs(
   seedDemoData = true,
 ): Promise<MaintenanceLog[]> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('maintenance_logs')
       .select('*')
@@ -39,7 +39,7 @@ export type NewMaintenanceLog = Omit<MaintenanceLog, 'id' | 'created_at'>;
 export async function createMaintenanceLog(
   input: NewMaintenanceLog,
 ): Promise<MaintenanceLog> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('maintenance_logs')
       .insert(input)
@@ -61,7 +61,7 @@ export async function createMaintenanceLog(
 
 /** Elimina un mantenimiento. */
 export async function deleteMaintenanceLog(id: string): Promise<void> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { error } = await supabase
       .from('maintenance_logs')
       .delete()
@@ -78,7 +78,7 @@ export async function deleteMaintenanceLog(id: string): Promise<void> {
 
 /** Elimina todos los registros de mantenimiento. */
 export async function deleteAllMaintenanceLogs(): Promise<void> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { error } = await supabase
       .from('maintenance_logs')
       .delete()

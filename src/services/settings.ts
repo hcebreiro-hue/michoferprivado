@@ -1,6 +1,6 @@
 import type { AccountType, Settings } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { supabase, hasActiveSession } from '../lib/supabase';
 import { loadValue, saveValue } from './localStore';
 
 const KEY = 'settings';
@@ -28,7 +28,7 @@ export function driverSlugFromName(name: string, ownerId?: string): string {
 
 /** Obtiene los ajustes (con valores por defecto si no existen). */
 export async function getSettings(): Promise<Settings> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const {
       data: { session },
       error: authError,
@@ -66,7 +66,7 @@ export async function getSettings(): Promise<Settings> {
 
 /** Guarda los ajustes (upsert en Supabase, persistencia local en demo). */
 export async function saveSettings(settings: Settings): Promise<Settings> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const {
       data: { session },
       error: authError,

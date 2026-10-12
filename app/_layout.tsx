@@ -34,7 +34,7 @@ function SuscripcionGuard({ children }: { children: React.ReactNode }) {
 }
 
 function AuthGate({ children }: { children: React.ReactNode }) {
-  const { session, loading, enabled } = useAuth();
+  const { session, loading } = useAuth();
   const { settings, loading: settingsLoading } = useSettings();
   const segments = useSegments();
   const currentRoute = segments[0];
@@ -42,20 +42,18 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   if (loading) return null;
   if (currentRoute === 'reservas') return children;
   if (settingsLoading) return null;
-  // Sin perfil completo la app entra en "modo exploración": el chofer puede
-  // recorrer la app con datos de ejemplo y dar de alta su perfil cuando quiera
-  // desde Configuración. Por eso NO se fuerza el onboarding acá.
+  // La app es funcional SIN cuenta: sin sesión funciona en modo local en el
+  // dispositivo con el nombre "Conductor" y datos de ejemplo. El login es
+  // opcional y se inicia desde Configuración cuando el chofer quiere activar
+  // su cuenta real (multi-chofer + web de reservas). Por eso no se fuerza ni
+  // el login ni el onboarding al abrir la app.
   if (
-    enabled &&
     session &&
     !settingsLoading &&
     settings.profile_complete &&
     (currentRoute === 'auth' || currentRoute === 'onboarding')
   ) {
     return <Redirect href="/(tabs)" />;
-  }
-  if (enabled && !session && currentRoute !== 'auth') {
-    return <Redirect href="/auth" />;
   }
 
   return children;

@@ -1,5 +1,5 @@
 import type { FixedCost } from '../types';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { supabase, hasActiveSession } from '../lib/supabase';
 import { loadCollection, saveCollection, localId } from './localStore';
 import { seedFixedCosts, withoutDemoSeedRecords } from './seed';
 
@@ -7,7 +7,7 @@ const KEY = 'fixed_costs';
 
 /** Lista los gastos fijos mensuales. */
 export async function listFixedCosts(seedDemoData = true): Promise<FixedCost[]> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('fixed_costs')
       .select('*')
@@ -31,7 +31,7 @@ export type NewFixedCost = Omit<FixedCost, 'id' | 'created_at'>;
 
 /** Crea un gasto fijo. */
 export async function createFixedCost(input: NewFixedCost): Promise<FixedCost> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('fixed_costs')
       .insert(input)
@@ -56,7 +56,7 @@ export async function updateFixedCost(
   id: string,
   patch: Partial<FixedCost>,
 ): Promise<FixedCost> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('fixed_costs')
       .update(patch)
@@ -78,7 +78,7 @@ export async function updateFixedCost(
 
 /** Elimina un gasto fijo. */
 export async function deleteFixedCost(id: string): Promise<void> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { error } = await supabase.from('fixed_costs').delete().eq('id', id);
     if (error) throw error;
     return;
@@ -92,7 +92,7 @@ export async function deleteFixedCost(id: string): Promise<void> {
 
 /** Elimina todos los costos fijos. */
 export async function deleteAllFixedCosts(): Promise<void> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { error } = await supabase
       .from('fixed_costs')
       .delete()

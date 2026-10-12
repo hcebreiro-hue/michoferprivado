@@ -1,5 +1,5 @@
 import type { Trip } from '../types';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { supabase, hasActiveSession } from '../lib/supabase';
 import {
   loadCollection,
   saveCollection,
@@ -11,7 +11,7 @@ const KEY = 'trips';
 
 /** Obtiene todos los viajes ordenados por fecha ascendente. */
 export async function listTrips(seedDemoData = true): Promise<Trip[]> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('trips')
       .select('*')
@@ -38,7 +38,7 @@ export type NewTrip = Omit<Trip, 'id' | 'created_at'>;
 
 /** Crea un viaje y devuelve el registro creado. */
 export async function createTrip(input: NewTrip): Promise<Trip> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('trips')
       .insert(input)
@@ -63,7 +63,7 @@ export async function updateTrip(
   id: string,
   patch: Partial<Trip>,
 ): Promise<Trip> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('trips')
       .update(patch)
@@ -85,7 +85,7 @@ export async function updateTrip(
 
 /** Elimina un viaje. */
 export async function deleteTrip(id: string): Promise<void> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { error } = await supabase.from('trips').delete().eq('id', id);
     if (error) throw error;
     return;
@@ -99,7 +99,7 @@ export async function deleteTrip(id: string): Promise<void> {
 
 /** Elimina todos los viajes. */
 export async function deleteAllTrips(): Promise<void> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { error } = await supabase
       .from('trips')
       .delete()

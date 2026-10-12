@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Button, Card, Input } from '../src/components/ui';
 import { useAuth } from '../src/context/AuthContext';
 import { useSettings } from '../src/context/SettingsContext';
@@ -9,20 +10,8 @@ import { notify } from '../src/utils/notify';
 
 export default function SettingsScreen() {
   const { settings, loading, updateSettings } = useSettings();
-  const { enabled: authEnabled, signOut } = useAuth();
 
   const identityLocked = settings.profile_complete;
-
-  const closeSession = async () => {
-    try {
-      await signOut();
-    } catch (cause) {
-      notify(
-        'Error',
-        cause instanceof Error ? cause.message : 'No se pudo cerrar sesión.',
-      );
-    }
-  };
 
   if (loading) return <LoadingScreen />;
 
@@ -55,16 +44,9 @@ export default function SettingsScreen() {
           updateSettings={updateSettings}
         />
 
-        {authEnabled ? (
-          <View className="mt-6">
-            <Button
-              title="Cerrar sesión"
-              onPress={closeSession}
-              variant="ghost"
-              fullWidth
-            />
-          </View>
-        ) : null}
+        <View className="h-4" />
+
+        <AccountSection />
       </ScrollView>
     </SafeAreaView>
   );
@@ -224,6 +206,80 @@ function RatesSection({
         loading={saving}
         fullWidth
       />
+    </Card>
+  );
+}
+
+/**
+ * Sección de cuenta. La app funciona en modo local (en el dispositivo) con el
+ * nombre "Conductor" y datos de ejemplo. Desde acá el chofer puede, cuando
+ * quiera, iniciar sesión o crear su cuenta real para activar el modo
+ * multi-chofer (Supabase) y su web pública de reservas.
+ */
+function AccountSection() {
+  const router = useRouter();
+  const { session, enabled, signOut } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
+
+  const closeSession = async () => {
+    setSigningOut(true);
+    try {
+      await signOut();
+    } catch (cause) {
+      notify(
+        'Error',
+        cause instanceof Error ? cause.message : 'No se pudo cerrar sesión.',
+      );
+    } finally {
+      setSigningOut(false);
+    }
+  };
+
+  const hasSession = Boolean(session);
+
+  return (
+    <Card className="p-5">
+      <Text className="text-base font-bold text-slate-900">Cuenta</Text>
+
+      {hasSession ? (
+        <>
+          <Text className="mt-1 mb-4 text-xs text-slate-400">
+            Sesión activa: tus datos se guardan en tu cuenta y tu web de reservas
+            está en línea.
+          </Text>
+          {session?.user?.email ? (
+            <Text className="mb-4 text-sm font-medium text-slate-700">
+              {session.user.email}
+            </Text>
+          ) : null}
+          <Button
+            title="Cerrar sesión"
+            onPress={closeSession}
+            variant="ghost"
+            loading={signingOut}
+            fullWidth
+          />
+        </>
+      ) : (
+        <>
+          <Text className="mt-1 mb-4 text-xs text-slate-400">
+            Estás usando la app en modo local: tus datos se guardan solo en este
+            dispositivo con el nombre “Conductor”. Si querés activar tu cuenta
+            real, con web de reservas y respaldo en la nube, iniciá sesión o
+            creá tu cuenta.
+          </Text>
+          <Button
+            title="Iniciar sesión o crear cuenta"
+            onPress={() => router.push('/auth')}
+            fullWidth
+          />
+          {!enabled ? (
+            <Text className="mt-3 text-xs text-amber-600">
+              El modo cuenta requiere conexión configurada con la base de datos.
+            </Text>
+          ) : null}
+        </>
+      )}
     </Card>
   );
 }

@@ -1,5 +1,5 @@
 import type { FuelLog } from '../types';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { supabase, hasActiveSession } from '../lib/supabase';
 import { loadCollection, saveCollection, localId } from './localStore';
 import { seedFuelLogs, withoutDemoSeedRecords } from './seed';
 
@@ -7,7 +7,7 @@ const KEY = 'fuel_logs';
 
 /** Obtiene las cargas de combustible ordenadas por fecha descendente. */
 export async function listFuelLogs(seedDemoData = true): Promise<FuelLog[]> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('fuel_logs')
       .select('*')
@@ -34,7 +34,7 @@ export type NewFuelLog = Omit<FuelLog, 'id' | 'created_at'>;
 
 /** Registra una carga de combustible. */
 export async function createFuelLog(input: NewFuelLog): Promise<FuelLog> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { data, error } = await supabase
       .from('fuel_logs')
       .insert(input)
@@ -56,7 +56,7 @@ export async function createFuelLog(input: NewFuelLog): Promise<FuelLog> {
 
 /** Elimina una carga de combustible. */
 export async function deleteFuelLog(id: string): Promise<void> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { error } = await supabase.from('fuel_logs').delete().eq('id', id);
     if (error) throw error;
     return;
@@ -70,7 +70,7 @@ export async function deleteFuelLog(id: string): Promise<void> {
 
 /** Elimina todos los registros de combustible. */
 export async function deleteAllFuelLogs(): Promise<void> {
-  if (isSupabaseConfigured && supabase) {
+  if (supabase && (await hasActiveSession())) {
     const { error } = await supabase
       .from('fuel_logs')
       .delete()
