@@ -21,6 +21,7 @@ import {
 } from '../types';
 import { Button, Input } from './ui';
 import { PaymentModal } from './PaymentModal';
+import { ElegirClienteModal, type OrigenCliente } from './ElegirClienteModal';
 import { useData } from '../context/DataContext';
 
 interface TripFormModalProps {
@@ -131,6 +132,7 @@ function TripFormModalContent({
   >[0] | null>(null);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
   const [saving, setSaving] = useState(false);
+  const [elegirOrigen, setElegirOrigen] = useState<OrigenCliente | null>(null);
 
   const pickerValue = (target: PickerTarget): Date => {
     switch (target) {
@@ -328,6 +330,28 @@ function TripFormModalContent({
 
             {mode === 'trip' ? (
               <>
+                {!isEdit ? (
+                  <View className="mb-3 flex-row gap-2">
+                    <Pressable
+                      onPress={() => setElegirOrigen('contactos')}
+                      accessibilityRole="button"
+                      accessibilityLabel="Elegir de mis contactos"
+                      className="flex-1 flex-row items-center justify-center rounded-xl border border-brand-600 bg-white py-2.5 active:bg-slate-50"
+                    >
+                      <Ionicons name="people-outline" size={18} color="#2563eb" />
+                      <Text className="ml-2 text-sm font-bold text-brand-700">Contactos</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setElegirOrigen('frecuentes')}
+                      accessibilityRole="button"
+                      accessibilityLabel="Elegir un cliente frecuente"
+                      className="flex-1 flex-row items-center justify-center rounded-xl border border-brand-600 bg-white py-2.5 active:bg-slate-50"
+                    >
+                      <Ionicons name="star-outline" size={18} color="#2563eb" />
+                      <Text className="ml-2 text-sm font-bold text-brand-700">Frecuentes</Text>
+                    </Pressable>
+                  </View>
+                ) : null}
                 <Input
                   label="Nombre del cliente *"
                   placeholder="Ej. María González"
@@ -535,6 +559,17 @@ function TripFormModalContent({
         </View>
       </View>
     </Modal>
+
+      <ElegirClienteModal
+        visible={elegirOrigen !== null}
+        origen={elegirOrigen ?? 'frecuentes'}
+        onClose={() => setElegirOrigen(null)}
+        onElegir={(cliente) => {
+          setClientName(cliente.nombre);
+          setClientPhone(cliente.telefono);
+          setElegirOrigen(null);
+        }}
+      />
 
       <PaymentModal
         visible={paymentVisible}

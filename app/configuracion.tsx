@@ -8,12 +8,18 @@ import { useAuth } from '../src/context/AuthContext';
 import { useSettings } from '../src/context/SettingsContext';
 import { notify } from '../src/utils/notify';
 import { resetToDemo } from '../src/services/settings';
+import { useLicencia } from '../src/licencia/LicenciaContext';
+import { identidadDeLicencia } from '../src/licencia/identidad';
+import { useEmpezar } from '../src/licencia/useEmpezar';
 
 export default function SettingsScreen() {
   const { settings, loading, updateSettings } = useSettings();
   const router = useRouter();
 
-  const identityLocked = settings.profile_complete;
+  const { licencia } = useLicencia();
+  // La identidad queda fija cuando el perfil está completo o cuando ya viene de
+  // la licencia (la cargó el dueño): el chofer no puede escribir otro nombre.
+  const identityLocked = settings.profile_complete || identidadDeLicencia(licencia) !== null;
 
   if (loading) return <LoadingScreen />;
 
@@ -51,6 +57,8 @@ export default function SettingsScreen() {
         <AccountSection />
 
         <View className="h-4" />
+
+        <StartSection />
 
         <DemoSection />
 
@@ -240,10 +248,9 @@ function RatesSection({
 }
 
 /**
- * Sección de cuenta. La app funciona en modo local (en el dispositivo) con el
- * nombre "Conductor" y datos de ejemplo. Desde acá el chofer puede, cuando
- * quiera, iniciar sesión o crear su cuenta real para activar el modo
- * multi-chofer (Supabase) y su web pública de reservas.
+ * Sección de cuenta. La app funciona en modo local (en el dispositivo) sin
+ * cuenta. La cuenta (email) es opcional y sirve para publicar la disponibilidad
+ * del chofer en el calendario web de reservas (Supabase).
  */
 function AccountSection() {
   const router = useRouter();
@@ -273,8 +280,8 @@ function AccountSection() {
       {hasSession ? (
         <>
           <Text className="mt-1 mb-4 text-xs text-slate-400">
-            Sesión activa: tus datos se guardan en tu cuenta y tu web de reservas
-            está en línea.
+            Sesión activa: tu disponibilidad se publica en el calendario web para
+            que tus clientes te pidan viaje.
           </Text>
           {session?.user?.email ? (
             <Text className="mb-4 text-sm font-medium text-slate-700">
@@ -292,10 +299,11 @@ function AccountSection() {
       ) : (
         <>
           <Text className="mt-1 mb-4 text-xs text-slate-400">
-            Estás usando la app en modo local: tus datos se guardan solo en este
-            dispositivo con el nombre “Conductor”. Si querés activar tu cuenta
-            real, con web de reservas y respaldo en la nube, iniciá sesión o
-            creá tu cuenta.
+            La app funciona sin cuenta: tus viajes y gastos se guardan solo en
+            este teléfono. La cuenta es opcional y sirve para publicar tu
+            disponibilidad en el calendario web, para que tus clientes vean tus
+            horarios libres y te pidan viaje. Si querés eso, iniciá sesión o
+            creá tu cuenta con tu email.
           </Text>
           <Button
             title="Iniciar sesión o crear cuenta"
@@ -310,6 +318,33 @@ function AccountSection() {
         </>
       )}
     </Card>
+  );
+}
+
+/**
+ * "Borrar datos de prueba y empezar": solo para choferes dados de alta con
+ * licencia que todavía no empezaron. Completa el perfil y descarta los datos de
+ * ejemplo.
+ */
+function StartSection() {
+  const { settings } = useSettings();
+  const { licencia } = useLicencia();
+  const empezar = useEmpezar();
+
+  if (settings.profile_complete || identidadDeLicencia(licencia) === null) return null;
+
+  return (
+    <>
+      <Card className="p-5">
+        <Text className="text-base font-bold text-slate-900">Datos de prueba</Text>
+        <Text className="mt-0.5 mb-4 text-xs text-slate-400">
+          Estás viendo viajes, gastos y mantenimientos de ejemplo. Cuando quieras empezar con tus datos reales, borralos.
+          Lo que cargaste vos se conserva.
+        </Text>
+        <Button title="Borrar datos de prueba y empezar" onPress={empezar} fullWidth />
+      </Card>
+      <View className="h-4" />
+    </>
   );
 }
 

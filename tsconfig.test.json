@@ -5,6 +5,6 @@
     "allowImportingTsExtensions": true,
     "types": ["node"]
   },
-  "include": ["src/licencia/__tests__/*.ts", "src/licencia/verificar.ts", "src/licencia/evaluar.ts"],
+  "include": ["src/licencia/__tests__/*.ts", "src/licencia/verificar.ts", "src/licencia/evaluar.ts", "src/licencia/identidad.ts", "src/contactos/__tests__/*.ts", "src/contactos/logica.ts"],
   "exclude": ["node_modules"]
 }

@@ -22,6 +22,7 @@ import { formatCurrency, isUpcoming, monthLabel } from '../../src/utils/format';
 import { needsMaintenanceAlert } from '../../src/utils/calculations';
 import { isCalendarBlock, tripPendingAmount } from '../../src/types';
 import { driverSlugFromName } from '../../src/services/settings';
+import { BannerDatosDePrueba } from '../../src/licencia/BannerDatosDePrueba';
 
 function createDriverPortalUrl(driverSlug: string): string {
   return `https://michoferprivado.pages.dev/reservas?driver=${encodeURIComponent(driverSlug)}`;
@@ -91,7 +92,7 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView edges={['top']} className="flex-1 bg-slate-50">
       <ScreenHeader
-        title={`Hola, ${settings.profile_complete && settings.driver_name ? settings.driver_name : 'Conductor'} 👋`}
+        title={`Hola, ${settings.driver_name || 'Conductor'} 👋`}
         subtitle="Resumen del mes"
         right={
           <Pressable
@@ -113,6 +114,8 @@ export default function DashboardScreen() {
           <RefreshControl refreshing={loading} onRefresh={refresh} />
         }
       >
+        <BannerDatosDePrueba />
+
         {/* Métricas */}
         <View className="flex-row gap-3 mt-4">
           <StatCard

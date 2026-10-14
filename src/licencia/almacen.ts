@@ -15,6 +15,7 @@ const K_TOPE = `${PREFIJO}tope`;
 const K_ULTIMA_VISTA = `${PREFIJO}ultima_vista`;
 const K_WHATSAPP = `${PREFIJO}whatsapp`;
 const K_AVISOS = `${PREFIJO}avisos_gracia`;
+const K_BIENVENIDA = `${PREFIJO}bienvenida_vista`;
 
 export const leerToken = () => AsyncStorage.getItem(K_TOKEN);
 export const guardarToken = (token: string) => AsyncStorage.setItem(K_TOKEN, token);
@@ -26,6 +27,12 @@ export const guardarTope = (token: string) => AsyncStorage.setItem(K_TOPE, token
 /** WhatsApp que el chofer escribió, para no pedírselo de nuevo en cada chequeo. */
 export const leerWhatsapp = () => AsyncStorage.getItem(K_WHATSAPP);
 export const guardarWhatsapp = (w: string) => AsyncStorage.setItem(K_WHATSAPP, w);
+
+/** La pantalla de bienvenida se muestra una sola vez tras activar. */
+export async function leerBienvenidaVista(): Promise<boolean> {
+  return (await AsyncStorage.getItem(K_BIENVENIDA)) === '1';
+}
+export const guardarBienvenidaVista = () => AsyncStorage.setItem(K_BIENVENIDA, '1');
 
 export async function leerUltimaVista(): Promise<number | null> {
   const raw = await AsyncStorage.getItem(K_ULTIMA_VISTA);
