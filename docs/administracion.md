@@ -1,0 +1,131 @@
+# Senda — Guía de administración
+
+Todo lo que hace el dueño: dar de alta choferes, renovar, bloquear, aprobar teléfonos nuevos y
+borrar datos. Hay **dos formas** de hacerlo, con las mismas operaciones: el **panel web** y el
+**script de terminal**.
+
+## Qué hay y dónde vive
+
+| Pieza | Dónde | Para qué |
+|---|---|---|
+| Servidor (Worker + base D1 `senda`) | `https://senda.api.unitecapplications.com` | Licencias, sesión y datos de los choferes |
+| Código del servidor | `~/Desarrollos/senda-api` | Se despliega con `npx wrangler deploy` |
+| Panel del dueño | `https://senda.api.unitecapplications.com/admin` | Administrar desde el navegador |
+| Script de terminal | `~/Desarrollos/senda-api/scripts/admin.mjs` | Lo mismo desde la Mac |
+| Agenda web pública | `https://michoferprivado.pages.dev` (proyecto Pages `michoferprivado`) | Lo que ven los pasajeros |
+| App (código) | `~/Claudia_app`, GitHub `hcebreiro-hue/michoferprivado` | APK «Senda» |
+| Panel de Cloudflare | https://dash.cloudflare.com → Workers y D1 | Ver la base, los logs y los Workers |
+
+## Las claves (qué es cada una)
+
+Están en `~/.senda/claves.txt` (permiso 600). **No van al repo.**
+
+| Clave | Para qué sirve | Si se pierde |
+|---|---|---|
+| `ADMIN_TOKEN` | Entrar al panel y al script | Se carga uno nuevo como secret del Worker (ver Seguridad) |
+| `PRIVATE_KEY` | Firma las licencias | Hay que rotar la clave: todas las apps deben actualizarse |
+| `PUBLIC_KEY` | Va dentro de la app (verifica licencias) | Se deriva de la privada |
+| `JWT_SECRET` | Firma las sesiones de datos | Los choferes reabren sesión solos al revalidar |
+| `claudia-release.jks` (`~/.claudia-keystore/`) | Firma el APK | **No se puede actualizar ninguna app ya instalada** |
+
+Las contraseñas del keystore están en `~/.gradle/gradle.properties`. Respaldar los tres en
+Bitwarden: `claves.txt`, el `.jks` y ese archivo.
+
+## Opción 1 — Panel web
+
+1. Abrí `https://senda.api.unitecapplications.com/admin`.
+2. Pegá el `ADMIN_TOKEN` y tocá **Entrar**. El token vive solo en la memoria de la pestaña: si
+   recargás, hay que pegarlo de nuevo.
+3. Arriba: **Cargar chofer** (nombre, WhatsApp con código de país, plan).
+4. En **Choferes**, cada fila tiene sus botones:
+   - **Renovar**: marca un pago y extiende el vencimiento según el plan.
+   - **Bloquear / Desbloquear**: corta o devuelve el acceso al instante.
+   - **Ver equipo nuevo / Rechazar**: aparecen cuando el chofer abrió la app en otro teléfono.
+   - **Borrar datos**: baja definitiva (pide escribir BORRAR).
+5. **Actividad reciente**: altas, activaciones, rechazos, bloqueos. Es el registro de auditoría.
+6. **Tope global del APK**: alarga la fecha límite de todas las apps (solo se puede alargar).
+
+El panel no cambia el plan al renovar: para pasar de `trial` a `mensual` o `anual` usá el script
+(`renovar <id> mensual`).
+
+## Opción 2 — Script de terminal
+
+```bash
+cd ~/Desarrollos/senda-api
+node scripts/admin.mjs                      # muestra todos los comandos
+node scripts/admin.mjs lista                # choferes, plan, estado, vencimiento
+node scripts/admin.mjs crear "Ana Pérez" 1155550000 trial
+node scripts/admin.mjs renovar 3            # pago del chofer 3
+node scripts/admin.mjs renovar 3 anual      # además cambia de plan
+node scripts/admin.mjs bloquear 3
+node scripts/admin.mjs desbloquear 3
+node scripts/admin.mjs pendientes 3         # equipos nuevos esperando
+node scripts/admin.mjs aprobar 3
+node scripts/admin.mjs tipo 3 VIP_PAGO
+node scripts/admin.mjs tope 2027-04-11
+node scripts/admin.mjs eventos
+node scripts/admin.mjs borrar 3 --si        # irreversible
+```
+
+El `id` es el número de la columna `id` de `lista`. El script lee el token de
+`~/.senda/claves.txt`. El WhatsApp va **sin espacios** (`1155550000` o `5491155550000`): el
+servidor lo normaliza a 549 + 10 dígitos.
+
+## Situaciones de todos los días
+
+**Alta de un chofer nuevo.** Cargarlo (panel o `crear`) con plan `trial` (30 días). Mandarle el APK
+por WhatsApp. Al abrirlo escribe su número, acepta el aviso y queda activo. Te llega un aviso por
+mail a `hcebreiro@gmail.com` (y queda en `eventos`).
+
+**Cobró un mes / un año.** `Renovar`. Si estaba en trial, pasarlo de plan con
+`renovar <id> mensual` o `renovar <id> anual`.
+
+**Cambió de teléfono o reseteó el suyo.** El teléfono nuevo queda «pendiente» y la app le dice que
+espere. Hablá con el chofer por WhatsApp para confirmar que es él y recién ahí `aprobar`. Conserva
+su fecha de inicio y sus datos.
+
+**Dejó de pagar o hay que cortarlo.** `Bloquear`. Pierde el acceso en el acto y ve «Tu acceso está
+suspendido» con un botón para escribirte. Al `Desbloquear`, toca «Ya me habilitaron» y sigue.
+
+**VIP gratis para alguien de confianza.** Plan `vip` (sin vencimiento). Sigue pasando por el
+chequeo, así que se puede cortar.
+
+**Pidió que borres sus datos (Ley 25.326).** `borrar <id> --si`. Borra al chofer, sus viajes con
+datos de pasajeros, gastos, perfil y sesiones, y su número del registro de actividad. No se puede
+deshacer.
+
+**Ver qué pasó con alguien.** `eventos` (los últimos 100) o el panel de Cloudflare → D1 → `senda`.
+
+## Mantenimiento periódico
+
+- **Tope grabado en el APK.** Hoy es el **11/01/2027** (`TOPE_GRABADO` en `src/licencia/config.ts`).
+  Un APK sin licencia vigente se bloquea pasada esa fecha. Antes de esa fecha, o se alarga el tope
+  desde el panel (llega a las apps con internet), o se compila un APK nuevo con otra fecha.
+- **Compilar un APK nuevo:** `cd ~/Claudia_app && bash scripts/probar-emulador.sh` (compila el
+  release firmado, lo instala en el emulador y deja el APK en
+  `android/app/build/outputs/apk/release/app-release.apk`). Copiarlo a `distribucion/Senda.apk`.
+  Se instala **encima** del anterior sin perder datos, porque la firma es la misma.
+- **Publicar la agenda web:** `npx expo export --platform web --output-dir /tmp/senda-web` y luego
+  `cd /tmp/senda-web && npx wrangler pages deploy . --project-name=michoferprivado --branch=production`.
+  La rama debe ser `production`; con otra queda como «preview» y el dominio no cambia.
+- **Desplegar el servidor:** `cd ~/Desarrollos/senda-api && npm test && npx wrangler deploy`.
+- **Cambiar el mail de avisos:** `TO` en `wrangler.jsonc` y volver a desplegar.
+
+## Si algo falla
+
+| Síntoma | Qué mirar |
+|---|---|
+| El panel dice «Token incorrecto» | Estás pegando otro token. Se ve en `~/.senda/claves.txt`. Cada intento fallido queda como `admin_rechazado` en eventos. |
+| Un chofer dice que su número no está cargado | No está en `lista`, o lo cargaste con otro número. Cargarlo de nuevo con el código de país. |
+| Un chofer dice «esperando aprobación» | Está en otro teléfono: `pendientes <id>` y `aprobar <id>`. |
+| La agenda dice «No encontramos un chofer con ese enlace» | El enlace está mal copiado. Que lo copie de nuevo desde el Inicio de la app. |
+| No llegan mails de aviso | La actividad igual queda registrada en `eventos`. Revisar el envío de correo en Cloudflare. |
+| Nada responde | Panel de Cloudflare → Workers → `senda-api` → Logs. |
+
+## Seguridad
+
+- El token da control total sobre los choferes: no lo pegues en chats ni mails.
+- El panel solo se abre con el token; sin él no devuelve nada.
+- Para cambiar el token: generar uno largo y aleatorio (`openssl rand -hex 32`), cargarlo con
+  `cd ~/Desarrollos/senda-api && npx wrangler secret put ADMIN_TOKEN` y actualizar la línea
+  `ADMIN_TOKEN` de `~/.senda/claves.txt`.

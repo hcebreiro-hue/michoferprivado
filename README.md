@@ -95,6 +95,13 @@ lo bloquea, la app muestra «Tu acceso está suspendido». Detalle completo en
 El enlace público usa `/reservas?driver=<slug>`; el portal expone únicamente
 nombre, teléfono, tarifa por km y franjas ocupadas.
 
+## 🛠️ Administración
+
+Altas, renovaciones, bloqueos, aprobación de teléfonos nuevos y bajas de datos se hacen desde
+el panel web (`https://senda.api.unitecapplications.com/admin`) o con el script
+`~/Desarrollos/senda-api/scripts/admin.mjs`. Guía completa:
+[`docs/administracion.md`](./docs/administracion.md).
+
 ## 💳 Tipo de cuenta por chofer
 
 Cada chofer arranca en **modo gratuito** (`VIP_GRATIS`). El paso a **modo pago**
