@@ -72,6 +72,7 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
       ultimaVista: await almacen.leerUltimaVista(),
       tope: await topeVigente(),
       fechaMinima: FECHA_MINIMA,
+      suspendida: await almacen.leerSuspendida(),
     });
     // Solo se avanza la "última vista" si el reloj es creíble: si no, un reloj
     // adelantado por error dejaría al chofer bloqueado para siempre.
@@ -96,6 +97,13 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
   const procesarRespuesta = useCallback(
     async (r: servidor.RespuestaActivar): Promise<ResultadoActivacion> => {
       if (r.tope_hasta) await traerTope();
+      // Se recuerda si el dueño bloqueó al chofer: así la app muestra la pantalla de
+      // suspensión (y no la de alta) y la saca sola cuando lo habilita de nuevo.
+      await almacen.guardarSuspendida(r.estado === 'bloqueado');
+      if (r.estado === 'bloqueado') {
+        await almacen.borrarToken();
+        await recalcular();
+      }
       if (r.estado !== 'ok' || !r.licencia) return falloDeRespuesta(r);
 
       const verificada = verificarLicencia(r.licencia, CLAVES_PUBLICAS);
@@ -176,8 +184,15 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
       if (estado !== 'active' || !activo) return;
       void recalcular();
       // Si el chofer ya empezó pero todavía no tiene cuenta en la nube (falló por falta de
-      // conexión), se reintenta apenas abre la app.
-      if (modoRef.current === 'crear' || Date.now() - ultimoRefresco.current > REVALIDAR_CADA_MS) void refrescar();
+      // conexión), se reintenta apenas abre la app. Lo mismo si está suspendido: así sale
+      // solo de la pantalla de suspensión cuando el dueño lo habilita de nuevo.
+      void (async () => {
+        const suspendida = await almacen.leerSuspendida();
+        if (!activo) return;
+        if (suspendida || modoRef.current === 'crear' || Date.now() - ultimoRefresco.current > REVALIDAR_CADA_MS) {
+          void refrescar();
+        }
+      })();
     });
     return () => {
       activo = false;

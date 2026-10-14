@@ -16,6 +16,20 @@ const K_ULTIMA_VISTA = `${PREFIJO}ultima_vista`;
 const K_WHATSAPP = `${PREFIJO}whatsapp`;
 const K_AVISOS = `${PREFIJO}avisos_gracia`;
 const K_BIENVENIDA = `${PREFIJO}bienvenida_vista`;
+const K_SUSPENDIDA = `${PREFIJO}suspendida`;
+
+/**
+ * El servidor respondió «bloqueado» la última vez que se lo consultó. Sirve para mostrar una
+ * pantalla que explique la suspensión, en vez de volver a pedir el alta como si fuera un
+ * teléfono nuevo. Se borra con cualquier otra respuesta (habilitado, sin alta, etc.).
+ */
+export async function leerSuspendida(): Promise<boolean> {
+  return (await AsyncStorage.getItem(K_SUSPENDIDA)) === '1';
+}
+export async function guardarSuspendida(suspendida: boolean): Promise<void> {
+  if (suspendida) await AsyncStorage.setItem(K_SUSPENDIDA, '1');
+  else await AsyncStorage.removeItem(K_SUSPENDIDA);
+}
 
 export const leerToken = () => AsyncStorage.getItem(K_TOKEN);
 export const guardarToken = (token: string) => AsyncStorage.setItem(K_TOKEN, token);

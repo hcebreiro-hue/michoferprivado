@@ -27,7 +27,9 @@ export type EstadoAcceso =
   /** La licencia exige volver a validarse por internet. */
   | { tipo: 'requiere_conexion' }
   /** El reloj del teléfono está atrasado o es imposible. */
-  | { tipo: 'reloj' };
+  | { tipo: 'reloj' }
+  /** El dueño bloqueó a este chofer: pantalla explicativa, sin pedir el alta de nuevo. */
+  | { tipo: 'suspendida' };
 
 export interface EntradaEvaluar {
   licencia: LicenciaPayload | null;
@@ -41,6 +43,8 @@ export interface EntradaEvaluar {
   tope: number;
   /** Fecha por debajo de la cual el reloj es seguro erróneo (ms). */
   fechaMinima: number;
+  /** El servidor respondió «bloqueado» en la última consulta. Si falta, se toma como false. */
+  suspendida?: boolean;
 }
 
 export function evaluarAcceso(e: EntradaEvaluar): EstadoAcceso {
@@ -48,6 +52,9 @@ export function evaluarAcceso(e: EntradaEvaluar): EstadoAcceso {
   if (e.ultimaVista !== null && e.ahora < e.ultimaVista - TOLERANCIA_RELOJ_MS) {
     return { tipo: 'reloj' };
   }
+
+  // Bloqueado por el dueño: manda sobre todo lo demás (incluso con licencia local vigente).
+  if (e.suspendida) return { tipo: 'suspendida' };
 
   const { licencia } = e;
   if (!licencia || !e.equipoId || licencia.equipo !== e.equipoId) {

@@ -13,10 +13,20 @@ import {
 /** WhatsApp de contacto del desarrollador (formato internacional, sin +). */
 const SUPPORT_WHATSAPP = '5491157418523';
 
+/** Correo de contacto del desarrollador. */
+const SUPPORT_EMAIL = 'desarrollo@unitecapplications.com';
+
 /** Abre WhatsApp con un mensaje precargado; si falla, no rompe la pantalla. */
 function openSupportWhatsApp() {
-  const message = '¡Hola Horacio! Te escribo por la app Mi Chofer Privado.';
+  const message = '¡Hola! Te escribo por la app Mi Chofer Privado.';
   const url = `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}`;
+  Linking.openURL(url).catch(() => undefined);
+}
+
+/** Abre el cliente de correo con el destinatario cargado; si falla, no rompe la pantalla. */
+function openSupportEmail() {
+  const subject = 'Consulta sobre la app Mi Chofer Privado';
+  const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`;
   Linking.openURL(url).catch(() => undefined);
 }
 
@@ -68,7 +78,7 @@ export default function AboutScreen() {
         <View className="mt-9 w-full rounded-2xl border border-slate-100 bg-white p-6">
           <Text className="text-center text-xs text-slate-400">Aplicación realizada por</Text>
           <Text className="mt-1.5 text-center text-xl font-bold text-brand-700">
-            Horacio Cebreiro
+            Unitec Applications
           </Text>
 
           {/* Contacto por WhatsApp */}
@@ -82,6 +92,17 @@ export default function AboutScreen() {
             <Text className="text-sm font-semibold text-emerald-700">
               +54 9 11 5741-8523
             </Text>
+          </Pressable>
+
+          {/* Contacto por correo */}
+          <Pressable
+            onPress={openSupportEmail}
+            accessibilityRole="button"
+            accessibilityLabel={`Escribir un correo a ${SUPPORT_EMAIL}`}
+            className="mt-2 flex-row items-center justify-center gap-2 self-center rounded-full border border-brand-100 bg-brand-50 px-4 py-2 active:bg-brand-100"
+          >
+            <Ionicons name="mail-outline" size={17} color="#1d4ed8" />
+            <Text className="text-sm font-semibold text-brand-700">{SUPPORT_EMAIL}</Text>
           </Pressable>
 
           <Text className="mt-2 text-center text-[11px] text-slate-400">

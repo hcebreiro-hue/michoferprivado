@@ -28,6 +28,8 @@ export function GuardiaLicencia({ children }: { children: React.ReactNode }) {
       return <PantallaBloqueo motivo="apk_vencido" />;
     case 'reloj':
       return <PantallaBloqueo motivo="reloj" />;
+    case 'suspendida':
+      return <PantallaBloqueo motivo="suspendida" />;
     case 'gracia':
       return (
         <View className="flex-1">

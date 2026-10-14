@@ -35,6 +35,15 @@ test('trial vigente: activa con días restantes', () => {
   assert.deepEqual(evaluarAcceso(base()), { tipo: 'activa', diasRestantes: 29, porVencer: false });
 });
 
+test('bloqueado por el dueño: suspendida, aunque la licencia local siga vigente', () => {
+  assert.deepEqual(evaluarAcceso(base({ suspendida: true })), { tipo: 'suspendida' });
+  assert.deepEqual(evaluarAcceso(base({ suspendida: true, licencia: null })), { tipo: 'suspendida' });
+});
+
+test('suspendida en false o ausente no cambia nada', () => {
+  assert.deepEqual(evaluarAcceso(base({ suspendida: false })), { tipo: 'activa', diasRestantes: 29, porVencer: false });
+});
+
 test('a 7 días o menos del vencimiento: activa pero por vencer', () => {
   const r = evaluarAcceso(base({ ahora: T0 + 24 * D, licencia: lic({ offline_hasta: new Date(T0 + 40 * D).toISOString() }) }));
   assert.deepEqual(r, { tipo: 'activa', diasRestantes: 6, porVencer: true });

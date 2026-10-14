@@ -7,7 +7,7 @@ import { WHATSAPP_DUENO } from './config';
 import { exportarDatos } from './compartir';
 import { useLicencia } from './LicenciaContext';
 
-type Motivo = 'vencida' | 'apk_vencido' | 'reloj';
+type Motivo = 'vencida' | 'apk_vencido' | 'reloj' | 'suspendida';
 
 const TEXTOS: Record<Motivo, { titulo: string; cuerpo: string }> = {
   vencida: {
@@ -22,6 +22,10 @@ const TEXTOS: Record<Motivo, { titulo: string; cuerpo: string }> = {
     titulo: 'Revisá la fecha y hora del teléfono',
     cuerpo: 'La fecha de tu teléfono parece incorrecta (está atrasada). Activá la fecha y hora automáticas en Ajustes y volvé a abrir la app.',
   },
+  suspendida: {
+    titulo: 'Tu acceso está suspendido',
+    cuerpo: 'Por ahora no podés usar la app. Escribile al soporte por WhatsApp para resolverlo. Tus datos siguen guardados y se recuperan cuando te habiliten de nuevo.',
+  },
 };
 
 /**
@@ -35,7 +39,10 @@ export function PantallaBloqueo({ motivo }: { motivo: Motivo }) {
   const t = TEXTOS[motivo];
 
   const renovar = () => {
-    const texto = `Hola, quiero renovar mi licencia de Claudia. Mi número: ${licencia?.whatsapp ?? '(completar)'}. Mi equipo: ${equipoId ?? '-'}.`;
+    const texto =
+      motivo === 'suspendida'
+        ? `Hola, mi acceso a la app figura suspendido. Mi equipo: ${equipoId ?? '-'}.`
+        : `Hola, quiero renovar mi licencia de Claudia. Mi número: ${licencia?.whatsapp ?? '(completar)'}. Mi equipo: ${equipoId ?? '-'}.`;
     Linking.openURL(`https://wa.me/${WHATSAPP_DUENO}?text=${encodeURIComponent(texto)}`).catch(() => undefined);
   };
 
@@ -59,8 +66,13 @@ export function PantallaBloqueo({ motivo }: { motivo: Motivo }) {
         <Card className="gap-3">
           {motivo === 'vencida' ? <Button title="Pedir renovación por WhatsApp" onPress={renovar} fullWidth /> : null}
           {motivo === 'apk_vencido' ? <Button title="Pedir la versión nueva" onPress={renovar} fullWidth /> : null}
-          <Button title="Descargar mis datos" variant="ghost" onPress={descargar} loading={exportando} fullWidth />
+          {motivo === 'suspendida' ? <Button title="Escribir al soporte por WhatsApp" onPress={renovar} fullWidth /> : null}
+          {/* Suspendido: la API de datos le responde 403, así que exportar saldría vacío. */}
+          {motivo !== 'suspendida' ? (
+            <Button title="Descargar mis datos" variant="ghost" onPress={descargar} loading={exportando} fullWidth />
+          ) : null}
           {motivo === 'vencida' ? <Button title="Ya renové: volver a revisar" variant="ghost" onPress={() => void refrescar()} fullWidth /> : null}
+          {motivo === 'suspendida' ? <Button title="Ya me habilitaron: volver a revisar" variant="ghost" onPress={() => void refrescar()} fullWidth /> : null}
         </Card>
         {equipoId ? <Text className="text-xs text-slate-400">ID del equipo: {equipoId}</Text> : null}
       </ScrollView>
