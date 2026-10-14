@@ -4,7 +4,7 @@
 > (UNA app para todos los choferes). **No** aplica a las apps futuras "una app por cliente"
 > (médicos, veterinaria, etc.): esas usan el Gestor de Usuarios (`prompt-gestor-usuarios.md`).
 >
-> Reemplaza la versión anterior de este archivo (basada en cuentas e invitaciones de Supabase,
+> Reemplaza la versión anterior de este archivo (basada en cuentas e invitaciones de un servicio externo,
 > descartada porque **no se puede exigir que el chofer cree una cuenta**). Esa versión sigue
 > en el historial de git (commit `de53615`).
 >
@@ -192,7 +192,7 @@ fechas de uso. *Esto es una guía técnica, no asesoramiento legal.*
 - **Derecho de acceso, rectificación y supresión:** el chofer puede pedir que se corrijan o
   se borren sus datos del servidor. **Falta definir el procedimiento** (por WhatsApp).
 - **Seguridad:** acceso al sitio de carga protegido; clave privada de firma solo en el
-  servidor. Esta licencia no usa Supabase.
+  servidor. Los datos del chofer viven en la base D1 de Senda (ver 12 bis).
 - **Registro de la base de datos ante la AAIP:** la ley lo prevé; **verificar si corresponde**.
 - **Ubicación de los datos:** Cloudflare D1 permite elegir la región (doc "Data location");
   **verificar** requisitos de transferencia internacional.
@@ -220,42 +220,66 @@ con `signingConfigs.debug`**, o sea con `android/app/debug.keystore` (huella SHA
 - **Claudia (VIP):** su APK actual está firmado con el debug.keystore. Si la firma cambia, no
   puede actualizar encima (tiene que desinstalar e instalar) y su ID cambia: re-aprobarla.
 
-## 12 bis. Supabase: clave de administrador y prueba de automatización
+## 12 bis. Servidor de Senda: datos y sesión (reemplaza a Supabase)
 
-- **Dónde está la clave `service_role`** (formato `sb_secret_…`): en
-  `~/.claudia-licencias/supabase.txt` (permiso 600, línea `SUPABASE_SERVICE_ROLE=…`).
-  **No está en el repo ni en `.env`.** Respaldarla en Bitwarden. Es la clave más sensible del
-  sistema: da acceso total a la base. Si se filtra, regenerarla en Supabase
-  (Project Settings → API Keys).
-- **Proyecto:** `michoferprivado` (org `hcebreiro-hue's Org`, plan FREE). La URL y la clave
-  pública (`anon`) están en `.env`.
-- **Prueba hecha (13/10/2026), todo OK:** desde el lado servidor se creó un chofer con la API
-  de administrador (sin correo ni contraseña tipeados), se entró con él, se creó su
-  `driver_settings` con el nombre y WhatsApp, se cargó un viaje y el calendario público
-  (`get_public_driver_portal`) lo mostró como turno ocupado **sin exponer datos del pasajero**.
-  Sin sesión no se pueden leer los viajes. Se borró todo: quedó con 0 usuarios.
-- **Etapa 2 (hecha, 14/10/2026): cuenta en la nube automática.** El chofer ya **no ve ni
-  crea ninguna cuenta**: se quitaron de Configuración «Cuenta» y «Volver a datos de ejemplo»
-  y se eliminó la pantalla `app/auth.tsx`. Cómo funciona:
-  1. `POST /v1/activar` acepta `sesion: 'crear' | 'existente'` (ver `claudia-licencias/src/supabase.js`).
-  2. El Worker crea un usuario de Supabase **sin contraseña** (`<whatsapp>@choferes.unitecapplications.com`,
-     mail interno que no recibe correo) con la `service_role`, que vive **solo** como secret del
-     Worker (`SUPABASE_SERVICE_ROLE`). Guarda su id en D1 (`choferes.supabase_user_id`).
-  3. Devuelve un token de un solo uso (`token_hash`, tipo `magiclink`) y la app abre sesión con
-     `supabase.auth.verifyOtp` (`AuthContext.signInWithToken`). Nunca se entrega sesión a un equipo
-     pendiente, a un número no cargado ni a un chofer bloqueado.
-  4. **Cuándo se pide** (`src/licencia/sesion.ts`): con el perfil completo (tocó «Borrar datos de
+Desde el 14/10/2026 la app **no usa Supabase**. Un solo Worker de Cloudflare con una base D1
+(repo `~/Desarrollos/senda-api`, `https://senda.api.unitecapplications.com`) hace de licencias,
+sesión y datos de los choferes. El Worker anterior `claudia-licencias` y el proyecto de Supabase
+quedan fuera de uso (ver «Limpieza pendiente» al final de esta sección).
+
+- **Secretos del Worker:** `PRIVATE_KEY` (firma de licencias, Ed25519), `JWT_SECRET` (sesiones) y
+  el token del panel `/admin`. Se generan con `npm run claves` (repo `senda-api`) y quedan en
+  `~/.senda/claves.txt` (permiso 600). **Respaldarlos en Bitwarden**, igual que
+  `claudia-release.jks`. Nunca van al repo ni a la app.
+- **La app no lleva ninguna clave secreta**: solo la clave pública que verifica licencias y topes.
+- **Base D1 `senda`:** `choferes`, `sesiones`, `trips`, `fuel_logs`, `maintenance_logs`,
+  `fixed_costs`, `driver_settings`, `config`, `eventos`. Toda tabla de datos lleva `owner_id`
+  (= `choferes.id`) con `ON DELETE CASCADE`: **borrar al chofer borra todo lo suyo**, que es el
+  procedimiento de supresión de datos a pedido (Ley 25.326, sección 11).
+- **Rutas:** `POST /v1/activar`, `POST /v1/sesion/renovar`, `GET /v1/tope`,
+  `GET /v1/portal/:slug` (pública, solo horarios ocupados), `/v1/{trips,fuel,maintenance,fixed-costs}`
+  y `/v1/settings` (requieren sesión), `/admin` y `/admin/api/*` (panel del dueño, con token).
+- **Etapa 2 (14/10/2026): la cuenta en la nube es automática.** El chofer no ve ni crea ninguna
+  cuenta. Cómo funciona:
+  1. `POST /v1/activar` acepta `sesion: 'crear' | 'existente'`.
+  2. Si la licencia es válida en ese equipo, el servidor entrega una sesión: `access` (JWT de
+     1 hora) y `refresh` (valor opaco de 90 días que se **rota en cada uso**; en D1 solo vive su
+     SHA-256). No hay mail ni contraseña: la identidad es el WhatsApp + el equipo aprobado.
+     Nunca se entrega sesión a un equipo pendiente, a un número no cargado ni a un chofer bloqueado.
+  3. **Cuándo se pide** (`src/licencia/sesion.ts`): con el perfil completo (tocó «Borrar datos de
      prueba y empezar») y sin sesión → `crear`. Con datos de prueba → `existente`: solo da sesión si
-     el chofer ya tenía cuenta (reinstaló o cambió de teléfono aprobado), así recupera sus datos; si
-     es nuevo **no se crea nada** y sigue con los datos de prueba.
-  5. Al abrirse la sesión, `maybeMigrateLocalToCloud` sube a la nube lo que cargó en el teléfono
-     (sin los datos de ejemplo). Si no hay conexión, se reintenta al abrir la app.
-  6. Si Supabase falla, la licencia se entrega igual y queda un evento `sesion_fallida` en el panel.
-  - **Probado contra producción** (script de punta a punta): alta, token de un solo uso, misma
-    cuenta al reinstalar, y sin sesión para equipo distinto / número no cargado / modo inválido.
-  - **Pendiente / a tener en cuenta:** el plan gratuito de Supabase pausa el proyecto tras ~7 días
-    sin actividad; supresión de datos a pedido del chofer = borrar el usuario de Supabase por su
-    `supabase_user_id` (se borran en cascada sus viajes, gastos y ajustes).
+     el chofer ya tenía datos (reinstaló o cambió de teléfono aprobado), así los recupera; si es
+     nuevo **no se crea nada** y sigue con los datos de prueba.
+  4. Al abrirse la sesión, `maybeMigrateLocalToCloud` sube a la nube lo que cargó en el teléfono
+     (sin los datos de ejemplo `seed-`). Si no hay conexión, se reintenta al abrir la app.
+  5. **Cada pedido vuelve a mirar la licencia del chofer**: bloquearlo desde el panel corta el
+     acceso a los datos al instante, no hay que esperar a que venza nada.
+  6. Si la sesión falla, la licencia se entrega igual y queda un evento `sesion_fallida` en el panel.
+- **Estado «suspendida» (app):** si el servidor responde `bloqueado` (el dueño lo bloqueó), la app
+  guarda una marca en el teléfono (`leerSuspendida`/`guardarSuspendida` en `src/licencia/almacen.ts`),
+  borra la sesión y muestra **«Tu acceso está suspendido»** con dos botones: *Escribir al soporte
+  por WhatsApp* y *Ya me habilitaron: volver a revisar*. Esta marca **tiene prioridad sobre una
+  licencia local todavía vigente** (`evaluar.ts`, estado `suspendida`): sin ella, el chofer
+  bloqueado podría seguir usando la app hasta que venciera la licencia guardada. Se vuelve a
+  revisar al abrir la app y al tocar el segundo botón; si el dueño lo habilitó, la marca se borra y
+  la app abre normal. En este estado **no se ofrece «Descargar mis datos»**: la nube ya no los
+  entrega. El caso «número no cargado» o «equipo distinto» sigue usando la pantalla de activación.
+- **Probado en el emulador (14/10/2026):** persistencia al cerrar y reabrir la app (viaje,
+  combustible, mantenimiento), migración de lo cargado en el teléfono a la nube (importes
+  correctos, sin duplicados y sin datos de ejemplo), bloqueo desde el panel con la app abierta y
+  habilitación posterior, y portal público (200 con horarios ocupados, 404 con un slug que no
+  existe; la agenda web publicada todavía era la versión anterior).
+- **Pendiente / a tener en cuenta:** el aviso de suspensión no aparece solo con la app abierta: se
+  ve al reabrirla o en la siguiente revalidación (cada 6 horas); mientras tanto los pedidos de
+  datos ya fallan porque el servidor corta la sesión.
+
+### Limpieza pendiente (después de probar con una persona real)
+
+- Worker viejo `claudia-licencias` y Worker de prueba `claudia-api-prueba`.
+- Proyecto de Supabase `michoferprivado` y el usuario de prueba «María López PRUEBA».
+- Archivo `~/.claudia-licencias/supabase.txt` (contiene la `service_role` de Supabase).
+- `supabase/schema.sql` del repo (histórico) y las secciones de Supabase de
+  `docs/roadmap-proximas-mejoras.md`.
 
 
 ## 13. Puntos abiertos
@@ -271,8 +295,8 @@ con `signingConfigs.debug`**, o sea con `android/app/debug.keystore` (huella SHA
    false` en `app/_layout.tsx` y `driver_settings`. Propuesta: reemplazarlos por esta
    licencia, para una sola fuente de verdad.
 8. **Procedimiento de baja y supresión** de datos del servidor (Ley 25.326) y texto del aviso.
-9. **Supabase:** resuelto en la etapa 2 (ver 12 bis): el login manual se retiró y la cuenta se
-   crea sola al activar. Queda pendiente el texto definitivo del aviso de privacidad (hoy está
+9. **Cuenta en la nube:** resuelto en la etapa 2 (ver 12 bis): el login manual se retiró y la
+   sesión se entrega sola al activar. Ya no se usa Supabase. Queda pendiente el texto definitivo del aviso de privacidad (hoy está
    en `PantallaActivacion.tsx`) y la inscripción en el registro de bases de datos (AAIP).
 10. **Subdominio:** confirmar que no afecta el catch-all de correo.
 

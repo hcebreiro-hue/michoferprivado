@@ -40,8 +40,9 @@ tus pasajeros. Esta guía explica cómo empezar y qué hace cada sección.
   vuelven a ejecutar la limpieza de demostración. Si la aplicación ya se inicia
   con un nombre real guardado, tampoco interpreta la carga inicial del perfil
   como un cambio desde “Conductor”.
-- Esta limpieza corresponde al modo de almacenamiento local. Con Supabase
-  configurado, el borrado automático está deshabilitado.
+- Esta limpieza corresponde al almacenamiento en el teléfono. Los datos de
+  demostración nunca se suben a la nube: al empezar, solo se guardan allí
+  los registros reales que cargaste.
 - Cambiar valores de configuración (por ejemplo las tarifas) no debería
   requerir borrar viajes ni reiniciar el historial. Una vez que la identidad
   queda definida, nombre y teléfono no se pueden volver a cambiar.
@@ -76,7 +77,7 @@ tus pasajeros. Esta guía explica cómo empezar y qué hace cada sección.
   acuerda la reserva directamente con el pasajero y luego registra el viaje.
 - **Web pública para tus pasajeros:** el enlace que copiás desde el Tablero
   (botón *Copiar Link WhatsApp*) abre una página web con la agenda de ese
-  chofer. La página lee en vivo los viajes cargados en Supabase, así que la
+  chofer. La página lee en vivo los viajes cargados en el servidor de Senda, así que la
   disponibilidad que ve el pasajero es la real: en cuanto cargás un viaje, ese
   horario aparece como ocupado en la web. La agenda se vuelve a consultar sola
   cada minuto y el pasajero también puede arrastrar hacia abajo para
@@ -87,7 +88,7 @@ tus pasajeros. Esta guía explica cómo empezar y qué hace cada sección.
   configurada en `false`; por eso no se ejecutan avisos de vencimiento ni
   bloqueos automáticos. Podés continuar usando la aplicación libremente.
 - Para pasar una cuenta a **VIP_PAGO** hay que cambiar la columna
-  `tipo_cuenta` en la tabla `driver_settings` de Supabase (ver el README). Esa
+  `tipo_cuenta` del chofer desde el panel de administración (ver el README). Esa
   es la única forma de activar el modo pago, y se hace de forma manual.
 - Como política de acompañamiento humano, se contempla un período inicial
   libre de **72 horas** y, si hace falta, hasta **dos extensiones de 24 horas**
