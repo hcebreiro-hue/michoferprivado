@@ -41,9 +41,10 @@ export const buildNumber: number | null = (() => {
 /**
  * Decodifica la fecha de compilación desde el `versionCode`.
  *
- * El plugin codifica el versionCode como `AAMMDDNN`: año(2) mes(2) día(2) más
- * un contador de build del día (2). Los dos últimos dígitos son minutos del día
- * truncados a 99, así que NO permiten recuperar la hora: solo la fecha.
+ * El plugin codifica el versionCode como `AAMMDDNNN`: año(2) mes(2) día(2) más
+ * un tramo de 2 minutos del día (3, de 000 a 719). Esos últimos dígitos no dan
+ * la hora exacta, así que se decodifica solo la fecha. También se aceptan los
+ * códigos viejos de 8 dígitos (`AAMMDDNN`), que tienen la misma fecha al inicio.
  *
  * Devuelve null si el número no tiene esa forma (versionCode puesto a mano,
  * plataforma sin build propio, etc.), en lugar de inventar una fecha.
@@ -52,7 +53,7 @@ export function decodeBuildDate(versionCode: number | null): Date | null {
   if (versionCode == null || !Number.isInteger(versionCode)) return null;
 
   const digits = String(versionCode);
-  if (!/^\d{8}$/.test(digits)) return null;
+  if (!/^\d{8,9}$/.test(digits)) return null;
 
   const year = VERSION_CODE_CENTURY + Number(digits.slice(0, 2));
   const month = Number(digits.slice(2, 4));

@@ -37,8 +37,10 @@ Cada compilación se identifica sola:
 
 - Versión visible (1.0.0, 1.1.0, ...): se define UNA sola vez en app.json
   ("version"). Subila solo cuando quieras que cambie lo que ve el usuario.
-- Número de build: se calcula AUTOMÁTICO de la fecha (AAMMDDNN). Siempre sube,
-  así Android deja instalar la nueva encima de la vieja.
+- Número de build: se calcula AUTOMÁTICO al compilar, de la fecha y la hora
+  (AAMMDDNNN, el último tramo cambia cada 2 minutos). Siempre sube, así Android
+  deja instalar la nueva encima de la vieja. Si compilás dos veces en menos de
+  2 minutos, esperá un poco antes de instalar encima.
 - Fecha y hora de compilación: se estampan solas en el APK.
 
 Todo eso se ve en la app, en Configuración → Acerca de. Sirve para saber de

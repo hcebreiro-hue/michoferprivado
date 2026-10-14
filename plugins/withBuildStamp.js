@@ -34,24 +34,28 @@ const withBuildStamp = (config) => {
     let contents = mod.modResults.contents;
 
     // 1) versionCode automático basado en la fecha de compilación.
-    //    Formato AAMMDDNN: año(2) mes(2) día(2) + contador de build del día (2).
+    //    Formato AAMMDDNNN: año(2) mes(2) día(2) + tramo de 2 minutos del día (3).
     //    Android exige que sea un entero creciente; así nunca hay que acordarse
     //    de subirlo a mano. tomo la fecha real del sistema en tiempo de build.
-    const now = new Date();
-    const yy = String(now.getFullYear() % 100).padStart(2, '0');
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    // Contador diario: segundos transcurridos del día / 60, limitado a 99.
-    const secondsOfDay = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    const nn = String(Math.min(99, Math.floor(secondsOfDay / 60))).padStart(2, '0');
-    // 2) Limpieza defensiva: si un build anterior dejó el BUILD_STAMP inyectado
-    //    en el android/ regenerado, no hace falta borrarlo a mano (prebuild
-    //    reescribe el archivo completo), pero nunca se vuelve a agregar.
-    const versionCode = `${yy}${mm}${dd}${nn}`;
+    //
+    //    El cálculo se escribe como expresión Groovy y se evalúa cuando corre
+    //    Gradle (no solo en `expo prebuild`). Así, compilar con
+    //    `./gradlew assembleRelease` ya da un número nuevo sin repetir el
+    //    prebuild, y la fecha nunca queda vieja.
+    //
+    //    El sufijo del día (NNN) es el tramo de 2 minutos transcurrido, de 000 a
+    //    719: sube cada 2 minutos y no se satura. Son 9 dígitos (AAMMDDNNN), así
+    //    que siempre supera a los códigos viejos de 8 dígitos ya instalados.
+    //    Dos compilaciones dentro del mismo tramo de 2 minutos darían el mismo
+    //    número. Cabe en un entero de 32 bits hasta el año 2099.
+    const versionCodeExpr =
+      "Integer.parseInt(java.time.LocalDate.now().format(" +
+      "java.time.format.DateTimeFormatter.ofPattern('yyMMdd')) + " +
+      "String.format('%03d', java.time.LocalTime.now().toSecondOfDay().intdiv(120)))";
 
     contents = contents.replace(
-      /versionCode\s+\d+/,
-      `versionCode ${versionCode}`,
+      /versionCode\s+(\d+|Integer\.parseInt\(.*\))/,
+      () => `versionCode ${versionCodeExpr}`,
     );
 
     mod.modResults.contents = contents;
