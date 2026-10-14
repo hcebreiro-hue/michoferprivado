@@ -9,7 +9,6 @@ import React, {
 import type { Settings } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import { getSettings, saveSettings } from '../services/settings';
-import { isSupabaseConfigured } from '../lib/supabase';
 import { maybeMigrateLocalToCloud } from '../services/migrateLocalToCloud';
 import { useAuth } from './AuthContext';
 
@@ -17,7 +16,6 @@ interface SettingsContextValue {
   settings: Settings;
   loading: boolean;
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
-  usingSupabase: boolean;
 }
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(
@@ -29,9 +27,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const settingsRef = useRef(settings);
   const writesRef = useRef<Promise<void>>(Promise.resolve());
-  const [loadedSessionId, setLoadedSessionId] = useState<string | null>();
+  const [loadedSessionId, setLoadedSessionId] = useState<number | null>();
   const loading =
-    authLoading || loadedSessionId !== (session?.user.id ?? null);
+    authLoading || loadedSessionId !== (session?.chofer ?? null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -42,7 +40,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         // chofer cargó en modo local antes de tener cuenta, para no perderlos.
         // Se hace antes de leer los ajustes para que getSettings lea ya el
         // perfil migrado.
-        if (session?.user?.id) {
+        if (session?.chofer) {
           const migrated = await maybeMigrateLocalToCloud();
           if (active && migrated) {
             console.log(
@@ -62,13 +60,13 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
           console.error('No se pudieron cargar los ajustes.', cause);
         }
       } finally {
-        if (active) setLoadedSessionId(session?.user.id ?? null);
+        if (active) setLoadedSessionId(session?.chofer ?? null);
       }
     })();
     return () => {
       active = false;
     };
-  }, [authLoading, session?.user.id]);
+  }, [authLoading, session?.chofer]);
 
   const updateSettings = useCallback(async (patch: Partial<Settings>) => {
     const operation = writesRef.current.then(async () => {
@@ -98,7 +96,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <SettingsContext.Provider
-      value={{ settings, loading, updateSettings, usingSupabase: isSupabaseConfigured }}
+      value={{ settings, loading, updateSettings }}
     >
       {children}
     </SettingsContext.Provider>

@@ -15,7 +15,6 @@ import { useData } from '../src/context/DataContext';
 import { useSettings } from '../src/context/SettingsContext';
 import { formatDate, normalizePhone } from '../src/utils/format';
 import * as savedAddressesService from '../src/services/savedAddresses';
-import { isSupabaseConfigured } from '../src/lib/supabase';
 import { driverSlugFromName } from '../src/services/settings';
 import {
   getPublicDriverPortal,
@@ -101,11 +100,11 @@ export default function ReservasScreen() {
   const [portalLoadState, setPortalLoadState] =
     useState<PublicPortalLoadState | null>(null);
 
-  // Recarga la agenda pública del chofer desde Supabase. Se reutiliza en la
+  // Recarga la agenda pública del chofer desde el servidor. Se reutiliza en la
   // carga inicial, en el "refrescar" del usuario y en el auto-refresh. Usa
   // promesas para que el setState ocurra dentro de callbacks asincrónicos.
   const loadPortal = useCallback((): Promise<void> => {
-    if (!hasDriverParam || !isSupabaseConfigured) return Promise.resolve();
+    if (!hasDriverParam) return Promise.resolve();
     return getPublicDriverPortal(driverSlug)
       .then((portal) => {
         setPortalLoadState({ driverSlug, status: 'loaded', portal });
@@ -129,7 +128,7 @@ export default function ReservasScreen() {
   // Auto-refresh: mantiene la disponibilidad actualizada sin que el pasajero
   // tenga que recargar, de modo que vea la agenda real del chofer.
   useEffect(() => {
-    if (!hasDriverParam || !isSupabaseConfigured) return;
+    if (!hasDriverParam) return;
     const interval = setInterval(() => {
       void loadPortal();
     }, 60_000);
@@ -147,16 +146,14 @@ export default function ReservasScreen() {
       ? currentPortalState.portal
       : null;
   const portalLoading =
-    hasDriverParam && isSupabaseConfigured && currentPortalState === null;
+    hasDriverParam && currentPortalState === null;
   const portalError = !hasDriverParam
     ? null
-    : !isSupabaseConfigured
-      ? 'El portal público no está conectado a la base de datos.'
-      : currentPortalState?.status === 'error'
-        ? currentPortalState.message
-        : currentPortalState?.status === 'loaded' && !currentPortalState.portal
-          ? 'No encontramos un chofer con ese enlace.'
-          : null;
+    : currentPortalState?.status === 'error'
+      ? currentPortalState.message
+      : currentPortalState?.status === 'loaded' && !currentPortalState.portal
+        ? 'No encontramos un chofer con ese enlace.'
+        : null;
 
   useEffect(() => {
     let active = true;

@@ -2,8 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Almacén local genérico basado en AsyncStorage. Se usa como "modo demo"
- * cuando no hay credenciales de Supabase configuradas, de modo que la app
- * sea completamente funcional desde el primer momento.
+ * mientras el chofer no tiene cuenta en la nube (datos de prueba y primer uso),
+ * de modo que la app sea completamente funcional desde el primer momento.
  */
 
 const PREFIX = 'michoferprivado:';

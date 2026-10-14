@@ -1,8 +1,8 @@
 /**
- * Cuándo la app tiene que pedirle al servidor la sesión de la nube (Supabase).
+ * Cuándo la app tiene que pedirle al servidor la sesión de la nube.
  * El chofer nunca crea ni usa una cuenta: la app entra sola.
  *
- *  - Con sesión (o sin credenciales de Supabase, o mientras se lee el estado)
+ *  - Con sesión (o mientras se lee el estado)
  *    no hay nada que pedir.
  *  - Con el perfil completo (el chofer ya tocó «Borrar datos de prueba y empezar»)
  *    y sin sesión: 'crear'. Es el alta de la cuenta, o el reintento si falló por
@@ -17,7 +17,7 @@
 import type { ModoSesion } from './servidor';
 
 export function modoDeSesion(e: {
-  /** Hay credenciales de Supabase en la app. */
+  /** La nube está habilitada. */
   habilitado: boolean;
   /** La sesión o los ajustes todavía se están leyendo. */
   cargando: boolean;

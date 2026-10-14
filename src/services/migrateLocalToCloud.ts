@@ -5,7 +5,7 @@ import type {
   Settings,
   Trip,
 } from '../types';
-import { supabase } from '../lib/supabase';
+import { api, leerSesion } from '../lib/api';
 import { loadCollection, loadValue, saveValue } from './localStore';
 import { withoutDemoSeedRecords } from './seed';
 import { saveSettings } from './settings';
@@ -18,10 +18,16 @@ export interface MigrationSummary {
   profileMigrated: boolean;
 }
 
+/** Colección local → ruta de la API de Senda. */
+type Ruta = '/v1/trips' | '/v1/fuel' | '/v1/maintenance' | '/v1/fixed-costs';
+
+/** Máximo que acepta el servidor por lote (MAX_LOTE en senda-api/src/datos.js). */
+const TAMANO_LOTE = 40;
+
 /**
- * Quita el id local antes de insertar en la nube: el id de Supabase es UUID y
- * lo genera la base (gen_random_uuid). Se conserva created_at para no alterar el
- * orden/historial. El owner_id lo asigna el RLS a partir de auth.uid().
+ * Quita el id local antes de enviar: el servidor genera el suyo (UUID) y asigna el
+ * dueño a partir de la sesión. Se conserva created_at para no alterar el orden ni el
+ * historial (el servidor lo respeta).
  */
 function toInsertPayload<T extends { id: string }>(record: T): Omit<T, 'id'> {
   const { id: _id, ...rest } = record;
@@ -30,28 +36,35 @@ function toInsertPayload<T extends { id: string }>(record: T): Omit<T, 'id'> {
 
 /**
  * Migra una colección local a la nube solo si la nube está vacía para este
- * chofer (así nunca duplica ni pisa datos que ya estén en Supabase). Devuelve
+ * chofer (así nunca duplica ni pisa datos que ya estén cargados). Devuelve
  * la cantidad de registros migrados.
  */
 async function migrateCollection(
-  table: 'trips' | 'fuel_logs' | 'maintenance_logs' | 'fixed_costs',
+  ruta: Ruta,
   localRecords: { id: string }[],
+  choferId: number,
 ): Promise<number> {
   if (localRecords.length === 0) return 0;
-  const { count, error: countError } = await supabase!
-    .from(table)
-    .select('id', { count: 'exact', head: true });
-  if (countError) throw countError;
-  if ((count ?? 0) > 0) return 0; // ya hay datos en la nube: no duplicar
-  const { error } = await supabase!
-    .from(table)
-    .insert(localRecords.map(toInsertPayload));
-  if (error) throw error;
-  return localRecords.length;
+  // Avance guardado: cuántos registros de esta colección ya subieron. Si un lote falla a
+  // mitad de camino, el reintento retoma desde ahí; sin esto, al ver datos en la nube se
+  // daría por terminada la migración y los registros restantes nunca subirían.
+  const claveAvance = `migrated_progress:${choferId}:${ruta}`;
+  const hechos = (await loadValue<number>(claveAvance)) ?? 0;
+  if (hechos === 0) {
+    const enNube = await api<unknown[]>(ruta);
+    if (enNube.length > 0) return 0; // ya hay datos en la nube: no duplicar
+  }
+  // Por lotes de 40, cada uno todo o nada en el servidor.
+  for (let i = hechos; i < localRecords.length; i += TAMANO_LOTE) {
+    const lote = localRecords.slice(i, i + TAMANO_LOTE).map(toInsertPayload);
+    await api(`${ruta}/lote`, { method: 'POST', body: lote });
+    await saveValue(claveAvance, Math.min(i + TAMANO_LOTE, localRecords.length));
+  }
+  return localRecords.length - hechos;
 }
 
 /**
- * Migra los datos guardados en modo local (sin cuenta) a la nube (Supabase) la
+ * Migra los datos guardados en modo local (sin cuenta) a la nube la
  * primera vez que el chofer inicia sesión, para que no "pierda" lo que cargó
  * antes de tener cuenta.
  *
@@ -64,14 +77,10 @@ async function migrateCollection(
  * Devuelve un resumen si migró algo, o null si no había nada que hacer.
  */
 export async function maybeMigrateLocalToCloud(): Promise<MigrationSummary | null> {
-  if (!supabase) return null;
+  const sesion = await leerSesion();
+  if (!sesion) return null;
 
-  const { data: auth, error: authError } = await supabase.auth.getSession();
-  if (authError) throw authError;
-  const userId = auth.session?.user?.id;
-  if (!userId) return null;
-
-  const flagKey = `migrated_to_cloud:${userId}`;
+  const flagKey = `migrated_to_cloud:${sesion.chofer}`;
   if (await loadValue<boolean>(flagKey)) return null;
 
   const [localTrips, localFuel, localMaintenance, localCosts, localSettings] =
@@ -84,13 +93,18 @@ export async function maybeMigrateLocalToCloud(): Promise<MigrationSummary | nul
     ]);
 
   const summary: MigrationSummary = await Promise.all([
-    migrateCollection('trips', withoutDemoSeedRecords(localTrips ?? [])),
-    migrateCollection('fuel_logs', withoutDemoSeedRecords(localFuel ?? [])),
+    migrateCollection('/v1/trips', withoutDemoSeedRecords(localTrips ?? []), sesion.chofer),
+    migrateCollection('/v1/fuel', withoutDemoSeedRecords(localFuel ?? []), sesion.chofer),
     migrateCollection(
-      'maintenance_logs',
+      '/v1/maintenance',
       withoutDemoSeedRecords(localMaintenance ?? []),
+      sesion.chofer,
     ),
-    migrateCollection('fixed_costs', withoutDemoSeedRecords(localCosts ?? [])),
+    migrateCollection(
+      '/v1/fixed-costs',
+      withoutDemoSeedRecords(localCosts ?? []),
+      sesion.chofer,
+    ),
   ]).then(([trips, fuelLogs, maintenanceLogs, fixedCosts]) => ({
     trips,
     fuelLogs,

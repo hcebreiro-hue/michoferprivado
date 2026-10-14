@@ -1,5 +1,5 @@
 import type { FuelLog } from '../types';
-import { supabase, hasActiveSession } from '../lib/supabase';
+import { api, hayCuenta } from '../lib/api';
 import { loadCollection, saveCollection, localId } from './localStore';
 import { seedFuelLogs, withoutDemoSeedRecords } from './seed';
 
@@ -7,14 +7,7 @@ const KEY = 'fuel_logs';
 
 /** Obtiene las cargas de combustible ordenadas por fecha descendente. */
 export async function listFuelLogs(seedDemoData = true): Promise<FuelLog[]> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('fuel_logs')
-      .select('*')
-      .order('filled_at', { ascending: false });
-    if (error) throw error;
-    return (data ?? []) as FuelLog[];
-  }
+  if (await hayCuenta()) return api<FuelLog[]>('/v1/fuel');
 
   const stored = await loadCollection<FuelLog>(KEY);
   if (stored == null) {
@@ -34,14 +27,8 @@ export type NewFuelLog = Omit<FuelLog, 'id' | 'created_at'>;
 
 /** Registra una carga de combustible. */
 export async function createFuelLog(input: NewFuelLog): Promise<FuelLog> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('fuel_logs')
-      .insert(input)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as FuelLog;
+  if (await hayCuenta()) {
+    return api<FuelLog>('/v1/fuel', { method: 'POST', body: input });
   }
 
   const logs = (await loadCollection<FuelLog>(KEY)) ?? [];
@@ -56,9 +43,8 @@ export async function createFuelLog(input: NewFuelLog): Promise<FuelLog> {
 
 /** Elimina una carga de combustible. */
 export async function deleteFuelLog(id: string): Promise<void> {
-  if (supabase && (await hasActiveSession())) {
-    const { error } = await supabase.from('fuel_logs').delete().eq('id', id);
-    if (error) throw error;
+  if (await hayCuenta()) {
+    await api(`/v1/fuel/${encodeURIComponent(id)}`, { method: 'DELETE' });
     return;
   }
   const logs = (await loadCollection<FuelLog>(KEY)) ?? [];
@@ -70,12 +56,8 @@ export async function deleteFuelLog(id: string): Promise<void> {
 
 /** Elimina todos los registros de combustible. */
 export async function deleteAllFuelLogs(): Promise<void> {
-  if (supabase && (await hasActiveSession())) {
-    const { error } = await supabase
-      .from('fuel_logs')
-      .delete()
-      .not('id', 'is', null);
-    if (error) throw error;
+  if (await hayCuenta()) {
+    await api('/v1/fuel', { method: 'DELETE' });
     return;
   }
   await saveCollection(KEY, []);

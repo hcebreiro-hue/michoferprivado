@@ -4,9 +4,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  # Credenciales públicas (publishable key, protegida por RLS). Se inlinan en el bundle.
-  EXPO_PUBLIC_SUPABASE_URL = "https://dcspnrulevuvvwunsxqd.supabase.co"
-  EXPO_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_1Hl4FiwxFa9MS8ysZNJ6Wg_XdST5LPh"
+  # La agenda web habla con el servidor de Senda (src/licencia/config.ts → URL_SERVIDOR).
+  # No lleva credenciales: la ruta pública solo devuelve horarios ocupados.
 
 # SPA routing: los archivos estáticos existentes (_expo/*, assets/*, favicon.ico)
 # se sirven primero; toda otra ruta (/reservas, /configuracion, /, etc.) cae a index.html.

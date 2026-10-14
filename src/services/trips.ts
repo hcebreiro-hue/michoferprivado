@@ -1,5 +1,5 @@
 import type { Trip } from '../types';
-import { supabase, hasActiveSession } from '../lib/supabase';
+import { api, hayCuenta } from '../lib/api';
 import {
   loadCollection,
   saveCollection,
@@ -11,14 +11,7 @@ const KEY = 'trips';
 
 /** Obtiene todos los viajes ordenados por fecha ascendente. */
 export async function listTrips(seedDemoData = true): Promise<Trip[]> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('trips')
-      .select('*')
-      .order('scheduled_at', { ascending: true });
-    if (error) throw error;
-    return (data ?? []) as Trip[];
-  }
+  if (await hayCuenta()) return api<Trip[]>('/v1/trips');
 
   const stored = await loadCollection<Trip>(KEY);
   if (stored == null) {
@@ -38,14 +31,8 @@ export type NewTrip = Omit<Trip, 'id' | 'created_at'>;
 
 /** Crea un viaje y devuelve el registro creado. */
 export async function createTrip(input: NewTrip): Promise<Trip> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('trips')
-      .insert(input)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as Trip;
+  if (await hayCuenta()) {
+    return api<Trip>('/v1/trips', { method: 'POST', body: input });
   }
 
   const trips = (await loadCollection<Trip>(KEY)) ?? [];
@@ -63,15 +50,11 @@ export async function updateTrip(
   id: string,
   patch: Partial<Trip>,
 ): Promise<Trip> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('trips')
-      .update(patch)
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as Trip;
+  if (await hayCuenta()) {
+    return api<Trip>(`/v1/trips/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: patch,
+    });
   }
 
   const trips = (await loadCollection<Trip>(KEY)) ?? [];
@@ -85,9 +68,8 @@ export async function updateTrip(
 
 /** Elimina un viaje. */
 export async function deleteTrip(id: string): Promise<void> {
-  if (supabase && (await hasActiveSession())) {
-    const { error } = await supabase.from('trips').delete().eq('id', id);
-    if (error) throw error;
+  if (await hayCuenta()) {
+    await api(`/v1/trips/${encodeURIComponent(id)}`, { method: 'DELETE' });
     return;
   }
   const trips = (await loadCollection<Trip>(KEY)) ?? [];
@@ -99,12 +81,8 @@ export async function deleteTrip(id: string): Promise<void> {
 
 /** Elimina todos los viajes. */
 export async function deleteAllTrips(): Promise<void> {
-  if (supabase && (await hasActiveSession())) {
-    const { error } = await supabase
-      .from('trips')
-      .delete()
-      .not('id', 'is', null);
-    if (error) throw error;
+  if (await hayCuenta()) {
+    await api('/v1/trips', { method: 'DELETE' });
     return;
   }
   await saveCollection(KEY, []);

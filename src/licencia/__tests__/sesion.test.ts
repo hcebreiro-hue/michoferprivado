@@ -17,7 +17,7 @@ test('con sesión no pide nada', () => {
   assert.equal(modoDeSesion({ ...base, tieneSesion: true, perfilCompleto: true }), null);
 });
 
-test('sin credenciales de Supabase, o mientras carga, no pide nada', () => {
+test('con la nube deshabilitada, o mientras carga, no pide nada', () => {
   assert.equal(modoDeSesion({ ...base, habilitado: false, perfilCompleto: true }), null);
   assert.equal(modoDeSesion({ ...base, cargando: true, perfilCompleto: true }), null);
   assert.equal(modoDeSesion({ ...base, cargando: true }), null);

@@ -5,81 +5,55 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import type { Session } from '@supabase/supabase-js';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { guardarSesion, leerSesion, suscribir, type Sesion } from '../lib/api';
 
 interface AuthContextValue {
-  session: Session | null;
+  /** Sesión de la nube del chofer (la abre sola la app; null = modo local). */
+  session: Sesion | null;
   loading: boolean;
+  /** Siempre true: el servidor de Senda es parte de la app, no hay nada que configurar. */
   enabled: boolean;
   /**
-   * Abre la sesión de la nube con el token de un solo uso que da el servidor de
-   * licencias. El chofer no crea ni escribe mail ni contraseña.
+   * Guarda la sesión que entregó el servidor de licencias al activar. El chofer no
+   * crea ni escribe mail ni contraseña.
    */
-  signInWithToken: (tokenHash: string) => Promise<void>;
+  abrirSesion: (sesion: Sesion) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(isSupabaseConfigured);
+  const [session, setSession] = useState<Sesion | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) {
-      return;
-    }
-
     let active = true;
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (active) {
-        setSession(nextSession);
-        setLoading(false);
-      }
+    // Se avisa cada vez que la sesión se guarda o se borra (por ejemplo, si el servidor
+    // la revoca al renovarla): la app pasa sola de la nube al modo local y al revés.
+    const dejarDeEscuchar = suscribir((nueva) => {
+      if (active) setSession(nueva);
     });
-
-    void supabase.auth
-      .getSession()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        if (active) {
-          setSession(data.session);
-          setLoading(false);
-        }
+    leerSesion()
+      .then((guardada) => {
+        if (active) setSession(guardada);
       })
       .catch((cause: unknown) => {
-        if (active) {
-          setSession(null);
-          setLoading(false);
-          console.error('No se pudo recuperar la sesión de Supabase.', cause);
-        }
+        console.error('No se pudo recuperar la sesión.', cause);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
-
     return () => {
       active = false;
-      subscription.unsubscribe();
+      dejarDeEscuchar();
     };
   }, []);
 
-  const signInWithToken = useCallback(async (tokenHash: string) => {
-    if (!supabase) throw new Error('Supabase no está configurado.');
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type: 'magiclink',
-    });
-    if (error) throw error;
-  }, []);
+  const abrirSesion = useCallback((sesion: Sesion) => guardarSesion(sesion), []);
 
   return (
     <AuthContext.Provider
-      value={{
-        session,
-        loading,
-        enabled: isSupabaseConfigured,
-        signInWithToken,
-      }}
+      value={{ session, loading, enabled: true, abrirSesion }}
     >
       {children}
     </AuthContext.Provider>

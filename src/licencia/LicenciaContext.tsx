@@ -43,10 +43,10 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
   const ultimoRefresco = useRef(0);
   const refrescando = useRef(false);
 
-  // Sesión de la nube (Supabase): la app entra sola con un token que da el servidor.
+  // Sesión de la nube: la app la recibe sola del servidor al activar la licencia.
   // El chofer nunca crea ni escribe una cuenta. `modo` dice qué pedirle al servidor
   // (ver sesion.ts); se guarda en un ref para no rehacer los callbacks en cada cambio.
-  const { session, loading: authLoading, enabled: nubeHabilitada, signInWithToken } = useAuth();
+  const { session, loading: authLoading, enabled: nubeHabilitada, abrirSesion } = useAuth();
   const { settings, loading: ajustesCargando } = useSettings();
   const modo = modoDeSesion({
     habilitado: nubeHabilitada,
@@ -109,7 +109,7 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
       // antes de aplicar la identidad. Si falla, la licencia sigue valiendo y se reintenta.
       if (r.sesion) {
         try {
-          await signInWithToken(r.sesion.token_hash);
+          await abrirSesion(r.sesion);
         } catch (causa) {
           console.error('No se pudo abrir la sesión de la nube.', causa);
         }
@@ -118,7 +118,7 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
       await recalcular();
       return { ok: true };
     },
-    [recalcular, traerTope, equipoId, signInWithToken],
+    [recalcular, traerTope, equipoId, abrirSesion],
   );
 
   const activar = useCallback(
@@ -154,7 +154,7 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
 
   const refrescar = useCallback(async () => {
     // Un solo pedido a la vez: al abrir, la revalidación inicial y el alta de la cuenta
-    // se disparan juntas, y dos altas simultáneas del mismo chofer chocan en Supabase.
+    // se disparan juntas, y dos pedidos de sesión simultáneos pueden pisarse entre sí.
     if (refrescando.current) return;
     refrescando.current = true;
     try {

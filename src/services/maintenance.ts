@@ -1,5 +1,5 @@
 import type { MaintenanceLog, MaintenanceType } from '../types';
-import { supabase, hasActiveSession } from '../lib/supabase';
+import { api, hayCuenta } from '../lib/api';
 import { loadCollection, saveCollection, localId } from './localStore';
 import { seedMaintenanceLogs, withoutDemoSeedRecords } from './seed';
 
@@ -9,14 +9,7 @@ const KEY = 'maintenance_logs';
 export async function listMaintenanceLogs(
   seedDemoData = true,
 ): Promise<MaintenanceLog[]> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('maintenance_logs')
-      .select('*')
-      .order('performed_at', { ascending: false });
-    if (error) throw error;
-    return (data ?? []) as MaintenanceLog[];
-  }
+  if (await hayCuenta()) return api<MaintenanceLog[]>('/v1/maintenance');
 
   const stored = await loadCollection<MaintenanceLog>(KEY);
   if (stored == null) {
@@ -39,14 +32,11 @@ export type NewMaintenanceLog = Omit<MaintenanceLog, 'id' | 'created_at'>;
 export async function createMaintenanceLog(
   input: NewMaintenanceLog,
 ): Promise<MaintenanceLog> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('maintenance_logs')
-      .insert(input)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as MaintenanceLog;
+  if (await hayCuenta()) {
+    return api<MaintenanceLog>('/v1/maintenance', {
+      method: 'POST',
+      body: input,
+    });
   }
 
   const logs = (await loadCollection<MaintenanceLog>(KEY)) ?? [];
@@ -61,12 +51,10 @@ export async function createMaintenanceLog(
 
 /** Elimina un mantenimiento. */
 export async function deleteMaintenanceLog(id: string): Promise<void> {
-  if (supabase && (await hasActiveSession())) {
-    const { error } = await supabase
-      .from('maintenance_logs')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
+  if (await hayCuenta()) {
+    await api(`/v1/maintenance/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
     return;
   }
   const logs = (await loadCollection<MaintenanceLog>(KEY)) ?? [];
@@ -78,12 +66,8 @@ export async function deleteMaintenanceLog(id: string): Promise<void> {
 
 /** Elimina todos los registros de mantenimiento. */
 export async function deleteAllMaintenanceLogs(): Promise<void> {
-  if (supabase && (await hasActiveSession())) {
-    const { error } = await supabase
-      .from('maintenance_logs')
-      .delete()
-      .not('id', 'is', null);
-    if (error) throw error;
+  if (await hayCuenta()) {
+    await api('/v1/maintenance', { method: 'DELETE' });
     return;
   }
   await saveCollection(KEY, []);

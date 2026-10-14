@@ -1,5 +1,5 @@
 import type { FixedCost } from '../types';
-import { supabase, hasActiveSession } from '../lib/supabase';
+import { api, hayCuenta } from '../lib/api';
 import { loadCollection, saveCollection, localId } from './localStore';
 import { seedFixedCosts, withoutDemoSeedRecords } from './seed';
 
@@ -7,14 +7,7 @@ const KEY = 'fixed_costs';
 
 /** Lista los gastos fijos mensuales. */
 export async function listFixedCosts(seedDemoData = true): Promise<FixedCost[]> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('fixed_costs')
-      .select('*')
-      .order('created_at', { ascending: true });
-    if (error) throw error;
-    return (data ?? []) as FixedCost[];
-  }
+  if (await hayCuenta()) return api<FixedCost[]>('/v1/fixed-costs');
 
   const stored = await loadCollection<FixedCost>(KEY);
   if (stored == null) {
@@ -31,14 +24,8 @@ export type NewFixedCost = Omit<FixedCost, 'id' | 'created_at'>;
 
 /** Crea un gasto fijo. */
 export async function createFixedCost(input: NewFixedCost): Promise<FixedCost> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('fixed_costs')
-      .insert(input)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as FixedCost;
+  if (await hayCuenta()) {
+    return api<FixedCost>('/v1/fixed-costs', { method: 'POST', body: input });
   }
 
   const list = (await loadCollection<FixedCost>(KEY)) ?? [];
@@ -56,15 +43,11 @@ export async function updateFixedCost(
   id: string,
   patch: Partial<FixedCost>,
 ): Promise<FixedCost> {
-  if (supabase && (await hasActiveSession())) {
-    const { data, error } = await supabase
-      .from('fixed_costs')
-      .update(patch)
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as FixedCost;
+  if (await hayCuenta()) {
+    return api<FixedCost>(`/v1/fixed-costs/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: patch,
+    });
   }
 
   const list = (await loadCollection<FixedCost>(KEY)) ?? [];
@@ -78,9 +61,10 @@ export async function updateFixedCost(
 
 /** Elimina un gasto fijo. */
 export async function deleteFixedCost(id: string): Promise<void> {
-  if (supabase && (await hasActiveSession())) {
-    const { error } = await supabase.from('fixed_costs').delete().eq('id', id);
-    if (error) throw error;
+  if (await hayCuenta()) {
+    await api(`/v1/fixed-costs/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
     return;
   }
   const list = (await loadCollection<FixedCost>(KEY)) ?? [];
@@ -92,12 +76,8 @@ export async function deleteFixedCost(id: string): Promise<void> {
 
 /** Elimina todos los costos fijos. */
 export async function deleteAllFixedCosts(): Promise<void> {
-  if (supabase && (await hasActiveSession())) {
-    const { error } = await supabase
-      .from('fixed_costs')
-      .delete()
-      .not('id', 'is', null);
-    if (error) throw error;
+  if (await hayCuenta()) {
+    await api('/v1/fixed-costs', { method: 'DELETE' });
     return;
   }
   await saveCollection(KEY, []);

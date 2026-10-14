@@ -1,6 +1,7 @@
+import type { Sesion } from '../lib/apiTipos';
 import { TIMEOUT_SERVIDOR_MS, URL_SERVIDOR } from './config';
 
-/** Respuesta de POST /v1/activar del servidor (ver ~/Desarrollos/claudia-licencias). */
+/** Respuesta de POST /v1/activar del servidor (ver ~/Desarrollos/senda-api). */
 export interface RespuestaActivar {
   ok: boolean;
   estado: 'ok' | 'pendiente' | 'no_autorizado' | 'bloqueado' | 'invalido';
@@ -8,8 +9,8 @@ export interface RespuestaActivar {
   tope_hasta: string | null;
   /** Hora del servidor (ISO): sirve para detectar un reloj del teléfono muy desfasado. */
   ahora: string;
-  /** Token de un solo uso para entrar a la cuenta de Supabase. Solo si se pidió `sesion`. */
-  sesion?: { token_hash: string };
+  /** Sesión para la API de datos de Senda. Solo si se pidió `sesion` y la licencia es válida. */
+  sesion?: Sesion;
 }
 
 /** 'crear': crea la cuenta si falta. 'existente': solo si el chofer ya la tiene (reinstalación). */

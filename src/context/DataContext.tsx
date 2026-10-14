@@ -55,7 +55,7 @@ const DataContext = createContext<DataContextValue | undefined>(undefined);
 /**
  * Modo demo (primera experiencia): mientras el chofer no completa su perfil, la
  * app muestra datos de ejemplo guardados en el dispositivo (AsyncStorage). Se
- * usa SIEMPRE que el perfil no está completo —incluso con una sesión de Supabase
+ * usa SIEMPRE que el perfil no está completo —incluso con una sesión de la nube
  * abierta— para que la primera impresión sea comprensible y los viajes que el
  * usuario agregue explorando no se pierdan al reiniciar la app.
  */
@@ -89,7 +89,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     try {
       // Perfil sin completar → modo demo con datos de ejemplo en el dispositivo.
-      // Aplica también con sesión de Supabase para garantizar la primera
+      // Aplica también con sesión de la nube para garantizar la primera
       // experiencia (nombre genérico "Conductor" + viajes de ejemplo).
       if (!settings.profile_complete) {
         const [demoTrips, demoFuel, demoMaintenance, demoCosts] =
@@ -130,7 +130,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Perfil completo → datos reales (Supabase si hay sesión, si no locales).
+      // Perfil completo → datos reales (de la nube si hay sesión, si no locales).
       const [loadedTrips, loadedFuelLogs, loadedMaintenanceLogs, loadedCosts] =
         await Promise.all([
           tripsService.listTrips(false),

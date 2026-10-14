@@ -1,8 +1,11 @@
 import { Platform } from 'react-native';
 import type { ClavesPublicas } from './verificar';
 
-/** Servidor de activación (Cloudflare Worker + D1). Repo: ~/Desarrollos/claudia-licencias. */
-export const URL_SERVIDOR = 'https://licencias.unitecapplications.com';
+/**
+ * Servidor de Senda (Cloudflare Worker + D1): licencias, sesión y datos de los choferes.
+ * Repo: ~/Desarrollos/senda-api. Un subdominio por aplicación: <app>.api.<dominio>.
+ */
+export const URL_SERVIDOR = 'https://senda.api.unitecapplications.com';
 
 /**
  * Claves PÚBLICAS de verificación, por `kid`. No son secretas (la privada vive
@@ -10,7 +13,7 @@ export const URL_SERVIDOR = 'https://licencias.unitecapplications.com';
  * vieja hasta que todos los equipos hayan renovado su licencia.
  */
 export const CLAVES_PUBLICAS: ClavesPublicas = {
-  k1: 'C7ImDClbtgItNJ1GIKD66141n5lchcpGPzXTR-eSbVw',
+  k1: 'O5AGJZG2v9itfEbxLRINA8TGdj6mU1G-3Z4L0tWlrsQ',
 };
 
 /**

@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { apiPublica } from '../lib/api';
 
 export interface PublicBusyInterval {
   start_at: string;
@@ -35,14 +35,10 @@ function isPublicDriverPortal(value: unknown): value is PublicDriverPortal {
 export async function getPublicDriverPortal(
   driverSlug: string,
 ): Promise<PublicDriverPortal | null> {
-  if (!supabase) {
-    throw new Error('El portal público requiere conexión con Supabase.');
-  }
-
-  const { data, error } = await supabase.rpc('get_public_driver_portal', {
-    p_driver_slug: driverSlug,
-  });
-  if (error) throw error;
+  // Solo horarios ocupados y contacto comercial: el servidor nunca devuelve datos del pasajero.
+  const data = await apiPublica<unknown>(
+    `/v1/portal/${encodeURIComponent(driverSlug.trim().toLowerCase())}`,
+  );
   if (data === null) return null;
   if (!isPublicDriverPortal(data)) {
     throw new Error('La respuesta del portal público tiene un formato inválido.');

@@ -1,6 +1,6 @@
 import type { AccountType, Settings } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
-import { supabase, hasActiveSession } from '../lib/supabase';
+import { api, hayCuenta } from '../lib/api';
 import { loadValue, saveValue } from './localStore';
 
 const KEY = 'settings';
@@ -26,35 +26,26 @@ export function driverSlugFromName(name: string, ownerId?: string): string {
     : nameSlug;
 }
 
+/** Une lo que devuelve el servidor con los valores por defecto (fechas vacías = ''). */
+function desdeServidor(data: Partial<Settings>): Settings {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...data,
+    driver_slug: data.driver_slug ?? '',
+    profile_complete: data.profile_complete ?? false,
+    vtv_expiry: data.vtv_expiry ?? '',
+    license_expiry: data.license_expiry ?? '',
+    insurance_expiry: data.insurance_expiry ?? '',
+    tipo_cuenta: normalizeAccountType(data.tipo_cuenta),
+  };
+}
+
 /** Obtiene los ajustes (con valores por defecto si no existen). */
 export async function getSettings(): Promise<Settings> {
-  if (supabase && (await hasActiveSession())) {
-    const {
-      data: { session },
-      error: authError,
-    } = await supabase.auth.getSession();
-    if (authError) throw authError;
-    const user = session?.user;
-    if (!user) return { ...DEFAULT_SETTINGS };
-
-    const { data, error } = await supabase
-      .from('driver_settings')
-      .select('*')
-      .eq('owner_id', user.id)
-      .maybeSingle();
-    if (error) throw error;
-    if (!data) return { ...DEFAULT_SETTINGS };
-
-    return {
-      ...DEFAULT_SETTINGS,
-      ...(data as Partial<Settings>),
-      driver_slug: data.driver_slug ?? '',
-      profile_complete: data.profile_complete ?? false,
-      vtv_expiry: data.vtv_expiry ?? '',
-      license_expiry: data.license_expiry ?? '',
-      insurance_expiry: data.insurance_expiry ?? '',
-      tipo_cuenta: normalizeAccountType(data.tipo_cuenta),
-    };
+  if (await hayCuenta()) {
+    // null = el chofer todavía no guardó su perfil en la nube.
+    const data = await api<Partial<Settings> | null>('/v1/settings');
+    return data ? desdeServidor(data) : { ...DEFAULT_SETTINGS };
   }
 
   const stored = await loadValue<Settings>(KEY);
@@ -64,43 +55,22 @@ export async function getSettings(): Promise<Settings> {
   return { ...merged, tipo_cuenta: normalizeAccountType(merged.tipo_cuenta) };
 }
 
-/** Guarda los ajustes (upsert en Supabase, persistencia local en demo). */
+/** Guarda los ajustes (en la nube si hay sesión; si no, en el dispositivo). */
 export async function saveSettings(settings: Settings): Promise<Settings> {
-  if (supabase && (await hasActiveSession())) {
-    const {
-      data: { session },
-      error: authError,
-    } = await supabase.auth.getSession();
-    if (authError) throw authError;
-    const user = session?.user;
-    if (!user) throw new Error('Inicia sesión para guardar tu configuración.');
-
-    const driverSlug =
-      settings.driver_slug || driverSlugFromName(settings.driver_name, user.id);
-    const { data, error } = await supabase
-      .from('driver_settings')
-      .upsert({
-        ...settings,
-        owner_id: user.id,
-        driver_slug: driverSlug,
-        tipo_cuenta: normalizeAccountType(settings.tipo_cuenta),
+  if (await hayCuenta()) {
+    // El servidor decide el slug público y el tipo de cuenta (la app no los elige): se
+    // mandan los demás campos y se usa lo que devuelve.
+    const { driver_slug: _slug, tipo_cuenta: _tipo, ...editable } = settings;
+    const data = await api<Partial<Settings>>('/v1/settings', {
+      method: 'PUT',
+      body: {
+        ...editable,
         vtv_expiry: settings.vtv_expiry || null,
         license_expiry: settings.license_expiry || null,
         insurance_expiry: settings.insurance_expiry || null,
-      })
-      .select()
-      .single();
-    if (error) throw error;
-    return {
-      ...DEFAULT_SETTINGS,
-      ...(data as Partial<Settings>),
-      driver_slug: data.driver_slug ?? driverSlug,
-      profile_complete: data.profile_complete ?? false,
-      vtv_expiry: data.vtv_expiry ?? '',
-      license_expiry: data.license_expiry ?? '',
-      insurance_expiry: data.insurance_expiry ?? '',
-      tipo_cuenta: normalizeAccountType(data.tipo_cuenta),
-    };
+      },
+    });
+    return desdeServidor(data);
   }
 
   const saved = {

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Mi Chofer Privado",
+    "name": "Senda",
     "slug": "Mi-Chofer-Privado",
     "version": "1.0.0",
     "runtimeVersion": {
@@ -23,7 +23,9 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "blockedPermissions": ["android.permission.WRITE_CONTACTS"]
+      "blockedPermissions": [
+        "android.permission.WRITE_CONTACTS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -46,17 +48,16 @@
       [
         "expo-contacts",
         {
-          "contactsPermission": "Mi Chofer Privado lee tus contactos solo para que elijas al cliente de un viaje."
+          "contactsPermission": "Senda lee tus contactos solo para que elijas al cliente de un viaje."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "extra": {
       "router": {},
       "eas": {
         "projectId": "85430fc5-45e1-47d6-8010-054fcb48e7c2"
-      },
-      "supabaseUrl": "https://dcspnrulevuvvwunsxqd.supabase.co",
-      "supabaseAnonKey": "sb_publishable_1Hl4FiwxFa9MS8ysZNJ6Wg_XdST5LPh"
+      }
     }
   }
 }
