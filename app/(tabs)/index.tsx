@@ -21,13 +21,10 @@ import { useSettings } from '../../src/context/SettingsContext';
 import { formatCurrency, isUpcoming, monthLabel } from '../../src/utils/format';
 import { needsMaintenanceAlert } from '../../src/utils/calculations';
 import { isCalendarBlock, tripPendingAmount } from '../../src/types';
-import { driverSlugFromName } from '../../src/services/settings';
 import { BannerDatosDePrueba } from '../../src/licencia/BannerDatosDePrueba';
 import { URL_AGENDA } from '../../src/licencia/config';
+import { AVISO_AGENDA_TEXTO, AVISO_AGENDA_TITULO, enlaceAgenda } from '../../src/licencia/agenda';
 
-function createDriverPortalUrl(driverSlug: string): string {
-  return `${URL_AGENDA}/reservas?driver=${encodeURIComponent(driverSlug)}`;
-}
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -40,17 +37,24 @@ export default function DashboardScreen() {
     updateTrip,
   } = useData();
   const { settings } = useSettings();
-  const portalUrl = createDriverPortalUrl(
-    settings.driver_slug || driverSlugFromName(settings.driver_name || 'Conductor'),
-  );
+  // null mientras el perfil todavía no está en el servidor (datos de prueba).
+  const portalUrl = enlaceAgenda(URL_AGENDA, settings.driver_slug);
 
   const openBookingPortal = () => {
+    if (!portalUrl) {
+      Alert.alert(AVISO_AGENDA_TITULO, AVISO_AGENDA_TEXTO);
+      return;
+    }
     Linking.openURL(portalUrl).catch(() => {
       Alert.alert('No se pudo abrir la agenda web.');
     });
   };
 
   const copyBookingPortalLink = async () => {
+    if (!portalUrl) {
+      Alert.alert(AVISO_AGENDA_TITULO, AVISO_AGENDA_TEXTO);
+      return;
+    }
     try {
       await Clipboard.setStringAsync(portalUrl);
       Alert.alert('¡Enlace copiado con éxito para enviar por WhatsApp!');
