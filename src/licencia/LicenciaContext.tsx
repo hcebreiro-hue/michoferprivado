@@ -41,6 +41,7 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
   // El ID del equipo no cambia mientras la app vive: se lee una sola vez.
   const [equipoId] = useState<string | null>(leerEquipoId);
   const ultimoRefresco = useRef(0);
+  const refrescando = useRef(false);
 
   // Sesión de la nube (Supabase): la app entra sola con un token que da el servidor.
   // El chofer nunca crea ni escribe una cuenta. `modo` dice qué pedirle al servidor
@@ -134,7 +135,7 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
     [procesarRespuesta, equipoId],
   );
 
-  const refrescar = useCallback(async () => {
+  const refrescarUnaVez = useCallback(async () => {
     const whatsapp = await almacen.leerWhatsapp();
     if (!whatsapp || !equipoId) return;
     ultimoRefresco.current = Date.now();
@@ -150,6 +151,18 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
       /* sin conexión: rige lo guardado hasta que se agote la ventana offline */
     }
   }, [procesarRespuesta, recalcular, equipoId]);
+
+  const refrescar = useCallback(async () => {
+    // Un solo pedido a la vez: al abrir, la revalidación inicial y el alta de la cuenta
+    // se disparan juntas, y dos altas simultáneas del mismo chofer chocan en Supabase.
+    if (refrescando.current) return;
+    refrescando.current = true;
+    try {
+      await refrescarUnaVez();
+    } finally {
+      refrescando.current = false;
+    }
+  }, [refrescarUnaVez]);
 
   useEffect(() => {
     if (!LICENCIA_EXIGIDA) return;
