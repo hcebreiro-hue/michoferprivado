@@ -28,8 +28,19 @@ Están en `~/.senda/claves.txt` (permiso 600). **No van al repo.**
 | `JWT_SECRET` | Firma las sesiones de datos | Los choferes reabren sesión solos al revalidar |
 | `claudia-release.jks` (`~/.claudia-keystore/`) | Firma el APK | **No se puede actualizar ninguna app ya instalada** |
 
-Las contraseñas del keystore están en `~/.gradle/gradle.properties`. Respaldar los tres en
-Bitwarden: `claves.txt`, el `.jks` y ese archivo.
+Las contraseñas del keystore están en `~/.gradle/gradle.properties`.
+
+**Respaldos (Bitwarden, notas seguras):**
+
+| Nota | Contenido |
+|---|---|
+| `Senda - claves del servidor` | `~/.senda/claves.txt` (las 4 claves) |
+| `Senda - gradle.properties` | `~/.gradle/gradle.properties` (contraseñas del keystore) |
+| `Senda - keystore release (base64)` | `claudia-release.jks` en base64, una sola línea |
+
+Para restaurar el keystore: pegar el texto de la nota en un archivo `k.b64` y ejecutar
+`base64 -d -i k.b64 > claudia-release.jks`. Si se cambia alguna de estas claves o archivos,
+actualizar también la nota correspondiente.
 
 ## Opción 1 — Panel web
 
