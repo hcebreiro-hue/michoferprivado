@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Mi Chofer Privado — Manual de Usuario</title>
+<title>Senda — Manual de Usuario</title>
 <style>
   :root{
     --brand:#2563eb; --brand-dark:#1d4ed8; --brand-soft:#eff6ff;
@@ -27,6 +27,15 @@
   .cover h2{ font-size:17pt; font-weight:500; margin:0 0 12mm; opacity:.92;}
   .cover .meta{ font-size:10.5pt; opacity:.85; border-top:1px solid rgba(255,255,255,.3); padding-top:5mm;}
   .cover .emoji{ font-size:34pt; margin-bottom:5mm;}
+  .cover .demo{ display:inline-block; margin-top:9mm; background:#fff; color:#1e3a8a; font-weight:800; font-size:12pt;
+    padding:3.2mm 9mm; border-radius:999px; text-decoration:none; width:max-content; }
+  .cover .web{ font-size:9.5pt; opacity:.85; margin-top:3mm; }
+  .trio{ display:flex; gap:5mm; justify-content:center; margin:5mm 0; page-break-inside:avoid; }
+  .trio figure{ margin:0; flex:0 0 52mm; text-align:center; }
+  .trio img{ width:52mm; border:1px solid var(--line); border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.12); }
+  .trio figcaption{ font-size:8.5pt; color:var(--muted); margin-top:2mm; }
+  .trio.small figure{ flex:0 0 42mm; }
+  .trio.small img{ width:42mm; }
   h2.section{
     font-size:20pt; color:var(--ink); font-weight:800; letter-spacing:-.3px;
     margin:0 0 3mm; padding-bottom:3mm; border-bottom:3px solid var(--brand); page-break-after:avoid;
@@ -76,30 +85,32 @@
 <section class="cover">
   <span class="badge">GUÍA OFICIAL · PARA CHOFERES</span>
   <div class="emoji">🚗</div>
-  <h1>Mi Chofer<br>Privado</h1>
+  <h1>Senda</h1>
   <h2>Manual de Usuario</h2>
   <div class="meta">
     Tu compañero para gestionar viajes, clientes, finanzas y el mantenimiento de tu auto.<br>
-    Versión 1.0 · Octubre 2026<br>
-    <span style="opacity:.95;">Aplicación realizada por Horacio Cebreiro</span>
+    Versión 2.0 · Octubre 2026<br>
+    <span style="opacity:.95;">Aplicación realizada por Unitec Applications</span>
   </div>
+  <a class="demo" href="mailto:contacto@unitecapplications.com?subject=Quiero%20una%20demo%20de%20Senda&amp;body=Hola%2C%20quisiera%20probar%20Senda.%20Mi%20nombre%20es%20...%20y%20mi%20WhatsApp%20es%20...">Pedir demo</a>
+  <div class="web">contacto@unitecapplications.com · unitecapplications.com</div>
 </section>
 <!-- ===== ÍNDICE ===== -->
 <section class="page">
   <h2 class="section">Contenido</h2>
   <ol class="toc">
-    <li><span class="num">1</span> ¿Qué es Mi Chofer Privado?</li>
-    <li><span class="num">2</span> Cómo funciona: modo Local y modo Cuenta</li>
+    <li><span class="num">1</span> ¿Qué es Senda?</li>
+    <li><span class="num">2</span> Cómo se activa: tu número y tu licencia</li>
     <li><span class="num">3</span> Primeros pasos al abrir la app</li>
     <li><span class="num">4</span> Inicio — tu resumen del mes</li>
-    <li><span class="num">5</span> Viajes — calendario y clientes</li>
+    <li><span class="num">5</span> Viajes — calendario, clientes, contactos y frecuentes</li>
     <li><span class="num">6</span> Registrar el cobro de un viaje</li>
     <li><span class="num">7</span> Tarifas — la calculadora de viajes</li>
     <li><span class="num">8</span> Auto — mantenimiento, gastos y combustible</li>
     <li><span class="num">9</span> Reportes — tus finanzas mes a mes</li>
-    <li><span class="num">10</span> Configuración — identidad, tarifas y cuenta</li>
+    <li><span class="num">10</span> Configuración — identidad, tarifas y datos de prueba</li>
     <li><span class="num">11</span> Tu página web de reservas</li>
-    <li><span class="num">12</span> Activar tu cuenta real</li>
+    <li><span class="num">12</span> Tu licencia: vencimiento, avisos y renovación</li>
     <li><span class="num">13</span> Preguntas frecuentes y buenas prácticas</li>
   </ol>
   <div class="callout tip" style="margin-top:10mm;">
@@ -112,12 +123,13 @@
 
 <!-- ===== 1. QUÉ ES ===== -->
 <section class="page">
-  <h2 class="section">1 · ¿Qué es Mi Chofer Privado?</h2>
-  <p class="lead"><strong>Mi Chofer Privado</strong> es una aplicación para choferes independientes.
+  <h2 class="section">1 · ¿Qué es Senda?</h2>
+  <p class="lead"><strong>Senda</strong> es una aplicación para choferes independientes.
   Te ayuda a organizar tu día a día y, sobre todo, a entender <strong>cuánto ganás de verdad</strong>.</p>
   <p>Con la app podés:</p>
   <ul>
     <li>📅 <strong>Agendar y seguir tus viajes</strong> y clientes.</li>
+    <li>👥 <strong>Elegir al cliente</strong> desde tus contactos o tus clientes frecuentes, sin escribir.</li>
     <li>🧮 <strong>Calcular el precio</strong> de cada viaje según los kilómetros.</li>
     <li>⛽ <strong>Registrar combustible</strong> y conocer el rendimiento de tu auto.</li>
     <li>🔧 <strong>Controlar el mantenimiento</strong> (aceite, frenos) y vencimientos (VTV, registro, seguro).</li>
@@ -127,7 +139,7 @@
   </ul>
   <div class="key">
     <h4 style="margin-top:0;">La idea central</h4>
-    <p style="margin-bottom:0;">Muchas apps muestran solo “cuánto cobraste”. Mi Chofer Privado va más allá:
+    <p style="margin-bottom:0;">Muchas apps muestran solo “cuánto cobraste”. Senda va más allá:
     resta el combustible, el mantenimiento y un <strong>fondo de reserva para el auto</strong>, para que veas tu
     <strong>ganancia real</strong> y no te sorprenda cuando haya que cambiar neumáticos.</p>
   </div>
@@ -135,23 +147,24 @@
 
 <!-- ===== 2. MODOS ===== -->
 <section class="page">
-  <h2 class="section">2 · Cómo funciona: modo Local y modo Cuenta</h2>
-  <p class="lead">La app tiene <strong>dos formas de uso</strong>. Podés empezar a usarla al instante,
-  sin registrarte, y activar tu cuenta recién cuando quieras.</p>
+  <h2 class="section">2 · Cómo se activa: tu número y tu licencia</h2>
+  <p class="lead">Senda se usa con una <strong>licencia</strong>. Quien te da la app te da de alta con tu
+  <strong>número de WhatsApp</strong>, y con ese número la activás en tu celular.</p>
 
   <table>
-    <tr><th></th><th>Modo Local (por defecto)</th><th>Modo Cuenta (opcional)</th></tr>
-    <tr><td><strong>Registro</strong></td><td>No requiere. Abrís y usás.</td><td>Creás tu cuenta desde Configuración.</td></tr>
-    <tr><td><strong>Nombre</strong></td><td>“Conductor”</td><td>Tu nombre real.</td></tr>
-    <tr><td><strong>Dónde se guardan<br>los datos</strong></td><td>En tu celular (local).</td><td>En la nube (tu cuenta).</td></tr>
-    <tr><td><strong>Web de reservas</strong></td><td>No disponible.</td><td>Sí, con tu enlace personal.</td></tr>
-    <tr><td><strong>Ideal para</strong></td><td>Probar y organizarte ya.</td><td>Uso real y compartir con pasajeros.</td></tr>
+    <tr><th></th><th>Cómo funciona</th></tr>
+    <tr><td><strong>Alta</strong></td><td>Te da de alta Unitec Applications con tu nombre y tu número de WhatsApp.</td></tr>
+    <tr><td><strong>Activación</strong></td><td>Abrís la app, escribís tu número, aceptás el aviso de privacidad y tocás <strong>Activar</strong>. Necesitás internet.</td></tr>
+    <tr><td><strong>Prueba gratuita</strong></td><td>Arrancás con <strong>30 días de prueba</strong>, contados desde la primera activación.</td></tr>
+    <tr><td><strong>Tus datos</strong></td><td>Se guardan en una cuenta en la nube asociada a tu número: no los perdés si cambiás de teléfono.</td></tr>
+    <tr><td><strong>Un número, un equipo</strong></td><td>Tu licencia queda atada a tu celular. Si cambiás de teléfono, escribinos y lo aprobamos.</td></tr>
+    <tr><td><strong>Web de reservas</strong></td><td>Incluida, con tu enlace personal (sección 11).</td></tr>
   </table>
 
   <div class="callout ok">
-    <span class="t">✅ Buena noticia</span>
-    En modo Local la app es <strong>totalmente funcional</strong>: viene con datos de ejemplo para que
-    explores, y todo lo que cargues se guarda en tu teléfono. No perdés nada.
+    <span class="t">✅ Tus datos son tuyos</span>
+    Tu número, tus viajes y los datos de tus pasajeros <strong>no se comparten con terceros</strong>. Podés
+    pedir que los corrijan o los borren escribiéndonos por WhatsApp.
   </div>
 
   <h3>El “fondo de reserva para el auto”</h3>
@@ -167,28 +180,36 @@
 <!-- ===== 3. PRIMEROS PASOS ===== -->
 <section class="page">
   <h2 class="section">3 · Primeros pasos al abrir la app</h2>
-  <p class="lead">Nada más instalar la app ya podés moverte libremente. No te va a pedir registro.</p>
+  <p class="lead">Al abrir la app por primera vez la activás con tu número. Es un paso único.</p>
+  <div class="trio small">
+    <figure><img src="img/10-activacion.png" alt="Pantalla de activación"><figcaption>1 · Activar con tu número</figcaption></figure>
+    <figure><img src="img/11-bienvenida.png" alt="Pantalla de bienvenida"><figcaption>2 · Bienvenida y licencia</figcaption></figure>
+    <figure><img src="img/01-inicio.png" alt="Pantalla de Inicio"><figcaption>3 · Inicio</figcaption></figure>
+  </div>
   <ol>
-    <li><strong>Abrís la app</strong> y entrás directo a la pantalla de <strong>Inicio</strong>.</li>
-    <li>Vas a ver el nombre <strong>“Conductor”</strong> y algunos <strong>viajes de ejemplo</strong>
-    para que explores cómo funciona.</li>
+    <li><strong>Escribí tu número de WhatsApp</strong> (el mismo con el que te dieron de alta), tocá
+    <strong>“Acepto el aviso de privacidad”</strong> y luego <strong>Activar</strong>.</li>
+    <li>Te saluda la pantalla de <strong>bienvenida</strong>: confirma tus datos y dice <strong>hasta cuándo
+    vale tu licencia</strong>. Tocá <strong>“Entrar a la app”</strong>.</li>
+    <li>Vas a ver <strong>viajes de ejemplo</strong> para que explores cómo funciona.</li>
     <li>Recorré las 5 secciones de abajo: <strong>Inicio, Viajes, Tarifas, Auto y Reportes</strong>.</li>
     <li>Cuando quieras, andá a <strong>Configuración</strong> (el ícono ⚙️ arriba a la derecha) para
-    poner tu nombre, tu teléfono y tus tarifas.</li>
+    ajustar tus tarifas.</li>
   </ol>
+  <p>Si tu número todavía no está dado de alta, la app te lo avisa y podés tocar
+  <strong>“Pedir mi alta por WhatsApp”</strong>.</p>
 
   <div class="callout warn">
     <span class="t">⚠️ Datos de ejemplo</span>
-    Los viajes que ves al inicio (María, Carlos, Lucía…) son <strong>de demostración</strong>. Cuando
-    guardes tu perfil en Configuración, esos ejemplos desaparecen y arrancás con tu propia información.
+    Los viajes que ves al inicio (María, Carlos, Lucía…) son <strong>de demostración</strong> y se quedan
+    hasta que vos los borres. Cuando quieras empezar con tus viajes reales, tocá
+    <strong>“Borrar datos de prueba y empezar”</strong>: está en Configuración, en el aviso amarillo de
+    Inicio y en la pantalla de bienvenida. Lo que cargues vos se conserva.
   </div>
 
   <h3>La barra de navegación (abajo)</h3>
-  <p>Es tu menú principal. Siempre visible, con 5 accesos:</p>
-  <div class="shot-center">
-    <img src="img/01-inicio.png" alt="Pantalla de Inicio">
-    <div style="font-size:8.5pt;color:var(--muted);margin-top:2mm;">Inicio · Viajes · Tarifas · Auto · Reportes</div>
-  </div>
+  <p>Es tu menú principal, como se ve en la tercera captura. Siempre visible, con 5 accesos:
+  <strong>Inicio · Viajes · Tarifas · Auto · Reportes</strong>.</p>
 </section>
 
 <!-- ===== 4. INICIO ===== -->
@@ -225,7 +246,7 @@
 </section>
 <!-- ===== 5. VIAJES ===== -->
 <section class="page">
-  <h2 class="section">5 · Viajes — calendario y clientes</h2>
+  <h2 class="section">5 · Viajes — calendario, clientes, contactos y frecuentes</h2>
   <p>Tu centro de operaciones para agendar y hacer seguimiento de cada viaje.</p>
 
   <div class="screen">
@@ -240,7 +261,7 @@
       viaje podés <strong>marcarlo como completado</strong>, <strong>cancelarlo</strong>, <strong>editarlo</strong>
       (tocándolo) o <strong>eliminarlo</strong>.</p>
       <h4>Crear un viaje</h4>
-      <p>El botón <strong>“+”</strong> (abajo a la derecha) abre el formulario: cliente, teléfono,
+      <p>El botón <strong>“+”</strong> (arriba a la derecha) abre el formulario: cliente, teléfono,
       origen, destino, fecha, hora, kilómetros y precio.</p>
     </div>
     <div class="shot">
@@ -254,6 +275,43 @@
     Guardá el <strong>teléfono del cliente</strong> para que aparezcan los botones de Llamar y WhatsApp
     y contactarlo con un toque.
   </div>
+</section>
+
+<!-- ===== 5b. CONTACTOS Y FRECUENTES ===== -->
+<section class="page">
+  <h2 class="section">Elegir al cliente sin escribir</h2>
+  <p class="lead">Al crear un viaje, arriba del formulario hay dos botones que completan el
+  <strong>nombre</strong> y el <strong>teléfono</strong> por vos.</p>
+
+  <div class="trio">
+    <figure><img src="img/12-nuevo-viaje.png" alt="Formulario de nuevo viaje"><figcaption>Los botones Contactos y Frecuentes</figcaption></figure>
+    <figure><img src="img/15-contactos.png" alt="Elegir de mis contactos"><figcaption>Contactos</figcaption></figure>
+    <figure><img src="img/13-frecuentes.png" alt="Clientes frecuentes"><figcaption>Frecuentes</figcaption></figure>
+  </div>
+
+  <h3>👥 Contactos</h3>
+  <ul>
+    <li>Abre la <strong>agenda de tu teléfono</strong>, con buscador por nombre.</li>
+    <li>La primera vez, Android te pide <strong>permiso para leer tus contactos</strong>. Si lo aceptás,
+    aparecen solo los que tienen teléfono.</li>
+    <li>Senda <strong>solo guarda el contacto que elegís</strong>; no copia el resto de tu agenda.</li>
+    <li>El teléfono queda listo para WhatsApp (con el código de país). Podés corregirlo en el formulario.</li>
+  </ul>
+
+  <h3>⭐ Frecuentes</h3>
+  <ul>
+    <li>Son <strong>tus clientes con más viajes</strong>; a igualdad, los más recientes.</li>
+    <li>Se arman <strong>solos</strong> con los viajes que vas cargando: no hay nada que configurar.</li>
+    <li>Tiene buscador por <strong>nombre o teléfono</strong>.</li>
+    <li>Los viajes de ejemplo no cuentan: al principio la lista aparece vacía.</li>
+  </ul>
+
+  <div class="callout tip">
+    <span class="t">💡 Tip</span>
+    Si no querés dar permiso a tus contactos, igual podés escribir el nombre a mano o usar
+    <strong>Frecuentes</strong>, que no necesita ningún permiso.
+  </div>
+  <p style="margin-bottom:0;">Estos botones aparecen al <strong>crear</strong> un viaje, no al editarlo.</p>
 </section>
 
 <!-- ===== 6. COBRANZA ===== -->
@@ -438,20 +496,21 @@
 </section>
 <!-- ===== 9. CONFIGURACIÓN ===== -->
 <section class="page">
-  <h2 class="section">10 · Configuración — identidad, tarifas y cuenta</h2>
-  <p>Se abre con el ícono ⚙️ arriba a la derecha. Tiene tres bloques.</p>
+  <h2 class="section">10 · Configuración — identidad, tarifas y datos de prueba</h2>
+  <p>Se abre con el ícono ⚙️ arriba a la derecha. Tiene tres bloques y el acceso a “Acerca de”.</p>
 
   <div class="screen">
     <div class="txt">
       <h4>👤 Identidad</h4>
-      <p>Tu <strong>nombre</strong> y <strong>teléfono</strong>. Se guardan una sola vez: después de
-      guardar, quedan <strong>protegidos</strong> y ya no se pueden cambiar (para que tu enlace de
-      reservas sea estable).</p>
+      <p>Tu <strong>nombre</strong> y <strong>teléfono</strong>, tal como te dieron de alta. Aparecen como
+      <strong>“Protegido”</strong>: no se pueden cambiar desde la app (para que tu enlace de reservas sea
+      estable). Si hay un error, escribinos y lo corregimos.</p>
       <h4>💵 Tarifas</h4>
       <p>Tu <strong>tarifa por kilómetro</strong> y el <strong>costo de desgaste</strong> (reserva).
       Podés actualizarlos cuando quieras; no afectan tu historial.</p>
-      <h4>🔑 Cuenta</h4>
-      <p>Desde acá <strong>activás tu cuenta real</strong> o, si ya la tenés, cerrás sesión.</p>
+      <h4>🧪 Datos de prueba</h4>
+      <p>Mientras veas viajes de ejemplo, acá aparece <strong>“Borrar datos de prueba y empezar”</strong>.
+      Borra solo los ejemplos: <strong>lo que cargaste vos se conserva</strong>.</p>
       <h4>ℹ️ Acerca de</h4>
       <p>Al final de la pantalla, el acceso <strong>“Acerca de”</strong> muestra la información de
       la app, la versión y los <strong>créditos</strong>.</p>
@@ -463,9 +522,9 @@
   </div>
 
   <div class="callout warn">
-    <span class="t">⚠️ Antes de guardar tu identidad</span>
-    Escribí bien tu <strong>nombre y teléfono</strong>: una vez guardados quedan fijos. Son los datos
-    que verán tus pasajeros.
+    <span class="t">⚠️ Identidad protegida</span>
+    Tu <strong>nombre y teléfono</strong> son los datos que verán tus pasajeros en tu agenda web. Una vez
+    dados de alta quedan fijos.
   </div>
 
   <div class="shot-center">
@@ -477,8 +536,8 @@
 <!-- ===== 10. WEB DE RESERVAS ===== -->
 <section class="page">
   <h2 class="section">11 · Tu página web de reservas</h2>
-  <p class="lead">Cuando activás tu cuenta, la app te da un <strong>enlace personal</strong> para
-  compartir por WhatsApp con tus pasajeros.</p>
+  <p class="lead">Al activar la app, queda lista tu <strong>web de reservas</strong>, con un
+  <strong>enlace personal</strong> para compartir por WhatsApp con tus pasajeros.</p>
 
   <div class="screen">
     <div class="txt">
@@ -507,34 +566,46 @@
   </div>
 </section>
 
-<!-- ===== 11. ACTIVAR CUENTA ===== -->
+<!-- ===== 12. LICENCIA ===== -->
 <section class="page">
-  <h2 class="section">12 · Activar tu cuenta real</h2>
-  <p>Pasás del modo Local (en tu celular) al modo Cuenta (en la nube, con web de reservas).</p>
+  <h2 class="section">12 · Tu licencia: vencimiento, avisos y renovación</h2>
+  <p class="lead">Tu licencia dice hasta cuándo podés cargar datos. La ves en la pantalla de bienvenida
+  y la app te avisa antes de que venza.</p>
 
-  <div class="screen">
-    <div class="txt">
-      <h4>Paso a paso</h4>
-      <ol>
-        <li>Andá a <strong>Configuración → Cuenta</strong>.</li>
-        <li>Tocá <strong>“Iniciar sesión o crear cuenta”</strong>.</li>
-        <li>Elegí <strong>crear cuenta</strong> con tu correo y una contraseña (mínimo 8 caracteres).</li>
-        <li>Confirmá tu correo si te lo pide, y volvé a entrar.</li>
-        <li>Completá tu <strong>nombre, teléfono y tarifas</strong> en Configuración.</li>
-      </ol>
-      <p>¡Listo! A partir de ahí tus datos se guardan en tu cuenta y tu <strong>web de reservas</strong>
-      queda en línea con tu enlace personal.</p>
-    </div>
-    <div class="shot">
-      <img src="img/08-cuenta.png" alt="Pantalla de cuenta">
-      <div class="cap">Crear / iniciar cuenta</div>
-    </div>
+  <table>
+    <tr><th>Estado</th><th>Qué ves</th><th>Qué podés hacer</th></tr>
+    <tr><td><strong>Vigente</strong></td><td>Nada: usás la app normal.</td><td>Todo.</td></tr>
+    <tr><td><strong>Por vencer</strong></td><td>Una franja <strong style="color:var(--amber);">ámbar</strong> arriba: “Tu licencia vence en N días”.</td><td>Todo. Tocá la franja para pedir la renovación por WhatsApp.</td></tr>
+    <tr><td><strong>En gracia</strong></td><td>Una franja <strong style="color:var(--red);">roja</strong>: “Te quedan N días de gracia”. También llegan avisos al celular.</td><td>Todo, pero conviene renovar ya.</td></tr>
+    <tr><td><strong>Vencida</strong></td><td>Pantalla de bloqueo con el botón <strong>“Pedir renovación por WhatsApp”</strong>.</td><td>Ya no se cargan datos nuevos, pero podés <strong>descargar todos tus datos</strong>.</td></tr>
+    <tr><td><strong>Suspendida</strong></td><td>Pantalla de acceso suspendido.</td><td>Escribir al soporte por WhatsApp. Tus datos siguen guardados.</td></tr>
+    <tr><td><strong>Fecha incorrecta</strong></td><td>“Revisá la fecha y hora del teléfono”.</td><td>Activar la fecha y hora automáticas en Ajustes y volver a abrir la app.</td></tr>
+    <tr><td><strong>Versión vencida</strong></td><td>“Esta versión de la app venció”.</td><td>Pedir la versión nueva por WhatsApp. Tu licencia se conserva al instalarla.</td></tr>
+  </table>
+
+  <h3>Cómo se renueva</h3>
+  <ol>
+    <li>Tocá la franja de aviso, o <strong>“Pedir renovación por WhatsApp”</strong> en la pantalla de bloqueo.</li>
+    <li>Se abre WhatsApp con el mensaje ya escrito, con tu número y el identificador de tu equipo.</li>
+    <li>Cuando registramos el pago, volvé a la app y tocá <strong>“Ya renové: volver a revisar”</strong>.</li>
+  </ol>
+
+  <div class="callout ok">
+    <span class="t">✅ No perdés nada</span>
+    Aunque la licencia venza, <strong>tus datos no se borran</strong>. Al renovar, seguís exactamente
+    donde estabas. Podés bajar todo en un archivo (CSV) con <strong>“Descargar mis datos”</strong>.
   </div>
 
   <div class="callout warn">
-    <span class="t">⚠️ Importante</span>
-    Los viajes del <strong>modo Local</strong> viven solo en tu celular y no se copian automáticamente a
-    tu cuenta. Si querés conservarlos, hacelo a mano después de activar tu cuenta.
+    <span class="t">⚠️ Si cambiás de teléfono</span>
+    Tu licencia está atada a tu celular. En un teléfono nuevo la activación queda
+    <strong>esperando aprobación</strong>: escribinos por WhatsApp y la habilitamos.
+  </div>
+
+  <div class="callout tip">
+    <span class="t">💡 Sin internet</span>
+    Podés usar la app unos días sin conexión. Si pasan <strong>muchos días sin conectarte</strong>, te va a
+    pedir que lo hagas para revisar la licencia.
   </div>
 </section>
 <!-- ===== 12. FAQ ===== -->
@@ -543,11 +614,20 @@
 
   <h3>Preguntas frecuentes</h3>
   <h4>¿Necesito internet para usar la app?</h4>
-  <p>En <strong>modo Local</strong>, no: todo funciona en tu celular. La <strong>web de reservas</strong>
-  y el <strong>modo Cuenta</strong> sí necesitan conexión.</p>
+  <p>Para <strong>activar</strong> la app, sí. Después podés usarla unos días sin conexión. La <strong>web de
+  reservas</strong> y la copia de tus datos en la nube necesitan conexión.</p>
 
   <h4>¿Pierdo mis datos si cierro la app?</h4>
-  <p>No. En modo Local se guardan en tu teléfono y siguen ahí. En modo Cuenta, en tu cuenta en la nube.</p>
+  <p>No. Tus datos se guardan en tu cuenta en la nube, asociada a tu número, y siguen ahí aunque cierres la
+  app, se venza la licencia o cambies de teléfono.</p>
+
+  <h4>¿Qué pasa si cambio de teléfono?</h4>
+  <p>Instalá la app, activala con tu número y escribinos por WhatsApp: aprobamos el equipo nuevo y
+  recuperás tus datos.</p>
+
+  <h4>¿La app me pide acceso a mis contactos?</h4>
+  <p>Solo si tocás el botón <strong>Contactos</strong> al crear un viaje. Podés decir que no y seguir
+  escribiendo el nombre a mano o usando <strong>Frecuentes</strong>.</p>
 
   <h4>¿Puedo cambiar mi nombre después?</h4>
   <p>Una vez que guardás tu perfil, el nombre y teléfono quedan <strong>protegidos</strong> para que tu
@@ -567,8 +647,8 @@
   </ul>
 
   <div class="footer-note">
-    <strong>Mi Chofer Privado</strong> · Manual de Usuario · Versión 1.0 · Octubre 2026.<br>
-    Aplicación realizada por <strong>Horacio Cebreiro</strong>.<br>
+    <strong>Senda</strong> · Manual de Usuario · Versión 2.0 · Octubre 2026.<br>
+    Aplicación realizada por <strong>Unitec Applications</strong> · contacto@unitecapplications.com.<br>
     ¿Dudas o sugerencias? Escribinos por los canales de soporte de la app.
   </div>
 </section>

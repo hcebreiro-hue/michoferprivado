@@ -66,7 +66,7 @@ function BajoElBanner({ children }: { children: React.ReactNode }) {
 function Banner({ texto, tono }: { texto: string; tono: 'ambar' | 'rojo' }) {
   const insets = useSafeAreaInsets();
   const abrir = () =>
-    Linking.openURL(`https://wa.me/${WHATSAPP_DUENO}?text=${encodeURIComponent('Hola, quiero renovar mi licencia de Claudia.')}`).catch(() => undefined);
+    Linking.openURL(`https://wa.me/${WHATSAPP_DUENO}?text=${encodeURIComponent('Hola, quiero renovar mi licencia de Senda.')}`).catch(() => undefined);
   return (
     <Pressable
       onPress={abrir}

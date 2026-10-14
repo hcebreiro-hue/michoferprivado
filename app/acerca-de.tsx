@@ -18,14 +18,14 @@ const SUPPORT_EMAIL = 'desarrollo@unitecapplications.com';
 
 /** Abre WhatsApp con un mensaje precargado; si falla, no rompe la pantalla. */
 function openSupportWhatsApp() {
-  const message = '¡Hola! Te escribo por la app Mi Chofer Privado.';
+  const message = '¡Hola! Te escribo por la app Senda.';
   const url = `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}`;
   Linking.openURL(url).catch(() => undefined);
 }
 
 /** Abre el cliente de correo con el destinatario cargado; si falla, no rompe la pantalla. */
 function openSupportEmail() {
-  const subject = 'Consulta sobre la app Mi Chofer Privado';
+  const subject = 'Consulta sobre la app Senda';
   const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`;
   Linking.openURL(url).catch(() => undefined);
 }
@@ -57,7 +57,7 @@ export default function AboutScreen() {
           <Ionicons name="car-sport" size={52} color="#ffffff" />
         </View>
 
-        <Text className="text-2xl font-bold text-slate-900">Mi Chofer Privado</Text>
+        <Text className="text-2xl font-bold text-slate-900">Senda</Text>
         <Text className="mt-1 text-sm text-slate-400">
           Versión {appVersion}
           {buildNumber !== null ? ` (build ${buildNumber})` : ''}
@@ -111,7 +111,7 @@ export default function AboutScreen() {
         </View>
 
         <Text className="mt-8 text-center text-xs leading-5 text-slate-400">
-          © 2026 Mi Chofer Privado.{'\n'}Todos los derechos reservados.
+          © 2026 Senda · Unitec Applications.{'\n'}Todos los derechos reservados.
         </Text>
       </ScrollView>
     </SafeAreaView>

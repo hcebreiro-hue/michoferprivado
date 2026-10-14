@@ -77,7 +77,7 @@ export async function programarAvisosGracia(licencia: LicenciaPayload, ahora: nu
       await N.scheduleNotificationAsync({
         identifier: ID_AVISO(i),
         content: {
-          title: 'Tu licencia de Claudia venció',
+          title: 'Tu licencia de Senda venció',
           body:
             i < CANTIDAD - 1
               ? 'Te quedan unos días de gracia. Pedí la renovación por WhatsApp para no perder el acceso.'

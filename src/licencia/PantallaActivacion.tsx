@@ -33,7 +33,7 @@ export function PantallaActivacion({ pendienteDeConexion = false }: { pendienteD
   };
 
   const pedirAlta = () => {
-    const texto = `Hola, quiero activar Claudia. Mi número es ${whatsapp || '(completar)'}.`;
+    const texto = `Hola, quiero activar Senda. Mi número es ${whatsapp || '(completar)'}.`;
     Linking.openURL(`https://wa.me/${WHATSAPP_DUENO}?text=${encodeURIComponent(texto)}`).catch(() => undefined);
   };
 

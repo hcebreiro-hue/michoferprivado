@@ -8,7 +8,7 @@ CONTENIDO
 ---------
 1. Claudia.apk             ← La app (la compilás vos en tu compu, ver abajo)
 2. Guia-Instalacion.pdf    ← Paso a paso con imágenes (OBLIGATORIO enviarlo)
-3. Manual-Mi-Chofer-Privado.pdf ← Manual completo de uso
+3. Manual-Senda.pdf ← Manual completo de uso
 4. mensaje-whatsapp.txt    ← Texto listo para copiar y pegar al enviar
 5. LEEME.txt               ← Este archivo
 6. PROBAR-EN-LA-MAC.txt    ← SOLO para vos: cómo probar la app en el emulador

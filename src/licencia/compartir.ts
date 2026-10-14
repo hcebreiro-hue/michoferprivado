@@ -9,7 +9,7 @@ import { armarCsv, type DatosExportables } from './csv';
  */
 export async function exportarDatos(datos: DatosExportables, ahora = new Date()): Promise<boolean> {
   if (!(await Sharing.isAvailableAsync())) return false;
-  const nombre = `claudia-mis-datos-${ahora.toISOString().slice(0, 10)}.csv`;
+  const nombre = `senda-mis-datos-${ahora.toISOString().slice(0, 10)}.csv`;
   const archivo = new File(Paths.cache, nombre);
   archivo.create({ overwrite: true });
   archivo.write(armarCsv(datos));

@@ -12,7 +12,7 @@ type Motivo = 'vencida' | 'apk_vencido' | 'reloj' | 'suspendida';
 const TEXTOS: Record<Motivo, { titulo: string; cuerpo: string }> = {
   vencida: {
     titulo: 'Tu licencia venció',
-    cuerpo: 'Ya no se pueden cargar datos nuevos. Para seguir usando Claudia, pedí la renovación por WhatsApp. Mientras tanto podés descargar todos tus datos.',
+    cuerpo: 'Ya no se pueden cargar datos nuevos. Para seguir usando Senda, pedí la renovación por WhatsApp. Mientras tanto podés descargar todos tus datos.',
   },
   apk_vencido: {
     titulo: 'Esta versión de la app venció',
@@ -42,7 +42,7 @@ export function PantallaBloqueo({ motivo }: { motivo: Motivo }) {
     const texto =
       motivo === 'suspendida'
         ? `Hola, mi acceso a la app figura suspendido. Mi equipo: ${equipoId ?? '-'}.`
-        : `Hola, quiero renovar mi licencia de Claudia. Mi número: ${licencia?.whatsapp ?? '(completar)'}. Mi equipo: ${equipoId ?? '-'}.`;
+        : `Hola, quiero renovar mi licencia de Senda. Mi número: ${licencia?.whatsapp ?? '(completar)'}. Mi equipo: ${equipoId ?? '-'}.`;
     Linking.openURL(`https://wa.me/${WHATSAPP_DUENO}?text=${encodeURIComponent(texto)}`).catch(() => undefined);
   };
 
