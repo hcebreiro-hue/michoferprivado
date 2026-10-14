@@ -220,6 +220,25 @@ con `signingConfigs.debug`**, o sea con `android/app/debug.keystore` (huella SHA
 - **Claudia (VIP):** su APK actual está firmado con el debug.keystore. Si la firma cambia, no
   puede actualizar encima (tiene que desinstalar e instalar) y su ID cambia: re-aprobarla.
 
+## 12 bis. Supabase: clave de administrador y prueba de automatización
+
+- **Dónde está la clave `service_role`** (formato `sb_secret_…`): en
+  `~/.claudia-licencias/supabase.txt` (permiso 600, línea `SUPABASE_SERVICE_ROLE=…`).
+  **No está en el repo ni en `.env`.** Respaldarla en Bitwarden. Es la clave más sensible del
+  sistema: da acceso total a la base. Si se filtra, regenerarla en Supabase
+  (Project Settings → API Keys).
+- **Proyecto:** `michoferprivado` (org `hcebreiro-hue's Org`, plan FREE). La URL y la clave
+  pública (`anon`) están en `.env`.
+- **Prueba hecha (13/10/2026), todo OK:** desde el lado servidor se creó un chofer con la API
+  de administrador (sin correo ni contraseña tipeados), se entró con él, se creó su
+  `driver_settings` con el nombre y WhatsApp, se cargó un viaje y el calendario público
+  (`get_public_driver_portal`) lo mostró como turno ocupado **sin exponer datos del pasajero**.
+  Sin sesión no se pueden leer los viajes. Se borró todo: quedó con 0 usuarios.
+- **Pendiente (etapa 2):** que el Worker cree la cuenta al activar y se la pase a la app.
+  Requiere decidir lo de privacidad (viajes y pasajeros de todos los choferes en la nube) y
+  tener en cuenta que el plan gratuito pausa el proyecto tras ~7 días sin actividad.
+
+
 ## 13. Puntos abiertos
 
 1. **Aviso por mail:** mecanismo de envío desde el Worker (a confirmar). Hasta entonces,
