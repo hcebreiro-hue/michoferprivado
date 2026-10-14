@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card } from '../components/ui';
 import { useData } from '../context/DataContext';
 import { WHATSAPP_DUENO } from './config';
-import { exportarDatos } from './exportar';
+import { exportarDatos } from './compartir';
 import { useLicencia } from './LicenciaContext';
 
 type Motivo = 'vencida' | 'apk_vencido' | 'reloj';

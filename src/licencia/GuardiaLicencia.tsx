@@ -1,5 +1,6 @@
 import React from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PantallaActivacion } from './PantallaActivacion';
 import { PantallaBloqueo } from './PantallaBloqueo';
 import { WHATSAPP_DUENO } from './config';
@@ -34,7 +35,7 @@ export function GuardiaLicencia({ children }: { children: React.ReactNode }) {
             tono="rojo"
             texto={`Tu licencia venció. Te quedan ${acceso.diasDeGracia} ${acceso.diasDeGracia === 1 ? 'día' : 'días'} de gracia: renová por WhatsApp.`}
           />
-          {children}
+          <BajoElBanner>{children}</BajoElBanner>
         </View>
       );
     case 'activa':
@@ -45,20 +46,31 @@ export function GuardiaLicencia({ children }: { children: React.ReactNode }) {
             tono="ambar"
             texto={`Tu licencia vence en ${acceso.diasRestantes} ${acceso.diasRestantes === 1 ? 'día' : 'días'}. Pedí la renovación por WhatsApp.`}
           />
-          {children}
+          <BajoElBanner>{children}</BajoElBanner>
         </View>
       );
   }
 }
 
+/**
+ * El banner ya cubre la barra de estado. Un SafeAreaProvider anidado mide su
+ * posición real en pantalla, así que las pantallas de abajo ven un margen
+ * superior de 0 y no lo suman otra vez (si no, queda un hueco en blanco).
+ */
+function BajoElBanner({ children }: { children: React.ReactNode }) {
+  return <SafeAreaProvider style={{ flex: 1 }}>{children}</SafeAreaProvider>;
+}
+
 function Banner({ texto, tono }: { texto: string; tono: 'ambar' | 'rojo' }) {
+  const insets = useSafeAreaInsets();
   const abrir = () =>
     Linking.openURL(`https://wa.me/${WHATSAPP_DUENO}?text=${encodeURIComponent('Hola, quiero renovar mi licencia de Claudia.')}`).catch(() => undefined);
   return (
     <Pressable
       onPress={abrir}
       accessibilityRole="alert"
-      className={`${tono === 'rojo' ? 'bg-red-600' : 'bg-amber-500'} px-4 py-2.5 items-center justify-center`}
+      style={{ paddingTop: insets.top + 10 }}
+      className={`${tono === 'rojo' ? 'bg-red-600' : 'bg-amber-500'} px-4 pb-2.5 items-center justify-center`}
     >
       <Text className="text-white text-xs font-bold text-center">{texto}</Text>
     </Pressable>
