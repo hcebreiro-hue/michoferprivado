@@ -355,6 +355,7 @@ function StartSection() {
  */
 function DemoSection() {
   const { signOut } = useAuth();
+  const { licencia } = useLicencia();
   const [resetting, setResetting] = useState(false);
 
   const handleReset = () => {
@@ -387,6 +388,10 @@ function DemoSection() {
       ],
     );
   };
+
+  // Con licencia el chofer no puede volver a los datos de ejemplo: borraría todo
+  // lo que cargó. Esta opción queda solo para el modo de exploración sin licencia.
+  if (identidadDeLicencia(licencia) !== null) return null;
 
   return (
     <Card className="p-5">
