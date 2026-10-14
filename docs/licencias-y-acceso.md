@@ -234,9 +234,28 @@ con `signingConfigs.debug`**, o sea con `android/app/debug.keystore` (huella SHA
   `driver_settings` con el nombre y WhatsApp, se cargó un viaje y el calendario público
   (`get_public_driver_portal`) lo mostró como turno ocupado **sin exponer datos del pasajero**.
   Sin sesión no se pueden leer los viajes. Se borró todo: quedó con 0 usuarios.
-- **Pendiente (etapa 2):** que el Worker cree la cuenta al activar y se la pase a la app.
-  Requiere decidir lo de privacidad (viajes y pasajeros de todos los choferes en la nube) y
-  tener en cuenta que el plan gratuito pausa el proyecto tras ~7 días sin actividad.
+- **Etapa 2 (hecha, 14/10/2026): cuenta en la nube automática.** El chofer ya **no ve ni
+  crea ninguna cuenta**: se quitaron de Configuración «Cuenta» y «Volver a datos de ejemplo»
+  y se eliminó la pantalla `app/auth.tsx`. Cómo funciona:
+  1. `POST /v1/activar` acepta `sesion: 'crear' | 'existente'` (ver `claudia-licencias/src/supabase.js`).
+  2. El Worker crea un usuario de Supabase **sin contraseña** (`<whatsapp>@choferes.unitecapplications.com`,
+     mail interno que no recibe correo) con la `service_role`, que vive **solo** como secret del
+     Worker (`SUPABASE_SERVICE_ROLE`). Guarda su id en D1 (`choferes.supabase_user_id`).
+  3. Devuelve un token de un solo uso (`token_hash`, tipo `magiclink`) y la app abre sesión con
+     `supabase.auth.verifyOtp` (`AuthContext.signInWithToken`). Nunca se entrega sesión a un equipo
+     pendiente, a un número no cargado ni a un chofer bloqueado.
+  4. **Cuándo se pide** (`src/licencia/sesion.ts`): con el perfil completo (tocó «Borrar datos de
+     prueba y empezar») y sin sesión → `crear`. Con datos de prueba → `existente`: solo da sesión si
+     el chofer ya tenía cuenta (reinstaló o cambió de teléfono aprobado), así recupera sus datos; si
+     es nuevo **no se crea nada** y sigue con los datos de prueba.
+  5. Al abrirse la sesión, `maybeMigrateLocalToCloud` sube a la nube lo que cargó en el teléfono
+     (sin los datos de ejemplo). Si no hay conexión, se reintenta al abrir la app.
+  6. Si Supabase falla, la licencia se entrega igual y queda un evento `sesion_fallida` en el panel.
+  - **Probado contra producción** (script de punta a punta): alta, token de un solo uso, misma
+    cuenta al reinstalar, y sin sesión para equipo distinto / número no cargado / modo inválido.
+  - **Pendiente / a tener en cuenta:** el plan gratuito de Supabase pausa el proyecto tras ~7 días
+    sin actividad; supresión de datos a pedido del chofer = borrar el usuario de Supabase por su
+    `supabase_user_id` (se borran en cascada sus viajes, gastos y ajustes).
 
 
 ## 13. Puntos abiertos
@@ -252,8 +271,9 @@ con `signingConfigs.debug`**, o sea con `android/app/debug.keystore` (huella SHA
    false` en `app/_layout.tsx` y `driver_settings`. Propuesta: reemplazarlos por esta
    licencia, para una sola fuente de verdad.
 8. **Procedimiento de baja y supresión** de datos del servidor (Ley 25.326) y texto del aviso.
-9. **Supabase:** Claudia_app usa Supabase para datos y login opcionales. Esta licencia NO lo
-   usa. Definir si el login Supabase sigue siendo opcional o se retira del flujo.
+9. **Supabase:** resuelto en la etapa 2 (ver 12 bis): el login manual se retiró y la cuenta se
+   crea sola al activar. Queda pendiente el texto definitivo del aviso de privacidad (hoy está
+   en `PantallaActivacion.tsx`) y la inscripción en el registro de bases de datos (AAIP).
 10. **Subdominio:** confirmar que no afecta el catch-all de correo.
 
 ## 14. Límites honestos

@@ -58,8 +58,11 @@ export function PantallaActivacion({ pendienteDeConexion = false }: { pendienteD
             maxLength={20}
           />
           <Text className="text-xs text-slate-500 mb-3">
-            Se guarda en el servidor de licencias junto con el identificador de este teléfono y la fecha de inicio. Se usa
-            solo para controlar tu licencia (Ley 25.326). Podés pedir que corrijan o borren tus datos por WhatsApp.
+            Tu número se guarda en el servidor de licencias junto con el identificador de este teléfono y la fecha de
+            inicio, para controlar tu licencia. Cuando empieces a usar la app, tus viajes, los datos de tus pasajeros
+            (nombre y teléfono), gastos y ajustes se guardan en una cuenta en la nube asociada a tu número, para que no
+            los pierdas si cambiás de teléfono y para mostrar tus horarios ocupados en la agenda web (sin datos de
+            pasajeros). No se comparten con terceros (Ley 25.326). Podés pedir que corrijan o borren tus datos por WhatsApp.
           </Text>
           <View className="flex-row items-center gap-3 mb-4">
             <Button
