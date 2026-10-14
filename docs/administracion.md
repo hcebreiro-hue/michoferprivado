@@ -48,16 +48,27 @@ actualizar también la nota correspondiente.
 2. Pegá el `ADMIN_TOKEN` y tocá **Entrar**. El token vive solo en la memoria de la pestaña: si
    recargás, hay que pegarlo de nuevo.
 3. Arriba: **Cargar chofer** (nombre, WhatsApp con código de país, plan).
-4. En **Choferes**, cada fila tiene sus botones:
-   - **Renovar**: marca un pago y extiende el vencimiento según el plan.
+4. En **Choferes**, cada chofer es una tarjeta con sus botones:
+   - **WhatsApp**: abre el chat con el chofer (para avisarle del pago o confirmar un equipo nuevo).
+   - **Renovar**: marca un pago y extiende el vencimiento. El selector de al lado elige el plan
+     (por defecto «mismo plan»; para pasar de `trial` a `mensual` o `anual`, elegilo antes de tocar Renovar).
    - **Bloquear / Desbloquear**: corta o devuelve el acceso al instante.
    - **Ver equipo nuevo / Rechazar**: aparecen cuando el chofer abrió la app en otro teléfono.
    - **Borrar datos**: baja definitiva (pide escribir BORRAR).
 5. **Actividad reciente**: altas, activaciones, rechazos, bloqueos. Es el registro de auditoría.
 6. **Tope global del APK**: alarga la fecha límite de todas las apps (solo se puede alargar).
 
-El panel no cambia el plan al renovar: para pasar de `trial` a `mensual` o `anual` usá el script
-(`renovar <id> mensual`).
+### Instalarlo en el teléfono (PWA «Unitec Admin»)
+
+El panel es una app instalable y sirve para todas las apps de Unitec Applications.
+
+- **Android (Chrome):** abrí la dirección del panel, menú ⋮ → **Instalar aplicación** (o el
+  botón **Instalar como app** al final de la pantalla). Queda un ícono «Unitec Admin».
+- **iPhone (Safari):** botón Compartir → **Agregar a pantalla de inicio**.
+
+Al abrirla pide el token cada vez (no se guarda en el teléfono). Para no tipearlo, guardalo en el
+gestor de contraseñas del teléfono o pegalo desde Bitwarden. Sin conexión solo se ve la pantalla
+de entrada: los datos siempre vienen del servidor.
 
 ## Opción 2 — Script de terminal
 
