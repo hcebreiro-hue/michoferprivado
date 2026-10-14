@@ -69,7 +69,8 @@ El script lee el token solo, de `~/.senda/claves.txt`.
 |---|---|---|
 | **Tope del APK** | Antes del **11/01/2027** | Panel → *Tope global*, o compilar un APK nuevo. Si se pasa la fecha, los APK sin licencia vigente se bloquean. |
 | **Desplegar el servidor** | Si cambia el código | `cd ~/Desarrollos/senda-api && npm test && npx wrangler deploy` |
-| **APK nuevo** | Si cambia la app | `cd ~/Claudia_app && bash scripts/probar-emulador.sh`, copiar a `distribucion/Senda.apk`. Se instala encima sin perder datos. |
+| **APK nuevo** | Si cambia la app | `bash ~/Desarrollos/senda-api/scripts/publicar-apk.sh`: compila y lo publica en `/descargar` (el QR no cambia). Se instala encima sin perder datos. |
+| **Ver descargas del APK** | Cuando quieras | Panel → *Resumen* → *Descargas del APK*, o `node scripts/admin.mjs resumen`. Cada descarga también llega por mail. |
 | **Agenda web** | Si cambia la app | `cd ~/Desarrollos/senda-api && npm run agenda && npx wrangler deploy` |
 | **Cambiar el token** | Si se filtró | `openssl rand -hex 32`, luego `cd ~/Desarrollos/senda-api && npx wrangler secret put ADMIN_TOKEN`, y actualizar `~/.senda/claves.txt`, la nota de Bitwarden y el Login `Unitec Admin`. |
 

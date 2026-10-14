@@ -15,8 +15,10 @@
 
 - La app es **puramente local**: muchos choferes no se van a registrar en ningún lado.
 - Se reinstala **infinitas veces** y se le cambia el nombre. Hay que pensar con malicia.
-- El APK se compila en la Mac (Android Studio / Gradle, **sin EAS Build**) y se reparte por
-  **WhatsApp**. Es **el mismo APK para todos**. No hay descarga desde una web.
+- El APK se compila en la Mac (Android Studio / Gradle, **sin EAS Build**) y se publica con
+  `scripts/publicar-apk.sh` en Cloudflare R2. Se descarga desde
+  `https://agenda.senda.unitecapplications.com/descargar` (el QR fijo apunta ahí) o se manda el
+  enlace por **WhatsApp**. Es **el mismo APK para todos**.
 - La comunicación con el chofer es siempre por WhatsApp: **el dueño tiene su número**.
 - Hoy no hay APK repartidos que funcionen, salvo el de **Claudia (amiga, VIP)**.
 

@@ -135,10 +135,25 @@ deshacer.
 - **Tope grabado en el APK.** Hoy es el **11/01/2027** (`TOPE_GRABADO` en `src/licencia/config.ts`).
   Un APK sin licencia vigente se bloquea pasada esa fecha. Antes de esa fecha, o se alarga el tope
   desde el panel (llega a las apps con internet), o se compila un APK nuevo con otra fecha.
-- **Compilar un APK nuevo:** `cd ~/Claudia_app && bash scripts/probar-emulador.sh` (compila el
-  release firmado, lo instala en el emulador y deja el APK en
-  `android/app/build/outputs/apk/release/app-release.apk`). Copiarlo a `distribucion/Senda.apk`.
-  Se instala **encima** del anterior sin perder datos, porque la firma es la misma.
+- **Probar un APK nuevo en el emulador:** `cd ~/Claudia_app && bash scripts/probar-emulador.sh`
+  (compila el release firmado, lo instala en el emulador y deja el APK en
+  `android/app/build/outputs/apk/release/app-release.apk`). Se instala **encima** del anterior sin
+  perder datos, porque la firma es la misma.
+- **Publicar el APK para que lo descarguen:** `bash ~/Desarrollos/senda-api/scripts/publicar-apk.sh`
+  (compila, guarda `distribucion/Senda_<versión>.apk` y `Senda.apk`, y los sube a Cloudflare R2).
+  Con `--no-build` publica el último APK ya compilado. Desde ese momento
+  `https://agenda.senda.unitecapplications.com/descargar` entrega esa versión.
+- **QR fijo:** apunta a `/descargar`, así que **no cambia con cada versión** y se puede imprimir.
+  Está en `distribucion/qr-senda.png` y `.svg`. Si hiciera falta rehacerlo:
+  `cd ~/Desarrollos/senda-api && node scripts/generar-qr.mjs`.
+- **Descargas:** pestaña **Resumen → Descargas del APK** del panel (total, últimos 7 días, visitas y
+  descargas por versión), o `node scripts/admin.mjs resumen`. Se guarda solo fecha, versión y país
+  aproximado, **nunca la IP**. Cada descarga manda un mail de aviso a `TO` (máximo 20 por hora).
+  Una descarga **no** es una instalación. Reanudar una descarga cortada no suma de más.
+- **Costo de R2:** bucket `senda-apk`. Dentro del plan gratuito (10 GB, 1 M de escrituras y 10 M de
+  lecturas por mes, sin cargo por salida) cuesta $0. R2 no tiene tope de gasto configurable; el
+  contador y el mail son la alarma ante un pico raro. Cada IP puede bajar 10 veces por hora.
+- **Borrar versiones viejas de R2:** `cd ~/Desarrollos/senda-api && npx wrangler r2 object delete senda-apk/Senda_2.0.0.apk --remote`.
 - **Publicar la agenda web:** `cd ~/Desarrollos/senda-api && npm run agenda && npx wrangler deploy`
   (la sirve el mismo Worker; el proyecto Pages `michoferprivado` ya se borró).
 - **Desplegar el servidor:** `cd ~/Desarrollos/senda-api && npm test && npx wrangler deploy`.
