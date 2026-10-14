@@ -49,16 +49,23 @@ actualizar también la nota correspondiente.
    recargás, hay que pegarlo de nuevo. Para copiarlo sin buscarlo: `cd ~/Desarrollos/senda-api &&
    npm run token` (lo deja en el portapapeles y lo borra a los 60 s). Resumen de todo en
    `docs/instructivo-admin.md`.
-3. Arriba: **Cargar chofer** (nombre, WhatsApp con código de país, plan).
+3. El panel tiene tres pestañas: **Choferes**, **Resumen** y **Actividad**. En **Choferes**, arriba,
+   está **Cargar chofer** (nombre, WhatsApp con código de país, mail opcional, plan).
 4. En **Choferes**, cada chofer es una tarjeta con sus botones:
    - **WhatsApp**: abre el chat con el chofer (para avisarle del pago o confirmar un equipo nuevo).
+   - **Mail** (si lo tiene cargado) y **Cargar mail / Cambiar mail**: el mail es solo un dato de
+     contacto (no sirve para activar ni para entrar). Dejándolo vacío se quita.
    - **Renovar**: marca un pago y extiende el vencimiento. El selector de al lado elige el plan
      (por defecto «mismo plan»; para pasar de `trial` a `mensual` o `anual`, elegilo antes de tocar Renovar).
    - **Bloquear / Desbloquear**: corta o devuelve el acceso al instante.
    - **Ver equipo nuevo / Rechazar**: aparecen cuando el chofer abrió la app en otro teléfono.
    - **Borrar datos**: baja definitiva (pide escribir BORRAR).
-5. **Actividad reciente**: altas, activaciones, rechazos, bloqueos. Es el registro de auditoría.
-6. **Tope global del APK**: alarga la fecha límite de todas las apps (solo se puede alargar).
+5. **Tope global del APK** (al final de Choferes): alarga la fecha límite de todas las apps (solo se puede alargar).
+6. **Resumen**: choferes en total, cuántos se conectaron en 7 días, cuántos vencen en 7 días, altas
+   en 30 días, licencias por estado y por plan, cuentas en la nube, viajes cargados (total y en 30
+   días) y viajes por chofer. Son solo números y fechas: no muestra pasajeros ni importes.
+7. **Actividad**: altas, activaciones, rechazos, bloqueos (últimos 100). Es el registro de auditoría;
+   está en su propia pestaña para no ensuciar la lista de choferes.
 
 ### Instalarlo en el teléfono (PWA «Unitec Admin»)
 
@@ -79,7 +86,9 @@ cd ~/Desarrollos/senda-api
 node scripts/admin.mjs                      # muestra todos los comandos
 node scripts/admin.mjs token                # copia el token al portapapeles (= npm run token)
 node scripts/admin.mjs lista                # choferes, plan, estado, vencimiento
-node scripts/admin.mjs crear "Ana Pérez" 1155550000 trial
+node scripts/admin.mjs crear "Ana Pérez" 1155550000 trial ana@correo.com   # el mail es opcional
+node scripts/admin.mjs mail 3 ana@correo.com   # carga o cambia el mail (sin mail, lo quita)
+node scripts/admin.mjs resumen              # estados, planes y uso de la app
 node scripts/admin.mjs renovar 3            # pago del chofer 3
 node scripts/admin.mjs renovar 3 anual      # además cambia de plan
 node scripts/admin.mjs bloquear 3
@@ -130,9 +139,8 @@ deshacer.
   release firmado, lo instala en el emulador y deja el APK en
   `android/app/build/outputs/apk/release/app-release.apk`). Copiarlo a `distribucion/Senda.apk`.
   Se instala **encima** del anterior sin perder datos, porque la firma es la misma.
-- **Publicar la agenda web:** `npx expo export --platform web --output-dir /tmp/senda-web` y luego
-  `cd /tmp/senda-web && npx wrangler pages deploy . --project-name=michoferprivado --branch=production`.
-  La rama debe ser `production`; con otra queda como «preview» y el dominio no cambia.
+- **Publicar la agenda web:** `cd ~/Desarrollos/senda-api && npm run agenda && npx wrangler deploy`
+  (la sirve el mismo Worker; el proyecto Pages `michoferprivado` ya se borró).
 - **Desplegar el servidor:** `cd ~/Desarrollos/senda-api && npm test && npx wrangler deploy`.
 - **Cambiar el mail de avisos:** `TO` en `wrangler.jsonc` y volver a desplegar.
 

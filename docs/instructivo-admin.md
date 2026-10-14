@@ -42,7 +42,9 @@ El token **no se guarda** en el navegador: si cerrás o recargás la pestaña, h
 | Aprobar un teléfono nuevo | **Ver equipo nuevo** → hablá con el chofer por WhatsApp para confirmar que es él → aprobar. **Rechazar** si no. |
 | Escribirle al chofer | **WhatsApp** (abre el chat). |
 | Borrar sus datos (Ley 25.326) | **Borrar datos** → escribir `BORRAR`. No se puede deshacer. |
-| Ver qué pasó | **Actividad reciente** (altas, activaciones, rechazos, bloqueos). |
+| Cargar o cambiar el mail de un chofer | **Cargar mail / Cambiar mail** en su tarjeta (opcional; vacío lo quita). |
+| Ver cuántos choferes hay y cuánto usan la app | Pestaña **Resumen**. |
+| Ver qué pasó | Pestaña **Actividad** (altas, activaciones, rechazos, bloqueos). |
 | Alargar la fecha límite del APK | **Tope global del APK** (solo se puede alargar, nunca acortar). |
 
 Planes: `trial` (30 días) · `mensual` · `anual` · `vip` (sin vencimiento, igual se puede bloquear).
@@ -52,6 +54,7 @@ Planes: `trial` (30 días) · `mensual` · `anual` · `vip` (sin vencimiento, ig
 ```bash
 cd ~/Desarrollos/senda-api
 node scripts/admin.mjs lista               # choferes y sus id
+node scripts/admin.mjs resumen             # estados, planes y uso de la app
 node scripts/admin.mjs renovar 3           # pago del chofer 3
 node scripts/admin.mjs bloquear 3
 node scripts/admin.mjs eventos
@@ -67,7 +70,7 @@ El script lee el token solo, de `~/.senda/claves.txt`.
 | **Tope del APK** | Antes del **11/01/2027** | Panel → *Tope global*, o compilar un APK nuevo. Si se pasa la fecha, los APK sin licencia vigente se bloquean. |
 | **Desplegar el servidor** | Si cambia el código | `cd ~/Desarrollos/senda-api && npm test && npx wrangler deploy` |
 | **APK nuevo** | Si cambia la app | `cd ~/Claudia_app && bash scripts/probar-emulador.sh`, copiar a `distribucion/Senda.apk`. Se instala encima sin perder datos. |
-| **Agenda web** | Si cambia la app | `npx expo export --platform web --output-dir /tmp/senda-web` y `cd /tmp/senda-web && npx wrangler pages deploy . --project-name=michoferprivado --branch=production` |
+| **Agenda web** | Si cambia la app | `cd ~/Desarrollos/senda-api && npm run agenda && npx wrangler deploy` |
 | **Cambiar el token** | Si se filtró | `openssl rand -hex 32`, luego `cd ~/Desarrollos/senda-api && npx wrangler secret put ADMIN_TOKEN`, y actualizar `~/.senda/claves.txt`, la nota de Bitwarden y el Login `Unitec Admin`. |
 
 ## 6. Respaldos (no perder nunca)

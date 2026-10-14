@@ -194,9 +194,9 @@ El enlace que da la app sale de `URL_AGENDA` (`src/licencia/config.ts`).
 > el enlace exacto que muestra la app en el Dashboard; no inventes un slug a mano
 > o el portal dirá *«No encontramos un chofer con ese enlace»*.
 >
-> **Proyecto Pages anterior:** `michoferprivado` (`michoferprivado.pages.dev`) sigue
-> publicado porque las versiones anteriores de la app y los enlaces ya enviados por
-> WhatsApp apuntan ahí. Ya no se actualiza; borralo cuando no quede ninguno en uso.
+> **Proyecto Pages anterior:** `michoferprivado` (`michoferprivado.pages.dev`) **ya se
+> borró**. Los enlaces viejos enviados por WhatsApp (`michoferprivado.pages.dev/...`) ya
+> no abren: hay que reenviar el enlace nuevo que muestra la app en el Dashboard.
 
 ---
 
