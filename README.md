@@ -131,7 +131,6 @@ src/
   utils/                 # Formato de moneda/fechas + cálculos
   types/                 # Tipos de dominio
 scripts/probar-emulador.sh  # Compila e instala en el emulador Android
-supabase/schema.sql      # HISTÓRICO: esquema de la base anterior (ya no se usa)
 ```
 
 ## 🧠 Decisiones de arquitectura

@@ -43,8 +43,6 @@ yarn-error.*
 /android
 .vercel
 
-# Supabase CLI temp files
-supabase/.temp/
 
 # Duplicado accidental con espacio en el nombre (ver eas.json real)
 eas.json\ 

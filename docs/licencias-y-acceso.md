@@ -273,13 +273,18 @@ quedan fuera de uso (ver «Limpieza pendiente» al final de esta sección).
   ve al reabrirla o en la siguiente revalidación (cada 6 horas); mientras tanto los pedidos de
   datos ya fallan porque el servidor corta la sesión.
 
-### Limpieza pendiente (después de probar con una persona real)
+### Limpieza (14/10/2026)
 
-- Worker viejo `claudia-licencias` y Worker de prueba `claudia-api-prueba`.
-- Proyecto de Supabase `michoferprivado` y el usuario de prueba «María López PRUEBA».
-- Archivo `~/.claudia-licencias/supabase.txt` (contiene la `service_role` de Supabase).
-- `supabase/schema.sql` del repo (histórico) y las secciones de Supabase de
-  `docs/roadmap-proximas-mejoras.md`.
+Hecho: se dieron de baja los Workers `claudia-licencias` y `claudia-api-prueba` (y sus bases D1),
+las carpetas locales `~/Desarrollos/claudia-licencias` y `~/Desarrollos/prueba-cloudflare`, la
+carpeta `~/.claudia-licencias` (claves del servidor viejo y `supabase.txt`) y `supabase/schema.sql`.
+Antes de borrar se guardó un respaldo en `~/.senda/respaldo-viejos/` (volcado SQL de las dos bases y
+código con su historial de git, sin claves).
+
+Pendiente:
+- Proyecto de Supabase `michoferprivado` y el usuario de prueba «María López PRUEBA»: se borran
+  desde el panel web de Supabase (no se pueden dar de baja desde acá).
+- Las secciones de Supabase de `docs/roadmap-proximas-mejoras.md`.
 
 
 ## 13. Puntos abiertos
