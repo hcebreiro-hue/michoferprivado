@@ -157,7 +157,12 @@ deshacer.
 - **Publicar la agenda web:** `cd ~/Desarrollos/senda-api && npm run agenda && npx wrangler deploy`
   (la sirve el mismo Worker; el proyecto Pages `michoferprivado` ya se borró).
 - **Desplegar el servidor:** `cd ~/Desarrollos/senda-api && npm test && npx wrangler deploy`.
-- **Cambiar el mail de avisos:** `TO` en `wrangler.jsonc` y volver a desplegar.
+- **Cambiar el mail de avisos:** `TO` en `wrangler.jsonc` y volver a desplegar. Hoy es
+  `contacto@unitecapplications.com` (llegan ahí las altas, los intentos rechazados y cada descarga del APK).
+- **Chofer Demo (para mostrar la app):** nombre `Demo`, WhatsApp `0000000000`, plan `trial`. Para
+  entrar se escribe diez ceros. Es una cuenta de la nube como cualquier chofer: los datos de prueba
+  que se carguen quedan guardados. Cada tanto conviene limpiarlo: `node scripts/admin.mjs borrar <id> --si`
+  y volver a crearlo con `node scripts/admin.mjs crear "Demo" 0000000000 trial`.
 
 ## Si algo falla
 
