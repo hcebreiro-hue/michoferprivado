@@ -46,7 +46,9 @@ actualizar también la nota correspondiente.
 
 1. Abrí `https://senda.api.unitecapplications.com/admin`.
 2. Pegá el `ADMIN_TOKEN` y tocá **Entrar**. El token vive solo en la memoria de la pestaña: si
-   recargás, hay que pegarlo de nuevo.
+   recargás, hay que pegarlo de nuevo. Para copiarlo sin buscarlo: `cd ~/Desarrollos/senda-api &&
+   npm run token` (lo deja en el portapapeles y lo borra a los 60 s). Resumen de todo en
+   `docs/instructivo-admin.md`.
 3. Arriba: **Cargar chofer** (nombre, WhatsApp con código de país, plan).
 4. En **Choferes**, cada chofer es una tarjeta con sus botones:
    - **WhatsApp**: abre el chat con el chofer (para avisarle del pago o confirmar un equipo nuevo).
@@ -75,6 +77,7 @@ de entrada: los datos siempre vienen del servidor.
 ```bash
 cd ~/Desarrollos/senda-api
 node scripts/admin.mjs                      # muestra todos los comandos
+node scripts/admin.mjs token                # copia el token al portapapeles (= npm run token)
 node scripts/admin.mjs lista                # choferes, plan, estado, vencimiento
 node scripts/admin.mjs crear "Ana Pérez" 1155550000 trial
 node scripts/admin.mjs renovar 3            # pago del chofer 3
