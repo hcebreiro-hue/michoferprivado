@@ -43,6 +43,7 @@ El token **no se guarda** en el navegador: si cerrás o recargás la pestaña, h
 | Escribirle al chofer | **WhatsApp** (abre el chat). |
 | Borrar sus datos (Ley 25.326) | **Borrar datos** → escribir `BORRAR`. No se puede deshacer. |
 | Cargar o cambiar el mail de un chofer | **Cargar mail / Cambiar mail** en su tarjeta (opcional; vacío lo quita). |
+| Mandarle la app a un chofer nuevo | **Enviar app** en su tarjeta → **Enviar por WhatsApp** y/o **Enviar por mail**. Se abre WhatsApp o tu correo con el mensaje y el enlace de descarga ya escritos; **vos tocás enviar**. Cada toque queda en *Actividad* como «app_enviada» (anota que abriste el mensaje, no que llegó). El botón de mail aparece solo si el chofer tiene mail cargado. |
 | Ver cuántos choferes hay y cuánto usan la app | Pestaña **Resumen**. |
 | Ver qué pasó | Pestaña **Actividad** (altas, activaciones, rechazos, bloqueos). |
 | Alargar la fecha límite del APK | **Tope global del APK** (solo se puede alargar, nunca acortar). |
