@@ -8,6 +8,12 @@ import type { ClavesPublicas } from './verificar';
 export const URL_SERVIDOR = 'https://senda.api.unitecapplications.com';
 
 /**
+ * Agenda web pública que el chofer comparte por WhatsApp. La sirve el mismo Worker que
+ * URL_SERVIDOR (repo ~/Desarrollos/senda-api), así que no hay otro proyecto que publicar.
+ */
+export const URL_AGENDA = 'https://agenda.senda.unitecapplications.com';
+
+/**
  * Claves PÚBLICAS de verificación, por `kid`. No son secretas (la privada vive
  * solo en el Worker). Para rotar la clave se agrega la nueva acá SIN quitar la
  * vieja hasta que todos los equipos hayan renovado su licencia.

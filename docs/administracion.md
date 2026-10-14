@@ -12,7 +12,7 @@ borrar datos. Hay **dos formas** de hacerlo, con las mismas operaciones: el **pa
 | Código del servidor | `~/Desarrollos/senda-api` | Se despliega con `npx wrangler deploy` |
 | Panel del dueño | `https://senda.api.unitecapplications.com/admin` | Administrar desde el navegador |
 | Script de terminal | `~/Desarrollos/senda-api/scripts/admin.mjs` | Lo mismo desde la Mac |
-| Agenda web pública | `https://michoferprivado.pages.dev` (proyecto Pages `michoferprivado`) | Lo que ven los pasajeros |
+| Agenda web pública | `https://agenda.senda.unitecapplications.com` (la sirve el Worker `senda-api`; se publica con `npm run agenda` + `npx wrangler deploy`) | Lo que ven los pasajeros |
 | App (código) | `~/Claudia_app`, GitHub `hcebreiro-hue/michoferprivado` | APK «Senda» |
 | Panel de Cloudflare | https://dash.cloudflare.com → Workers y D1 | Ver la base, los logs y los Workers |
 

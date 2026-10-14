@@ -156,46 +156,47 @@ npm test            # Tests de licencia, contactos y cliente de la API (node --t
 npm run build:web   # Genera dist/ con la agenda web
 ```
 
-## 🌐 Publicar la web pública de reservas (Cloudflare Pages)
+## 🌐 Publicar la web pública de reservas
 
-La agenda que compartís por WhatsApp es una web estática (proyecto Pages
-`michoferprivado`, `https://michoferprivado.pages.dev`). **No lleva credenciales**:
-consulta el servidor de Senda (`URL_SERVIDOR`), cuya ruta pública solo devuelve
-horarios ocupados. Si la agenda dice *«No encontramos un chofer con ese
-enlace»* o no marca horarios ocupados, casi siempre se publicó un build viejo.
+La agenda que compartís por WhatsApp es una web estática que sirve el **mismo Worker
+`senda-api`** (repo `~/Desarrollos/senda-api`) en
+`https://agenda.senda.unitecapplications.com`. **No lleva credenciales**: consulta
+`/v1/portal/<slug>` del servidor de Senda (`URL_SERVIDOR`), que solo devuelve horarios
+ocupados. Si la agenda dice *«No encontramos un chofer con ese enlace»* o no marca
+horarios ocupados, casi siempre se publicó un build viejo.
 
-1. Generá el build:
+El enlace que da la app sale de `URL_AGENDA` (`src/licencia/config.ts`).
 
-   ```bash
-   npm run build:web           # genera dist/ con index.html y assets
-   ```
-
-2. Publicalo (requiere `wrangler login`):
+1. Generá el build de la web dentro del servidor y publicá todo junto
+   (requiere `wrangler login`):
 
    ```bash
-   cd dist && npx wrangler pages deploy . --project-name=michoferprivado
+   cd ~/Desarrollos/senda-api
+   npm run agenda        # expo export de esta app -> ./agenda (no se versiona)
+   npx wrangler deploy   # sube el Worker y la agenda
    ```
 
-   Alternativa: arrastrar la carpeta `dist/` en **Cloudflare Pages → Upload
-   assets**. El build es de una sola página (`index.html`); como no hay
-   un `404.html`, Cloudflare Pages la sirve para cualquier ruta (`/reservas`), sin
-   necesidad de `_redirects`.
-
-3. **Verificación rápida.** El bundle debe apuntar al servidor nuevo y no a
-   Supabase. Desde la raíz del proyecto:
+2. **Verificación rápida.** El bundle no debe mencionar a Supabase:
 
    ```bash
-   grep -l 'senda.api.unitecapplications.com' dist/_expo/static/js/web/*.js
-   grep -il 'supabase' dist/_expo/static/js/web/*.js   # no debe listar nada
+   grep -il 'supabase' ~/Desarrollos/senda-api/agenda/_expo/static/js/web/*.js   # no debe listar nada
    ```
 
-   Luego abrí `https://michoferprivado.pages.dev/reservas?driver=<slug>`: debe
-   mostrar el nombre del chofer y marcar como **Ocupado** los horarios con
-   viajes. La agenda se refresca sola cada minuto.
+   Luego abrí `https://agenda.senda.unitecapplications.com/reservas?driver=<slug>`: debe
+   mostrar el nombre del chofer y marcar como **Ocupado** los horarios con viajes. La
+   agenda se refresca sola cada minuto.
 
+> **Un dominio por función:** en `agenda.senda…` solo responden la agenda y
+> `/v1/portal/*`. El panel `/admin` y el resto de la API viven solo en
+> `senda.api…`.
+>
 > **Slug del chofer:** lo genera el servidor (`<nombre>-<id aleatorio>`). Copiá
 > el enlace exacto que muestra la app en el Dashboard; no inventes un slug a mano
 > o el portal dirá *«No encontramos un chofer con ese enlace»*.
+>
+> **Proyecto Pages anterior:** `michoferprivado` (`michoferprivado.pages.dev`) sigue
+> publicado porque las versiones anteriores de la app y los enlaces ya enviados por
+> WhatsApp apuntan ahí. Ya no se actualiza; borralo cuando no quede ninguno en uso.
 
 ---
 

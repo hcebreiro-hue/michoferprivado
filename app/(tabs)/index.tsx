@@ -23,9 +23,10 @@ import { needsMaintenanceAlert } from '../../src/utils/calculations';
 import { isCalendarBlock, tripPendingAmount } from '../../src/types';
 import { driverSlugFromName } from '../../src/services/settings';
 import { BannerDatosDePrueba } from '../../src/licencia/BannerDatosDePrueba';
+import { URL_AGENDA } from '../../src/licencia/config';
 
 function createDriverPortalUrl(driverSlug: string): string {
-  return `https://michoferprivado.pages.dev/reservas?driver=${encodeURIComponent(driverSlug)}`;
+  return `${URL_AGENDA}/reservas?driver=${encodeURIComponent(driverSlug)}`;
 }
 
 export default function DashboardScreen() {
