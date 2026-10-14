@@ -57,6 +57,16 @@ sin sesión, en modo local, indefinidamente. Con licencia, una app sin número a
 3. Al abrir la app: pantalla de activación con **aviso de privacidad** (ver 11) y un campo
    para el **número de WhatsApp**. El **ID del equipo** (`Application.getAndroidId()`) lo
    manda la app sola. El chofer no tipea nada técnico.
+   La activación es **lo primero que se pide**, antes del login opcional, del alta y de
+   cualquier pantalla (`GuardiaLicencia` envuelve toda la app).
+   **Perfil automático (implementado):** la licencia firmada lleva el `nombre` que cargó el
+   dueño. Al activar, la app completa sola `driver_name`, `driver_phone` (el WhatsApp) y
+   `profile_complete`, así que el chofer **no pasa por "Completa tu perfil"**, no queda como
+   "Conductor" y no ve datos de ejemplo. Lo hace `AplicarIdentidad` (lógica pura en
+   `src/licencia/identidad.ts`, con tests). No pisa un perfil ya completo, y una licencia
+   vieja sin `nombre` sigue siendo válida (queda el alta manual de siempre).
+   Quien no tiene licencia no llega a ninguna pantalla de la app: no se puede evitar el límite
+   dejando el nombre vacío ni saltando el alta.
 4. La app consulta al servidor. Respuestas posibles:
 
 | Situación en el servidor | Resultado |

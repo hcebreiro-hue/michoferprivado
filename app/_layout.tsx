@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ObserveRootSafe } from '../src/lib/observe';
 import { LicenciaProvider } from '../src/licencia/LicenciaContext';
 import { GuardiaLicencia } from '../src/licencia/GuardiaLicencia';
+import { AplicarIdentidad } from '../src/licencia/AplicarIdentidad';
 
 const MONETIZACION_ACTIVADA = false;
 
@@ -71,6 +72,7 @@ function RootLayout() {
             <StatusBar style="dark" />
             <LicenciaProvider>
             <GuardiaLicencia>
+            <AplicarIdentidad>
             <AuthGate>
               <SuscripcionGuard>
                 <Stack screenOptions={{ headerShown: false }}>
@@ -98,6 +100,7 @@ function RootLayout() {
                 </Stack>
               </SuscripcionGuard>
             </AuthGate>
+            </AplicarIdentidad>
             </GuardiaLicencia>
             </LicenciaProvider>
           </DataProvider>

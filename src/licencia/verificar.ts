@@ -18,6 +18,11 @@ export type Plan = 'trial' | 'mensual' | 'anual' | 'vip';
 export interface LicenciaPayload {
   v: 1;
   kid: string;
+  /**
+   * Nombre que cargó el dueño en el panel. Opcional: las licencias emitidas
+   * antes de este cambio no lo traen y siguen siendo válidas.
+   */
+  nombre?: string;
   whatsapp: string;
   equipo: string;
   plan: Plan;
@@ -137,6 +142,7 @@ export function verificarLicencia(token: unknown, claves: ClavesPublicas): Licen
   const p = abrirToken(token, claves);
   if (!p || p.v !== 1) return null;
   if (typeof p.whatsapp !== 'string' || typeof p.equipo !== 'string') return null;
+  if (p.nombre !== undefined && typeof p.nombre !== 'string') return null;
   if (typeof p.plan !== 'string' || !PLANES.includes(p.plan as Plan)) return null;
   if (!fechaValida(p.inicio) || !fechaValida(p.emitida) || !fechaValida(p.offline_hasta)) return null;
   if (p.vence !== null && !fechaValida(p.vence)) return null;
