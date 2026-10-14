@@ -1,13 +1,7 @@
 import type { AccountType, Settings } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import { supabase, hasActiveSession } from '../lib/supabase';
-import { loadValue, saveValue, saveCollection } from './localStore';
-import {
-  seedTrips,
-  seedFuelLogs,
-  seedMaintenanceLogs,
-  seedFixedCosts,
-} from './seed';
+import { loadValue, saveValue } from './localStore';
 
 const KEY = 'settings';
 
@@ -118,17 +112,3 @@ export async function saveSettings(settings: Settings): Promise<Settings> {
   return { ...saved, tipo_cuenta: normalizeAccountType(saved.tipo_cuenta) };
 }
 
-/**
- * Restablece la app al estado de demostración: vuelve al perfil genérico
- * "Conductor" (perfil incompleto) y recarga los datos de ejemplo en el
- * dispositivo. Es la acción del botón "Volver a datos de ejemplo" de Ajustes.
- * Solo afecta el almacenamiento local; para salir del modo cuenta hay que
- * cerrar sesión por separado.
- */
-export async function resetToDemo(): Promise<void> {
-  await saveValue(KEY, { ...DEFAULT_SETTINGS });
-  await saveCollection('trips', seedTrips());
-  await saveCollection('fuel_logs', seedFuelLogs());
-  await saveCollection('maintenance_logs', seedMaintenanceLogs());
-  await saveCollection('fixed_costs', seedFixedCosts());
-}

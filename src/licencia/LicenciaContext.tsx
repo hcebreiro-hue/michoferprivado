@@ -1,6 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
+import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { CLAVES_PUBLICAS, FECHA_MINIMA, LICENCIA_EXIGIDA } from './config';
+import { modoDeSesion } from './sesion';
 import {
   ESTADOS_QUE_CORTAN,
   falloDeRespuesta,
@@ -38,6 +41,23 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
   // El ID del equipo no cambia mientras la app vive: se lee una sola vez.
   const [equipoId] = useState<string | null>(leerEquipoId);
   const ultimoRefresco = useRef(0);
+
+  // Sesión de la nube (Supabase): la app entra sola con un token que da el servidor.
+  // El chofer nunca crea ni escribe una cuenta. `modo` dice qué pedirle al servidor
+  // (ver sesion.ts); se guarda en un ref para no rehacer los callbacks en cada cambio.
+  const { session, loading: authLoading, enabled: nubeHabilitada, signInWithToken } = useAuth();
+  const { settings, loading: ajustesCargando } = useSettings();
+  const modo = modoDeSesion({
+    habilitado: nubeHabilitada,
+    cargando: authLoading || ajustesCargando,
+    tieneSesion: Boolean(session),
+    perfilCompleto: settings.profile_complete,
+  });
+  const modoRef = useRef(modo);
+  // Va antes que los demás efectos: ellos leen el ref y tienen que ver el valor nuevo.
+  useEffect(() => {
+    modoRef.current = modo;
+  }, [modo]);
 
   /** Recalcula el acceso con lo que hay guardado. No toca la red. */
   const recalcular = useCallback(async () => {
@@ -84,18 +104,27 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
       if (verificada.equipo !== equipoId) {
         return { ok: false, motivo: 'equipo', mensaje: 'La licencia recibida es de otro equipo.' };
       }
+      // Primero la sesión y después la licencia: así los ajustes se releen desde la nube
+      // antes de aplicar la identidad. Si falla, la licencia sigue valiendo y se reintenta.
+      if (r.sesion) {
+        try {
+          await signInWithToken(r.sesion.token_hash);
+        } catch (causa) {
+          console.error('No se pudo abrir la sesión de la nube.', causa);
+        }
+      }
       await almacen.guardarToken(r.licencia);
       await recalcular();
       return { ok: true };
     },
-    [recalcular, traerTope, equipoId],
+    [recalcular, traerTope, equipoId, signInWithToken],
   );
 
   const activar = useCallback(
     async (whatsapp: string): Promise<ResultadoActivacion> => {
       if (!equipoId) return { ok: false, motivo: 'equipo', mensaje: 'No se pudo identificar este teléfono.' };
       try {
-        const r = await servidor.activar(whatsapp, equipoId);
+        const r = await servidor.activar(whatsapp, equipoId, modoRef.current ?? undefined);
         if (r.estado === 'ok') await almacen.guardarWhatsapp(whatsapp);
         return await procesarRespuesta(r);
       } catch (causa) {
@@ -110,7 +139,7 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
     if (!whatsapp || !equipoId) return;
     ultimoRefresco.current = Date.now();
     try {
-      const r = await servidor.activar(whatsapp, equipoId);
+      const r = await servidor.activar(whatsapp, equipoId, modoRef.current ?? undefined);
       await procesarRespuesta(r);
       // Bloqueado, dado de baja o reemplazado por otro teléfono: se corta en este chequeo.
       if (ESTADOS_QUE_CORTAN.includes(r.estado)) {
@@ -133,13 +162,20 @@ export function LicenciaProvider({ children }: { children: React.ReactNode }) {
     const sub = AppState.addEventListener('change', (estado) => {
       if (estado !== 'active' || !activo) return;
       void recalcular();
-      if (Date.now() - ultimoRefresco.current > REVALIDAR_CADA_MS) void refrescar();
+      // Si el chofer ya empezó pero todavía no tiene cuenta en la nube (falló por falta de
+      // conexión), se reintenta apenas abre la app.
+      if (modoRef.current === 'crear' || Date.now() - ultimoRefresco.current > REVALIDAR_CADA_MS) void refrescar();
     });
     return () => {
       activo = false;
       sub.remove();
     };
   }, [recalcular, refrescar]);
+
+  // El chofer tocó «Borrar datos de prueba y empezar»: recién ahí se crea su cuenta en la nube.
+  useEffect(() => {
+    if (LICENCIA_EXIGIDA && modo === 'crear') void refrescar();
+  }, [modo, refrescar]);
 
   const libre: EstadoAcceso = { tipo: 'activa', diasRestantes: null, porVencer: false };
   const valor: LicenciaContextValue = {

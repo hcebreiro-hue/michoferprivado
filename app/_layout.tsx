@@ -46,16 +46,14 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   if (loading) return null;
   if (currentRoute === 'reservas') return children;
   if (settingsLoading) return null;
-  // La app es funcional SIN cuenta: sin sesión funciona en modo local en el
-  // dispositivo con el nombre "Conductor" y datos de ejemplo. El login es
-  // opcional y se inicia desde Configuración cuando el chofer quiere activar
-  // su cuenta real (multi-chofer + web de reservas). Por eso no se fuerza ni
-  // el login ni el onboarding al abrir la app.
+  // El chofer nunca inicia sesión ni crea una cuenta: la app abre la sesión de la
+  // nube sola, con un token que entrega el servidor de licencias (ver
+  // src/licencia/LicenciaContext.tsx). Sin sesión funciona en modo local.
   if (
     session &&
     !settingsLoading &&
     settings.profile_complete &&
-    (currentRoute === 'auth' || currentRoute === 'onboarding')
+    currentRoute === 'onboarding'
   ) {
     return <Redirect href="/(tabs)" />;
   }
@@ -92,10 +90,6 @@ function RootLayout() {
                   <Stack.Screen
                     name="tarifas"
                     options={{ headerShown: false, presentation: 'card' }}
-                  />
-                  <Stack.Screen
-                    name="auth"
-                    options={{ headerShown: false }}
                   />
                 </Stack>
               </SuscripcionGuard>

@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, Text, View, Pressable } from 'react-native';
+import { ScrollView, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Button, Card, Input } from '../src/components/ui';
-import { useAuth } from '../src/context/AuthContext';
 import { useSettings } from '../src/context/SettingsContext';
 import { notify } from '../src/utils/notify';
-import { resetToDemo } from '../src/services/settings';
 import { useLicencia } from '../src/licencia/LicenciaContext';
 import { identidadDeLicencia } from '../src/licencia/identidad';
 import { useEmpezar } from '../src/licencia/useEmpezar';
@@ -54,15 +52,10 @@ export default function SettingsScreen() {
 
         <View className="h-4" />
 
-        <AccountSection />
-
         <View className="h-4" />
 
         <StartSection />
 
-        <DemoSection />
-
-        <View className="h-4" />
 
         {/* Acceso a la pantalla Acerca de */}
         <Card className="overflow-hidden p-0">
@@ -248,80 +241,6 @@ function RatesSection({
 }
 
 /**
- * Sección de cuenta. La app funciona en modo local (en el dispositivo) sin
- * cuenta. La cuenta (email) es opcional y sirve para publicar la disponibilidad
- * del chofer en el calendario web de reservas (Supabase).
- */
-function AccountSection() {
-  const router = useRouter();
-  const { session, enabled, signOut } = useAuth();
-  const [signingOut, setSigningOut] = useState(false);
-
-  const closeSession = async () => {
-    setSigningOut(true);
-    try {
-      await signOut();
-    } catch (cause) {
-      notify(
-        'Error',
-        cause instanceof Error ? cause.message : 'No se pudo cerrar sesión.',
-      );
-    } finally {
-      setSigningOut(false);
-    }
-  };
-
-  const hasSession = Boolean(session);
-
-  return (
-    <Card className="p-5">
-      <Text className="text-base font-bold text-slate-900">Cuenta</Text>
-
-      {hasSession ? (
-        <>
-          <Text className="mt-1 mb-4 text-xs text-slate-400">
-            Sesión activa: tu disponibilidad se publica en el calendario web para
-            que tus clientes te pidan viaje.
-          </Text>
-          {session?.user?.email ? (
-            <Text className="mb-4 text-sm font-medium text-slate-700">
-              {session.user.email}
-            </Text>
-          ) : null}
-          <Button
-            title="Cerrar sesión"
-            onPress={closeSession}
-            variant="ghost"
-            loading={signingOut}
-            fullWidth
-          />
-        </>
-      ) : (
-        <>
-          <Text className="mt-1 mb-4 text-xs text-slate-400">
-            La app funciona sin cuenta: tus viajes y gastos se guardan solo en
-            este teléfono. La cuenta es opcional y sirve para publicar tu
-            disponibilidad en el calendario web, para que tus clientes vean tus
-            horarios libres y te pidan viaje. Si querés eso, iniciá sesión o
-            creá tu cuenta con tu email.
-          </Text>
-          <Button
-            title="Iniciar sesión o crear cuenta"
-            onPress={() => router.push('/auth')}
-            fullWidth
-          />
-          {!enabled ? (
-            <Text className="mt-3 text-xs text-amber-600">
-              El modo cuenta requiere conexión configurada con la base de datos.
-            </Text>
-          ) : null}
-        </>
-      )}
-    </Card>
-  );
-}
-
-/**
  * "Borrar datos de prueba y empezar": solo para choferes dados de alta con
  * licencia que todavía no empezaron. Completa el perfil y descarta los datos de
  * ejemplo.
@@ -345,69 +264,6 @@ function StartSection() {
       </Card>
       <View className="h-4" />
     </>
-  );
-}
-
-/**
- * Sección para volver al estado de demostración. Cierra la sesión (si la hay) y
- * restablece el perfil genérico "Conductor" con datos de ejemplo en el
- * dispositivo. Útil para volver a explorar la app o reiniciarla desde cero.
- */
-function DemoSection() {
-  const { signOut } = useAuth();
-  const { licencia } = useLicencia();
-  const [resetting, setResetting] = useState(false);
-
-  const handleReset = () => {
-    Alert.alert(
-      '¿Volver a datos de ejemplo?',
-      'Se cerrará tu sesión y la app volverá al estado inicial: nombre "Conductor" y viajes de demostración. Se perderán los datos guardados en este dispositivo (los de tu cuenta en la nube no se modifican).',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sí, restablecer',
-          style: 'destructive',
-          onPress: async () => {
-            setResetting(true);
-            try {
-              await resetToDemo();
-              await signOut();
-              notify('Listo', 'La app volvió a los datos de ejemplo.');
-            } catch (cause) {
-              notify(
-                'Error',
-                cause instanceof Error
-                  ? cause.message
-                  : 'No se pudo restablecer la app.',
-              );
-            } finally {
-              setResetting(false);
-            }
-          },
-        },
-      ],
-    );
-  };
-
-  // Con licencia el chofer no puede volver a los datos de ejemplo: borraría todo
-  // lo que cargó. Esta opción queda solo para el modo de exploración sin licencia.
-  if (identidadDeLicencia(licencia) !== null) return null;
-
-  return (
-    <Card className="p-5">
-      <Text className="text-base font-bold text-slate-900">Datos de ejemplo</Text>
-      <Text className="mt-0.5 mb-4 text-xs text-slate-400">
-        Volvé la app a su estado inicial con el nombre “Conductor” y viajes de
-        demostración. Útil para reiniciar o volver a explorar.
-      </Text>
-      <Button
-        title="Volver a datos de ejemplo"
-        onPress={handleReset}
-        variant="ghost"
-        loading={resetting}
-        fullWidth
-      />
-    </Card>
   );
 }
 

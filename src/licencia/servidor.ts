@@ -8,7 +8,12 @@ export interface RespuestaActivar {
   tope_hasta: string | null;
   /** Hora del servidor (ISO): sirve para detectar un reloj del teléfono muy desfasado. */
   ahora: string;
+  /** Token de un solo uso para entrar a la cuenta de Supabase. Solo si se pidió `sesion`. */
+  sesion?: { token_hash: string };
 }
+
+/** 'crear': crea la cuenta si falta. 'existente': solo si el chofer ya la tiene (reinstalación). */
+export type ModoSesion = 'crear' | 'existente';
 
 export class ErrorDeRed extends Error {
   constructor(mensaje: string) {
@@ -33,11 +38,11 @@ async function pedir<T>(ruta: string, init?: RequestInit): Promise<T> {
   }
 }
 
-export function activar(whatsapp: string, equipo: string): Promise<RespuestaActivar> {
+export function activar(whatsapp: string, equipo: string, sesion?: ModoSesion): Promise<RespuestaActivar> {
   return pedir<RespuestaActivar>('/v1/activar', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ whatsapp, equipo }),
+    body: JSON.stringify(sesion ? { whatsapp, equipo, sesion } : { whatsapp, equipo }),
   });
 }
 

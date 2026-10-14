@@ -12,9 +12,11 @@ interface AuthContextValue {
   session: Session | null;
   loading: boolean;
   enabled: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<boolean>;
-  signOut: () => Promise<void>;
+  /**
+   * Abre la sesión de la nube con el token de un solo uso que da el servidor de
+   * licencias. El chofer no crea ni escribe mail ni contraseña.
+   */
+  signInWithToken: (tokenHash: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -61,28 +63,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signInWithToken = useCallback(async (tokenHash: string) => {
     if (!supabase) throw new Error('Supabase no está configurado.');
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: 'magiclink',
     });
-    if (error) throw error;
-  }, []);
-
-  const signUp = useCallback(async (email: string, password: string) => {
-    if (!supabase) throw new Error('Supabase no está configurado.');
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-    });
-    if (error) throw error;
-    return Boolean(data.session);
-  }, []);
-
-  const signOut = useCallback(async () => {
-    if (!supabase) return;
-    const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }, []);
 
@@ -92,9 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         loading,
         enabled: isSupabaseConfigured,
-        signIn,
-        signUp,
-        signOut,
+        signInWithToken,
       }}
     >
       {children}
